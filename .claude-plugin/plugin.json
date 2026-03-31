@@ -1,7 +1,19 @@
 {
-  "name": "landing-ade",
-  "description": "LandingAI Agentic Document Extraction skill. Parse documents, extract structured data, classify/split multi-document PDFs via the ADE REST API using interactive curl-based workflows.",
+  "name": "agentic-landing-ade",
+  "description": "LandingAI Agentic Document Extraction plugins for Claude Code",
   "author": {
     "name": "LandingAI"
-  }
+  },
+  "skills": [
+    {
+      "name": "landing-ade",
+      "description": "LandingAI Agentic Document Extraction skill. Parse documents, extract structured data, classify/split multi-document PDFs via the ADE REST API using interactive curl-based workflows.",
+      "path": "skills/landing-ade/SKILL.md"
+    },
+    {
+      "name": "bidforge-schedules",
+      "description": "NTXP BidForge Schedules - Interactive construction WBS schedule generator from bid documents using LandingAI document extraction.",
+      "path": "skills/bidforge-schedules/SKILL.md"
+    }
+  ]
 }

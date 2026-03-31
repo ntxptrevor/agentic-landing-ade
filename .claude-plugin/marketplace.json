@@ -16,6 +16,18 @@
       "source": "./",
       "category": "development",
       "homepage": "https://github.com/jaewon42/agentic-landing-ade"
+    },
+    {
+      "name": "bidforge-schedules",
+      "description": "NTXP BidForge Schedules - Interactive construction WBS schedule generator from bid documents. Creates Gantt charts, list views, and calendar views with export to JSON, CSV, Markdown, and MS Project XML.",
+      "version": "1.0.0",
+      "author": {
+        "name": "NTXP"
+      },
+      "source": "./",
+      "category": "construction",
+      "tags": ["construction", "scheduling", "project-management", "wbs"],
+      "homepage": "https://github.com/jaewon42/agentic-landing-ade"
     }
   ]
 }
