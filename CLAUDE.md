@@ -19,6 +19,22 @@ The repository contains three distinct deliverables:
    implements the BidForge wizard as a GUI. Its production build is checked in
    under `docs/` for static deployment.
 
+## Starting new work: create a new repo by default
+
+When a new program, skill, or project is requested, **default to creating a new,
+dedicated repository for it** rather than adding it to this repo.
+
+- If a new conversation begins with no context tying the work to an existing
+  repository, **automatically create a new repo** for it.
+- Only package the new work into an existing repository (this one or another)
+  when the user **explicitly confirms** that the skill or development is related
+  to that existing repo and should live alongside it.
+- When in doubt, ask whether the work belongs in an existing repo; if no answer
+  or context is given, create a new repo.
+
+This keeps unrelated programs cleanly separated and prevents this marketplace
+repo from accumulating unrelated code.
+
 ## Repository layout
 
 ```
