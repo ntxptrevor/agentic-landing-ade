@@ -28,6 +28,18 @@
       "category": "construction",
       "tags": ["construction", "scheduling", "project-management", "wbs"],
       "homepage": "https://github.com/jaewon42/agentic-landing-ade"
+    },
+    {
+      "name": "mygmc-smartcar",
+      "description": "myGMC / GM EV integration via the Smartcar API. Read battery, charge status, location, odometer, and tire pressure, and send lock/unlock and start/stop charge commands for a vehicle such as a 2026 GMC Sierra EV.",
+      "version": "1.0.0",
+      "author": {
+        "name": "NTXP"
+      },
+      "source": "./plugins/mygmc-smartcar",
+      "category": "automotive",
+      "tags": ["smartcar", "ev", "gmc", "gm", "mcp", "vehicle", "iot"],
+      "homepage": "https://github.com/jaewon42/agentic-landing-ade"
     }
   ]
 }
