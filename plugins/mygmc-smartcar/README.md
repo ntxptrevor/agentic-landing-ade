@@ -94,12 +94,28 @@ claude mcp add mygmc-smartcar \
 
 ## First-run authorization
 
+You authorize once; tokens are cached at `SMARTCAR_TOKEN_PATH` (default
+`~/.mygmc-smartcar/tokens.json`, mode `0600`) and refreshed automatically.
+
+### Option A — one command (recommended)
+
+Set `SMARTCAR_REDIRECT_URI` to a loopback URL (e.g.
+`http://localhost:4466/callback`) and register that exact URI on your Smartcar
+application, then run:
+
+```bash
+npm run connect
+```
+
+This prints a Connect URL, captures the redirect automatically, exchanges the
+code, and saves your tokens — no copy/paste.
+
+### Option B — via the MCP tools
+
 1. Call **`get_connect_url`**. Open the returned URL in a browser.
 2. Log in to your **GM / myGMC** account and approve access to your Sierra EV.
 3. Smartcar redirects to your redirect URI with a `?code=...` parameter.
-4. Call **`exchange_code`** with that `code`. Tokens are cached at
-   `SMARTCAR_TOKEN_PATH` (default `~/.mygmc-smartcar/tokens.json`, mode `0600`)
-   and refreshed automatically — you only do this once.
+4. Call **`exchange_code`** with that `code`.
 
 After that, just ask: *"What's my Sierra's battery level?"*, *"Start charging"*,
 *"Lock the truck"*, *"Where is it parked?"*
