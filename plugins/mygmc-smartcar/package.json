@@ -1,0 +1,22 @@
+{
+  "name": "mygmc-smartcar-mcp",
+  "version": "1.0.0",
+  "description": "MCP server wrapping the Smartcar API for myGMC / GM EVs (e.g. 2026 GMC Sierra EV): battery, charging, location, odometer, tires, lock/unlock.",
+  "type": "module",
+  "bin": {
+    "mygmc-smartcar-mcp": "src/index.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "connect": "node scripts/connect.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.8"
+  },
+  "license": "MIT"
+}
