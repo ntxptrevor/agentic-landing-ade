@@ -9,6 +9,8 @@ export default function ScheduleViewer({ project }) {
 
   const allTasks = project.wbs.flatMap(p => p.children || []);
   const criticalCount = allTasks.filter(t => t.isCritical).length;
+  const deliverableCount = allTasks.filter(t => t.category === 'deliverable').length;
+  const deliveryCount = allTasks.filter(t => t.category === 'delivery').length;
 
   return (
     <div>
@@ -33,6 +35,21 @@ export default function ScheduleViewer({ project }) {
           <div className="label">Critical Tasks</div>
           <div className="value critical">{criticalCount}</div>
         </div>
+        <div className="summary-stat">
+          <div className="label">Deliverables</div>
+          <div className="value" style={{ color: 'var(--deliverable)' }}>{deliverableCount}</div>
+        </div>
+        <div className="summary-stat">
+          <div className="label">Deliveries</div>
+          <div className="value" style={{ color: 'var(--delivery)' }}>{deliveryCount}</div>
+        </div>
+      </div>
+
+      <div className="category-legend">
+        <span className="legend-item"><span className="legend-swatch deliverable"></span> Deliverable</span>
+        <span className="legend-item"><span className="legend-swatch delivery"></span> Delivery</span>
+        <span className="legend-item"><span className="legend-swatch critical"></span> Critical Path</span>
+        <span className="legend-item"><span className="legend-swatch normal"></span> Activity</span>
       </div>
 
       <div className="tabs">

@@ -73,6 +73,7 @@ export default function App() {
           duration: t.duration,
           durationUnit: 'days',
           trade: t.trade,
+          category: t.category || 'activity',
           predecessors: [],
           successors: [],
           isMilestone: false,

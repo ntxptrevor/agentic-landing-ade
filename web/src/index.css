@@ -11,6 +11,8 @@
   --success: #5cb85c;
   --warning: #f0ad4e;
   --milestone: #d4a843;
+  --deliverable: #ef4444;
+  --delivery: #3b82f6;
   --radius: 8px;
   --font: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
@@ -483,6 +485,14 @@ input:focus, select:focus, textarea:focus {
   opacity: 0.7;
 }
 
+.gantt-bar.deliverable {
+  background: var(--deliverable);
+}
+
+.gantt-bar.delivery {
+  background: var(--delivery);
+}
+
 .gantt-bar.milestone {
   width: 12px !important;
   height: 12px;
@@ -565,6 +575,18 @@ input:focus, select:focus, textarea:focus {
 .calendar-task.normal {
   background: rgba(79, 143, 247, 0.2);
   color: var(--accent);
+}
+
+.calendar-task.deliverable {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--deliverable);
+  font-weight: 700;
+}
+
+.calendar-task.delivery {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--delivery);
+  font-weight: 700;
 }
 
 .calendar-task.start::before { content: '\25B6 '; }
@@ -671,6 +693,59 @@ input:focus, select:focus, textarea:focus {
   color: var(--text-dim);
 }
 
+.task-deliverable,
+.task-deliverable * {
+  color: var(--deliverable) !important;
+  font-weight: 700;
+}
+
+.task-delivery,
+.task-delivery * {
+  color: var(--delivery) !important;
+  font-weight: 700;
+}
+
+.category-legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.legend-swatch.deliverable {
+  background: var(--deliverable);
+}
+
+.legend-swatch.delivery {
+  background: var(--delivery);
+}
+
+.legend-swatch.critical {
+  background: var(--critical);
+}
+
+.legend-swatch.normal {
+  background: var(--accent);
+  opacity: 0.7;
+}
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -693,4 +768,27 @@ input:focus, select:focus, textarea:focus {
   .step-indicator { flex-direction: row; flex-wrap: wrap; }
   .form-row { grid-template-columns: 1fr; }
   .gantt-label-col, .gantt-label { min-width: 200px; }
+}
+
+@media (max-width: 600px) {
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .main { padding: 16px; }
+  .header { padding: 12px 16px; }
+  .header h1 { font-size: 1rem; }
+  .list-task { grid-template-columns: 50px 1fr 40px; font-size: 0.75rem; }
+  .list-task .dates, .list-task .deps { display: none; }
+  .tab { padding: 8px 12px; font-size: 0.75rem; }
+  .category-legend { gap: 12px; font-size: 0.7rem; }
+  .export-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 400px) {
+  .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .summary-stat { padding: 10px; }
+  .summary-stat .value { font-size: 1.2rem; }
+  .main { padding: 12px; }
+  .card { padding: 12px; }
+  .header h1 { font-size: 0.9rem; }
+  .gantt-label-col, .gantt-label { min-width: 140px; font-size: 0.65rem; }
+  .tab { padding: 6px 8px; font-size: 0.7rem; }
 }
