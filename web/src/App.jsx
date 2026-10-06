@@ -106,8 +106,10 @@ export default function App() {
         const taskDef = phaseDef?.defaultTasks[i];
         if (cur.predecessors.length === 0) {
           const offset = taskDef?.predOffset;
+          if (offset === null) continue;
           const predIndex = offset !== undefined ? i + offset : i - 1;
-          const pred = phase.children[Math.max(0, predIndex)];
+          if (predIndex < 0 || predIndex >= i) continue;
+          const pred = phase.children[predIndex];
           if (pred) {
             cur.predecessors = [pred.id];
             deps.push({ from: pred.id, to: cur.id, type: 'FS', lag: 0, lagUnit: 'days' });

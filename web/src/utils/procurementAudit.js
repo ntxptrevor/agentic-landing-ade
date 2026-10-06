@@ -106,6 +106,8 @@ export function buildProcurementTasks(entries, phaseId, startIndex) {
     successors: [],
     isMilestone: false,
     isCritical: false,
+    startDate: entry.date || null,
+    endDate: entry.date || null,
     notes: buildTaskNotes(entry),
     jobTreadTaskId: entry.jobTreadTaskId || null,
     driveFileId: entry.driveFileId || null,

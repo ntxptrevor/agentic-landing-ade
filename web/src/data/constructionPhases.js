@@ -8,7 +8,7 @@ export const CONSTRUCTION_PHASES = [
       { name: 'Material Procurement', duration: 30, trade: 'General', category: 'delivery' },
       { name: 'Shop Drawings', duration: 15, trade: 'General', category: 'deliverable' },
       { name: 'Site Survey', duration: 3, trade: 'Surveyor', category: 'activity' },
-      { name: 'Procurement: Contract Execution', duration: 1, trade: 'Procurement', category: 'procurement', predOffset: 0 },
+      { name: 'Procurement: Contract Execution', duration: 1, trade: 'Procurement', category: 'procurement', predOffset: null },
       { name: 'Procurement: Notice to Proceed', duration: 1, trade: 'Procurement', category: 'procurement', predOffset: -1 },
       { name: 'Procurement: Insurance & Bonds', duration: 5, trade: 'Procurement', category: 'procurement', predOffset: -1 },
       { name: 'Procurement: Purchase Orders', duration: 3, trade: 'Procurement', category: 'procurement', predOffset: -2 },

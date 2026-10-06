@@ -20,6 +20,9 @@ export default function ExportPanel({ project }) {
     style.textContent = `@page { size: ${selected.css}; }`;
     document.head.appendChild(style);
 
+    const printView = document.getElementById('print-schedule-view');
+    if (printView) printView.style.display = 'block';
+
     const header = document.createElement('div');
     header.className = 'print-header';
     header.innerHTML = `<h1>WBS Schedule: ${project.name}</h1><div class="subtitle">${project.startDate} to ${project.endDate} | ${project.workingDuration || '—'} working days | Generated ${new Date().toLocaleDateString()}</div>`;
@@ -29,6 +32,7 @@ export default function ExportPanel({ project }) {
 
     header.remove();
     style.remove();
+    if (printView) printView.style.display = 'none';
   };
 
   const exports = [
@@ -101,6 +105,55 @@ export default function ExportPanel({ project }) {
           </div>
         ))}
       </div>
+
+      <div id="print-schedule-view" style={{ display: 'none' }}>
+        <PrintableSchedule project={project} />
+      </div>
+    </div>
+  );
+}
+
+function PrintableSchedule({ project }) {
+  return (
+    <div className="list-view">
+      {project.wbs.map(phase => (
+        <div key={phase.id} className="list-phase">
+          <div className="list-phase-header">
+            {phase.wbsCode}. {phase.name}
+            <span className="list-phase-dates">{phase.startDate || '—'} — {phase.endDate || '—'}</span>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                <th style={{ textAlign: 'left', padding: '4px 8px', width: 60 }}>WBS</th>
+                <th style={{ textAlign: 'left', padding: '4px 8px' }}>Task</th>
+                <th style={{ textAlign: 'left', padding: '4px 8px', width: 50 }}>Dur</th>
+                <th style={{ textAlign: 'left', padding: '4px 8px', width: 90 }}>Start</th>
+                <th style={{ textAlign: 'left', padding: '4px 8px', width: 90 }}>End</th>
+                <th style={{ textAlign: 'left', padding: '4px 8px', width: 70 }}>Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(phase.children || []).map(task => {
+                const catStyle = task.category === 'deliverable' ? { color: 'var(--deliverable)', fontWeight: 700 }
+                  : task.category === 'delivery' ? { color: 'var(--delivery)', fontWeight: 700 }
+                  : task.category === 'procurement' ? { color: 'var(--procurement)', fontWeight: 700 }
+                  : {};
+                return (
+                  <tr key={task.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '3px 8px', color: 'var(--text-dim)' }}>{task.wbsCode}</td>
+                    <td style={{ padding: '3px 8px', ...catStyle }}>{task.name}{task.isCritical ? ' *' : ''}</td>
+                    <td style={{ padding: '3px 8px' }}>{task.duration}d</td>
+                    <td style={{ padding: '3px 8px', color: 'var(--text-dim)' }}>{task.startDate || '—'}</td>
+                    <td style={{ padding: '3px 8px', color: 'var(--text-dim)' }}>{task.endDate || '—'}</td>
+                    <td style={{ padding: '3px 8px', ...catStyle, fontSize: '0.7rem' }}>{task.category || 'activity'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 }

@@ -954,6 +954,12 @@ input:focus, select:focus, textarea:focus {
 
   .print-footer { display: block !important; text-align: center; font-size: 8pt; color: #999;
     position: fixed; bottom: 0; left: 0; right: 0; padding: 4pt; border-top: 0.5pt solid #ccc; }
+
+  #print-schedule-view { display: block !important; }
+  #print-schedule-view .list-phase { break-inside: avoid; page-break-inside: avoid; }
+  #print-schedule-view table { border-collapse: collapse; }
+  #print-schedule-view th { background: #f0f0f0 !important; color: #333; }
+  #print-schedule-view td { border-bottom: 0.5pt solid #ddd; }
 }
 
 .print-header, .print-footer { display: none; }

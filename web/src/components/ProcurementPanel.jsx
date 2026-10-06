@@ -59,11 +59,11 @@ export default function ProcurementPanel({ project, onImport }) {
 
   const handleInject = () => {
     if (!preview || !onImport) return;
-    const preConPhase = project.wbs.find(p =>
+    const targetPhase = project.wbs.find(p =>
       p.name.toLowerCase().includes('pre-construction') || p.name.toLowerCase().includes('preconstruction')
-    );
-    const phaseId = preConPhase ? preConPhase.id : project.wbs[0]?.id || '1';
-    const existingCount = preConPhase ? preConPhase.children.length : 0;
+    ) || project.wbs[0];
+    const phaseId = targetPhase?.id || '1';
+    const existingCount = targetPhase?.children?.length || 0;
     const { accepted, skipped } = deduplicateEntries(preview.entries, project.wbs);
     if (skipped.length > 0) {
       setPreview(prev => ({
