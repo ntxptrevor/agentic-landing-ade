@@ -19,7 +19,7 @@ export default function ListView({ project }) {
           </div>
 
           {(phase.children || []).map(task => {
-            const catClass = task.category === 'deliverable' ? 'task-deliverable' : task.category === 'delivery' ? 'task-delivery' : '';
+            const catClass = task.category === 'deliverable' ? 'task-deliverable' : task.category === 'delivery' ? 'task-delivery' : task.category === 'procurement' ? 'task-procurement' : '';
             return (
               <div key={task.id} className={`list-task ${catClass}`}>
                 <span className="wbs">{task.wbsCode}</span>

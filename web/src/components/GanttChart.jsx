@@ -96,8 +96,8 @@ export default function GanttChart({ project }) {
             {/* Task rows */}
             {(phase.children || []).map(task => {
               const bar = getBarPosition(task.startDate, task.endDate);
-              const catClass = task.category === 'deliverable' ? 'task-deliverable' : task.category === 'delivery' ? 'task-delivery' : '';
-              const barClass = task.category === 'deliverable' ? 'deliverable' : task.category === 'delivery' ? 'delivery' : (task.isCritical ? 'critical' : 'normal');
+              const catClass = task.category === 'deliverable' ? 'task-deliverable' : task.category === 'delivery' ? 'task-delivery' : task.category === 'procurement' ? 'task-procurement' : '';
+              const barClass = task.category === 'deliverable' ? 'deliverable' : task.category === 'delivery' ? 'delivery' : task.category === 'procurement' ? 'procurement' : (task.isCritical ? 'critical' : 'normal');
               return (
                 <div key={task.id} className="gantt-row">
                   <div className={`gantt-label ${catClass}`}>

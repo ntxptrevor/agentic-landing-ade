@@ -97,7 +97,7 @@ export default function CalendarView({ project }) {
                     <div key={day.dateStr} className="calendar-cell">
                       <div className="calendar-date">{day.date}</div>
                       {day.activeTasks.slice(0, 3).map((t, ti) => {
-                        const chipClass = t.category === 'deliverable' ? 'deliverable' : t.category === 'delivery' ? 'delivery' : (t.isCritical ? 'critical' : 'normal');
+                        const chipClass = t.category === 'deliverable' ? 'deliverable' : t.category === 'delivery' ? 'delivery' : t.category === 'procurement' ? 'procurement' : (t.isCritical ? 'critical' : 'normal');
                         return (
                           <div
                             key={ti}
@@ -119,11 +119,26 @@ export default function CalendarView({ project }) {
                 } else if (day.dayOfWeek === 6) {
                   // Saturday - combine with Sunday
                   const sundayDay = m.days[i + 1];
+                  const weekendTasks = [...day.activeTasks, ...(sundayDay?.activeTasks || [])];
+                  const uniqueWeekendTasks = weekendTasks.filter((t, idx, arr) => arr.findIndex(x => x.wbs === t.wbs) === idx);
                   cells.push(
                     <div key={day.dateStr} className="calendar-cell weekend">
                       <div className="calendar-date">
                         {day.date}{sundayDay ? `-${sundayDay.date}` : ''}
                       </div>
+                      {uniqueWeekendTasks.slice(0, 2).map((t, ti) => {
+                        const chipClass = t.category === 'deliverable' ? 'deliverable' : t.category === 'delivery' ? 'delivery' : t.category === 'procurement' ? 'procurement' : (t.isCritical ? 'critical' : 'normal');
+                        return (
+                          <div key={ti} className={`calendar-task ${chipClass}`} title={t.name}>
+                            {t.wbs}
+                          </div>
+                        );
+                      })}
+                      {uniqueWeekendTasks.length > 2 && (
+                        <div style={{ fontSize: '0.6rem', color: 'var(--text-dim)' }}>
+                          +{uniqueWeekendTasks.length - 2} more
+                        </div>
+                      )}
                     </div>
                   );
                   i += sundayDay ? 2 : 1;

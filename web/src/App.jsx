@@ -45,8 +45,9 @@ export default function App() {
   }, []);
 
   const handleSetupDone = (data) => {
+    const startYear = new Date(data.startDate).getFullYear();
     const holidays = data.holidayPreset === 'us'
-      ? getUSFederalHolidays(new Date(data.startDate).getFullYear())
+      ? [...getUSFederalHolidays(startYear), ...getUSFederalHolidays(startYear + 1), ...getUSFederalHolidays(startYear + 2)]
       : data.holidays;
     updateProject({ ...data, holidays });
     setStep('phases');
@@ -130,6 +131,18 @@ export default function App() {
     if (idx > 0) setStep(STEPS[idx - 1].id);
   };
 
+  const handleProcurementImport = (phaseId, tasks) => {
+    setComputed(prev => {
+      if (!prev) return prev;
+      const next = { ...prev, wbs: prev.wbs.map(p => ({ ...p, children: [...p.children] })) };
+      const phase = next.wbs.find(p => p.id === phaseId);
+      if (phase) {
+        phase.children = [...phase.children, ...tasks];
+      }
+      return next;
+    });
+  };
+
   const handleNewProject = () => {
     setProject(buildInitialProject());
     setSelectedPhaseIds([]);
@@ -199,7 +212,7 @@ export default function App() {
             />
           )}
           {step === 'view' && computed && (
-            <ScheduleViewer project={computed} />
+            <ScheduleViewer project={computed} onProcurementImport={handleProcurementImport} />
           )}
         </main>
       </div>
