@@ -98,14 +98,20 @@ export default function App() {
       }
     }
 
-    // Auto-wire sequential tasks within each phase
+    // Auto-wire sequential tasks within each phase (respecting predOffset)
     for (const phase of wbs) {
+      const phaseDef = CONSTRUCTION_PHASES.find(p => p.name === phase.name);
       for (let i = 1; i < phase.children.length; i++) {
-        const prev = phase.children[i - 1];
         const cur = phase.children[i];
+        const taskDef = phaseDef?.defaultTasks[i];
         if (cur.predecessors.length === 0) {
-          cur.predecessors = [prev.id];
-          deps.push({ from: prev.id, to: cur.id, type: 'FS', lag: 0, lagUnit: 'days' });
+          const offset = taskDef?.predOffset;
+          const predIndex = offset !== undefined ? i + offset : i - 1;
+          const pred = phase.children[Math.max(0, predIndex)];
+          if (pred) {
+            cur.predecessors = [pred.id];
+            deps.push({ from: pred.id, to: cur.id, type: 'FS', lag: 0, lagUnit: 'days' });
+          }
         }
       }
     }
