@@ -47,7 +47,8 @@ export default function App() {
   const handleSetupDone = (data) => {
     const startYear = new Date(data.startDate).getFullYear();
     const holidays = data.holidayPreset === 'us'
-      ? [...getUSFederalHolidays(startYear), ...getUSFederalHolidays(startYear + 1), ...getUSFederalHolidays(startYear + 2)]
+      // Cover every year a multi-year schedule can reach
+      ? Array.from({ length: 10 }, (_, k) => getUSFederalHolidays(startYear + k)).flat()
       : data.holidays;
     updateProject({ ...data, holidays });
     setStep('phases');

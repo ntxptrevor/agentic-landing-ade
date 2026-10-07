@@ -90,7 +90,21 @@ export function calculateSchedule(project) {
         if (!succ._lateStart) continue;
         const dep = project.dependencies?.find(d => d.from === task.id && d.to === succ.id);
         const lag = dep?.lag || 0;
-        const candidateFinish = subtractWorkingDays(succ._lateStart, lag, workingDays, holidays);
+        const type = dep?.type || 'FS';
+        const shift = (date, n) => (n >= 0
+          ? addWorkingDays(date, n, workingDays, holidays)
+          : subtractWorkingDays(date, -n, workingDays, holidays));
+        let candidateFinish;
+        if (type === 'SS') {
+          candidateFinish = shift(succ._lateStart, task.duration - 1 - lag);
+        } else if (type === 'FF') {
+          candidateFinish = shift(succ._lateFinish, -lag);
+        } else if (type === 'SF') {
+          candidateFinish = shift(succ._lateFinish, 1 - lag + task.duration - 1);
+        } else {
+          // FS: succ starts the working day after pred finishes, plus lag
+          candidateFinish = shift(succ._lateStart, -(1 + lag));
+        }
         if (candidateFinish < lateFinish) {
           lateFinish = candidateFinish;
         }
@@ -108,10 +122,16 @@ export function calculateSchedule(project) {
 
   // Calculate project summary
   const projectStartDate = parseDate(startDate);
-  const workDuration = workingDaysBetween(projectStartDate, projectEnd, workingDays, holidays);
+  // Inclusive of the start date when the start is itself a working day
+  const workDuration = workingDaysBetween(projectStartDate, projectEnd, workingDays, holidays)
+    + (isWorkingDay(projectStartDate, workingDays, holidays) ? 1 : 0);
   const calDuration = calendarDaysBetween(projectStartDate, projectEnd);
   const criticalTasks = allTasks.filter(t => t.isCritical && t.type !== 'phase');
-  const criticalDuration = criticalTasks.reduce((sum, t) => sum + (t.duration || 0), 0);
+  const criticalEnds = criticalTasks.filter(t => t.endDate).map(t => parseDate(t.endDate));
+  const criticalStarts = criticalTasks.filter(t => t.startDate).map(t => parseDate(t.startDate));
+  const criticalDuration = criticalStarts.length > 0 && criticalEnds.length > 0
+    ? workingDaysBetween(new Date(Math.min(...criticalStarts)), new Date(Math.max(...criticalEnds)), workingDays, holidays) + 1
+    : 0;
 
   return {
     ...project,
