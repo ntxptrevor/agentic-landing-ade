@@ -11,6 +11,9 @@
   --success: #5cb85c;
   --warning: #f0ad4e;
   --milestone: #d4a843;
+  --deliverable: #ef4444;
+  --delivery: #3b82f6;
+  --procurement: #10b981;
   --radius: 8px;
   --font: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
@@ -483,6 +486,18 @@ input:focus, select:focus, textarea:focus {
   opacity: 0.7;
 }
 
+.gantt-bar.deliverable {
+  background: var(--deliverable);
+}
+
+.gantt-bar.delivery {
+  background: var(--delivery);
+}
+
+.gantt-bar.procurement {
+  background: var(--procurement);
+}
+
 .gantt-bar.milestone {
   width: 12px !important;
   height: 12px;
@@ -565,6 +580,24 @@ input:focus, select:focus, textarea:focus {
 .calendar-task.normal {
   background: rgba(79, 143, 247, 0.2);
   color: var(--accent);
+}
+
+.calendar-task.deliverable {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--deliverable);
+  font-weight: 700;
+}
+
+.calendar-task.delivery {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--delivery);
+  font-weight: 700;
+}
+
+.calendar-task.procurement {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--procurement);
+  font-weight: 700;
 }
 
 .calendar-task.start::before { content: '\25B6 '; }
@@ -671,6 +704,166 @@ input:focus, select:focus, textarea:focus {
   color: var(--text-dim);
 }
 
+.task-deliverable,
+.task-deliverable * {
+  color: var(--deliverable) !important;
+  font-weight: 700;
+}
+
+.task-delivery,
+.task-delivery * {
+  color: var(--delivery) !important;
+  font-weight: 700;
+}
+
+.task-procurement,
+.task-procurement * {
+  color: var(--procurement) !important;
+  font-weight: 700;
+}
+
+.category-legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.legend-swatch.deliverable {
+  background: var(--deliverable);
+}
+
+.legend-swatch.delivery {
+  background: var(--delivery);
+}
+
+.legend-swatch.critical {
+  background: var(--critical);
+}
+
+.legend-swatch.procurement {
+  background: var(--procurement);
+}
+
+.legend-swatch.normal {
+  background: var(--accent);
+  opacity: 0.7;
+}
+
+.procurement-panel {
+  font-size: 0.85rem;
+}
+
+.procurement-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.procurement-sources {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.source-badge.connected {
+  border-color: var(--procurement);
+  color: var(--procurement);
+}
+
+.procurement-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.procurement-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.5px;
+}
+
+.procurement-table td {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.procurement-table tr:hover {
+  background: var(--surface2);
+}
+
+.procurement-import-area {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+
+.procurement-import-area:hover {
+  border-color: var(--procurement);
+  background: rgba(16, 185, 129, 0.03);
+}
+
+.procurement-import-area textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  margin-top: 8px;
+}
+
+.procurement-count {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--procurement);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -693,4 +886,91 @@ input:focus, select:focus, textarea:focus {
   .step-indicator { flex-direction: row; flex-wrap: wrap; }
   .form-row { grid-template-columns: 1fr; }
   .gantt-label-col, .gantt-label { min-width: 200px; }
+}
+
+@media (max-width: 600px) {
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .main { padding: 16px; }
+  .header { padding: 12px 16px; }
+  .header h1 { font-size: 1rem; }
+  .list-task { grid-template-columns: 50px 1fr 40px; font-size: 0.75rem; }
+  .list-task .dates, .list-task .deps { display: none; }
+  .tab { padding: 8px 12px; font-size: 0.75rem; }
+  .category-legend { gap: 12px; font-size: 0.7rem; }
+  .export-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media print {
+  @page {
+    size: 8.5in 11in portrait;
+    margin: 0.5in 0.5in 0.75in 0.5in;
+  }
+
+  body {
+    background: white;
+    color: #1a1a1a;
+    font-size: 10pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .header, .sidebar, .tabs, .btn-group, .step-indicator,
+  .header-actions, .procurement-import-area, .export-grid,
+  .no-print { display: none !important; }
+
+  .layout { display: block; }
+  .main { padding: 0; }
+  .card { border: 1px solid #ddd; break-inside: avoid; page-break-inside: avoid; margin-bottom: 12pt; }
+
+  .gantt-container { overflow: visible; }
+  .gantt-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .gantt-bar.critical { background: #ef6461 !important; }
+  .gantt-bar.deliverable { background: #ef4444 !important; }
+  .gantt-bar.delivery { background: #3b82f6 !important; }
+  .gantt-bar.procurement { background: #10b981 !important; }
+  .gantt-bar.normal { background: #4f8ff7 !important; opacity: 0.7; }
+
+  .gantt-row { break-inside: avoid; page-break-inside: avoid; }
+  .list-phase { break-inside: avoid; page-break-inside: avoid; }
+  .summary-grid { break-inside: avoid; }
+  .category-legend { break-inside: avoid; background: #f5f5f5 !important; }
+
+  .summary-stat { background: #f5f5f5 !important; border: 1px solid #ddd; }
+  .summary-stat .value { color: #333 !important; }
+
+  .task-table, .procurement-table { font-size: 9pt; }
+  .task-table th, .procurement-table th { background: #f5f5f5 !important; color: #333; }
+
+  .calendar-grid { border-color: #ccc; }
+  .calendar-day-header { background: #f0f0f0 !important; color: #333; }
+  .calendar-cell { border-color: #ddd; }
+  .calendar-task.deliverable { background: rgba(239,68,68,0.15) !important; color: #ef4444 !important; }
+  .calendar-task.delivery { background: rgba(59,130,246,0.15) !important; color: #3b82f6 !important; }
+  .calendar-task.procurement { background: rgba(16,185,129,0.15) !important; color: #10b981 !important; }
+
+  .print-header { display: block !important; text-align: center; margin-bottom: 16pt; }
+  .print-header h1 { font-size: 16pt; color: #1a1a1a; margin-bottom: 4pt; }
+  .print-header .subtitle { font-size: 10pt; color: #666; }
+
+  .print-footer { display: block !important; text-align: center; font-size: 8pt; color: #999;
+    position: fixed; bottom: 0; left: 0; right: 0; padding: 4pt; border-top: 0.5pt solid #ccc; }
+
+  #print-schedule-view { display: block !important; }
+  #print-schedule-view .list-phase { break-inside: avoid; page-break-inside: avoid; }
+  #print-schedule-view table { border-collapse: collapse; }
+  #print-schedule-view th { background: #f0f0f0 !important; color: #333; }
+  #print-schedule-view td { border-bottom: 0.5pt solid #ddd; }
+}
+
+.print-header, .print-footer { display: none; }
+
+@media (max-width: 400px) {
+  .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .summary-stat { padding: 10px; }
+  .summary-stat .value { font-size: 1.2rem; }
+  .main { padding: 12px; }
+  .card { padding: 12px; }
+  .header h1 { font-size: 0.9rem; }
+  .gantt-label-col, .gantt-label { min-width: 140px; font-size: 0.65rem; }
+  .tab { padding: 6px 8px; font-size: 0.7rem; }
 }

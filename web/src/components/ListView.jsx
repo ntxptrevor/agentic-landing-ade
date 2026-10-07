@@ -18,22 +18,25 @@ export default function ListView({ project }) {
             </span>
           </div>
 
-          {(phase.children || []).map(task => (
-            <div key={task.id} className="list-task">
-              <span className="wbs">{task.wbsCode}</span>
-              <span>
-                {task.name}
-                {task.isCritical && <span className="tag tag-critical" style={{ marginLeft: 8 }}>CRITICAL</span>}
-              </span>
-              <span>{task.duration}d</span>
-              <span className="dates">{task.startDate} → {task.endDate}</span>
-              <span className="deps">
-                {task.predecessors?.length > 0 && (
-                  <>dep: {task.predecessors.join(', ')}</>
-                )}
-              </span>
-            </div>
-          ))}
+          {(phase.children || []).map(task => {
+            const catClass = task.category === 'deliverable' ? 'task-deliverable' : task.category === 'delivery' ? 'task-delivery' : task.category === 'procurement' ? 'task-procurement' : '';
+            return (
+              <div key={task.id} className={`list-task ${catClass}`}>
+                <span className="wbs">{task.wbsCode}</span>
+                <span>
+                  {task.name}
+                  {task.isCritical && <span className="tag tag-critical" style={{ marginLeft: 8 }}>CRITICAL</span>}
+                </span>
+                <span>{task.duration}d</span>
+                <span className="dates">{task.startDate} → {task.endDate}</span>
+                <span className="deps">
+                  {task.predecessors?.length > 0 && (
+                    <>dep: {task.predecessors.join(', ')}</>
+                  )}
+                </span>
+              </div>
+            );
+          })}
         </div>
       ))}
     </div>

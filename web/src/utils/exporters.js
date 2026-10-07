@@ -12,7 +12,14 @@ export function exportJSON(project) {
       workingDuration: project.workingDuration,
       criticalPathDuration: project.criticalPathDuration,
     },
-    wbs: project.wbs,
+    wbs: project.wbs.map(phase => ({
+      ...phase,
+      children: (phase.children || []).map(t => ({
+        ...t,
+        jobTreadTaskId: t.jobTreadTaskId || undefined,
+        syncStatus: t.syncStatus || undefined,
+      })),
+    })),
     milestones: project.milestones || [],
     dependencies: project.dependencies || [],
     metadata: {
@@ -24,7 +31,7 @@ export function exportJSON(project) {
 }
 
 export function exportCSV(project) {
-  const rows = ['WBS Code,Task Name,Phase,Duration (days),Start Date,End Date,Predecessors,Is Critical,Is Milestone,Trade,Notes'];
+  const rows = ['WBS Code,Task Name,Phase,Duration (days),Start Date,End Date,Predecessors,Is Critical,Is Milestone,Trade,Category,Source Ref,Notes'];
 
   for (const phase of project.wbs) {
     for (const task of phase.children || []) {
@@ -39,6 +46,11 @@ export function exportCSV(project) {
 }
 
 function csvRow(task, phaseName) {
+  const refs = [];
+  if (task.jobTreadTaskId) refs.push(`JT:${task.jobTreadTaskId}`);
+  if (task.driveFileId) refs.push(`GD:${task.driveFileId}`);
+  if (task.lightfieldId) refs.push(`LF:${task.lightfieldId}`);
+  const sourceRef = refs.join('; ');
   const fields = [
     task.wbsCode || task.id,
     csvEscape(task.name),
@@ -50,6 +62,8 @@ function csvRow(task, phaseName) {
     task.isCritical ? 'Yes' : 'No',
     task.isMilestone ? 'Yes' : 'No',
     csvEscape(task.trade || ''),
+    csvEscape(task.category || 'activity'),
+    csvEscape(sourceRef),
     csvEscape(task.notes || ''),
   ];
   return fields.join(',');
@@ -65,8 +79,20 @@ function csvEscape(val) {
 
 export function exportMSProjectXML(project) {
   let uid = 0;
+  const idToUid = new Map();
   const tasks = [];
 
+  // First pass: assign UIDs
+  for (const phase of project.wbs) {
+    uid++;
+    idToUid.set(phase.id, uid);
+    for (const task of phase.children || []) {
+      uid++;
+      idToUid.set(task.id, uid);
+    }
+  }
+
+  uid = 0;
   for (const phase of project.wbs) {
     uid++;
     tasks.push(`    <Task>
@@ -84,12 +110,25 @@ export function exportMSProjectXML(project) {
       const predLinks = (task.predecessors || []).map(predId => {
         const dep = (project.dependencies || []).find(d => d.from === predId && d.to === task.id);
         const type = { FF: 0, FS: 1, SF: 2, SS: 3 }[dep?.type || 'FS'] ?? 1;
+        const predUid = idToUid.get(predId) || 0;
         return `      <PredecessorLink>
-        <PredecessorUID>${predId}</PredecessorUID>
+        <PredecessorUID>${predUid}</PredecessorUID>
         <Type>${type}</Type>
         <LinkLag>${(dep?.lag || 0) * 4800}</LinkLag>
       </PredecessorLink>`;
       }).join('\n');
+
+      const extAttrs = [];
+      if (task.category && task.category !== 'activity') {
+        extAttrs.push(`      <ExtendedAttribute><FieldID>188743731</FieldID><Value>${xmlEscape(task.category)}</Value></ExtendedAttribute>`);
+      }
+      if (task.jobTreadTaskId) {
+        extAttrs.push(`      <ExtendedAttribute><FieldID>188743732</FieldID><Value>${xmlEscape(task.jobTreadTaskId)}</Value></ExtendedAttribute>`);
+      }
+      if (task.notes) {
+        extAttrs.push(`      <ExtendedAttribute><FieldID>188743733</FieldID><Value>${xmlEscape(task.notes)}</Value></ExtendedAttribute>`);
+      }
+      const extBlock = extAttrs.length > 0 ? '\n' + extAttrs.join('\n') : '';
 
       tasks.push(`    <Task>
       <UID>${uid}</UID>
@@ -99,7 +138,7 @@ export function exportMSProjectXML(project) {
       <Start>${task.startDate || ''}T08:00:00</Start>
       <Finish>${task.endDate || ''}T17:00:00</Finish>
       <Duration>PT${hours}H0M0S</Duration>
-${predLinks}
+${predLinks}${extBlock}
     </Task>`);
     }
   }
@@ -109,6 +148,11 @@ ${predLinks}
   <Name>${xmlEscape(project.name)}</Name>
   <StartDate>${project.startDate}T08:00:00</StartDate>
   <FinishDate>${project.endDate}T17:00:00</FinishDate>
+  <ExtendedAttributes>
+    <ExtendedAttribute><FieldID>188743731</FieldID><FieldName>Category</FieldName><Alias>Category</Alias></ExtendedAttribute>
+    <ExtendedAttribute><FieldID>188743732</FieldID><FieldName>JobTreadTaskId</FieldName><Alias>JobTread ID</Alias></ExtendedAttribute>
+    <ExtendedAttribute><FieldID>188743733</FieldID><FieldName>Notes</FieldName><Alias>Source Notes</Alias></ExtendedAttribute>
+  </ExtendedAttributes>
   <Tasks>
 ${tasks.join('\n')}
   </Tasks>

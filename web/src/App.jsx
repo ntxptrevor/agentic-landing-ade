@@ -45,8 +45,10 @@ export default function App() {
   }, []);
 
   const handleSetupDone = (data) => {
+    const startYear = new Date(data.startDate).getFullYear();
     const holidays = data.holidayPreset === 'us'
-      ? getUSFederalHolidays(new Date(data.startDate).getFullYear())
+      // Cover every year a multi-year schedule can reach
+      ? Array.from({ length: 10 }, (_, k) => getUSFederalHolidays(startYear + k)).flat()
       : data.holidays;
     updateProject({ ...data, holidays });
     setStep('phases');
@@ -73,6 +75,7 @@ export default function App() {
           duration: t.duration,
           durationUnit: 'days',
           trade: t.trade,
+          category: t.category || 'activity',
           predecessors: [],
           successors: [],
           isMilestone: false,
@@ -96,14 +99,22 @@ export default function App() {
       }
     }
 
-    // Auto-wire sequential tasks within each phase
+    // Auto-wire sequential tasks within each phase (respecting predOffset)
     for (const phase of wbs) {
+      const phaseDef = CONSTRUCTION_PHASES.find(p => p.name === phase.name);
       for (let i = 1; i < phase.children.length; i++) {
-        const prev = phase.children[i - 1];
         const cur = phase.children[i];
+        const taskDef = phaseDef?.defaultTasks[i];
         if (cur.predecessors.length === 0) {
-          cur.predecessors = [prev.id];
-          deps.push({ from: prev.id, to: cur.id, type: 'FS', lag: 0, lagUnit: 'days' });
+          const offset = taskDef?.predOffset;
+          if (offset === null) continue;
+          const predIndex = offset !== undefined ? i + offset : i - 1;
+          if (predIndex < 0 || predIndex >= i) continue;
+          const pred = phase.children[predIndex];
+          if (pred) {
+            cur.predecessors = [pred.id];
+            deps.push({ from: pred.id, to: cur.id, type: 'FS', lag: 0, lagUnit: 'days' });
+          }
         }
       }
     }
@@ -127,6 +138,18 @@ export default function App() {
   const handleBack = () => {
     const idx = STEPS.findIndex(s => s.id === step);
     if (idx > 0) setStep(STEPS[idx - 1].id);
+  };
+
+  const handleProcurementImport = (phaseId, tasks) => {
+    setComputed(prev => {
+      if (!prev) return prev;
+      const next = { ...prev, wbs: prev.wbs.map(p => ({ ...p, children: [...p.children] })) };
+      const phase = next.wbs.find(p => p.id === phaseId);
+      if (phase) {
+        phase.children = [...phase.children, ...tasks];
+      }
+      return next;
+    });
   };
 
   const handleNewProject = () => {
@@ -198,7 +221,7 @@ export default function App() {
             />
           )}
           {step === 'view' && computed && (
-            <ScheduleViewer project={computed} />
+            <ScheduleViewer project={computed} onProcurementImport={handleProcurementImport} />
           )}
         </main>
       </div>
