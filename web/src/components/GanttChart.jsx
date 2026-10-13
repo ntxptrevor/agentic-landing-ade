@@ -96,9 +96,11 @@ export default function GanttChart({ project }) {
             {/* Task rows */}
             {(phase.children || []).map(task => {
               const bar = getBarPosition(task.startDate, task.endDate);
+              const catClass = task.category === 'deliverable' ? 'task-deliverable' : task.category === 'delivery' ? 'task-delivery' : task.category === 'procurement' ? 'task-procurement' : '';
+              const barClass = task.category === 'deliverable' ? 'deliverable' : task.category === 'delivery' ? 'delivery' : task.category === 'procurement' ? 'procurement' : (task.isCritical ? 'critical' : 'normal');
               return (
                 <div key={task.id} className="gantt-row">
-                  <div className="gantt-label">
+                  <div className={`gantt-label ${catClass}`}>
                     <span className="wbs">{task.wbsCode}</span>
                     {task.name}
                     <span className="dur">{task.duration}d</span>
@@ -109,7 +111,7 @@ export default function GanttChart({ project }) {
                     ))}
                     {bar && (
                       <div
-                        className={`gantt-bar ${task.isCritical ? 'critical' : 'normal'}`}
+                        className={`gantt-bar ${barClass}`}
                         style={{ left: bar.left, width: bar.width }}
                         title={`${task.name}: ${task.startDate} - ${task.endDate} (${task.duration}d)${task.isCritical ? ' [CRITICAL]' : ''}`}
                       />
