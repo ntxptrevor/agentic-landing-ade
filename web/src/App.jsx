@@ -152,6 +152,51 @@ export default function App() {
     });
   };
 
+  const handleApplyProposals = (proposals) => {
+    setComputed(prev => {
+      if (!prev) return prev;
+      const next = { ...prev, wbs: prev.wbs.map(p => ({ ...p, children: [...p.children] })) };
+      for (const p of proposals) {
+        if (p.action === 'modify' && p.taskId) {
+          for (const phase of next.wbs) {
+            const task = phase.children.find(t => t.id === p.taskId);
+            if (task && p.field) task[p.field] = p.newValue;
+          }
+        }
+        if (p.action === 'add' && p.phase) {
+          const phase = next.wbs.find(ph => ph.id === p.phase || ph.name.toLowerCase().includes(p.phase));
+          if (phase) {
+            const newIdx = phase.children.length + 1;
+            phase.children.push({
+              id: `${phase.id}.${newIdx}`,
+              type: 'task',
+              name: p.taskName || 'New Task',
+              wbsCode: `${phase.id}.${newIdx}`,
+              duration: p.duration || 3,
+              durationUnit: 'days',
+              trade: p.trade || 'General',
+              category: p.category || 'activity',
+              predecessors: [],
+              successors: [],
+              isMilestone: false,
+              isCritical: false,
+              notes: p.reason || '',
+              children: [],
+            });
+          }
+        }
+        if (p.action === 'complete' && p.taskId) {
+          for (const phase of next.wbs) {
+            const task = phase.children.find(t => t.id === p.taskId);
+            if (task) task.notes = (task.notes || '') + ' [COMPLETED]';
+          }
+        }
+      }
+      const recalculated = calculateSchedule(next);
+      return recalculated;
+    });
+  };
+
   const handleNewProject = () => {
     setProject(buildInitialProject());
     setSelectedPhaseIds([]);
@@ -221,7 +266,7 @@ export default function App() {
             />
           )}
           {step === 'view' && computed && (
-            <ScheduleViewer project={computed} onProcurementImport={handleProcurementImport} />
+            <ScheduleViewer project={computed} onProcurementImport={handleProcurementImport} onApplyProposals={handleApplyProposals} />
           )}
         </main>
       </div>

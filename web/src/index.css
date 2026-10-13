@@ -962,6 +962,269 @@ input:focus, select:focus, textarea:focus {
   #print-schedule-view td { border-bottom: 0.5pt solid #ddd; }
 }
 
+/* ─── Input Panel ────────────────────────────────────────────── */
+
+.input-panel {
+  font-size: 0.85rem;
+}
+
+.input-section {
+  margin-bottom: 24px;
+}
+
+.input-section h3 {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.input-hint {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.workflow-card {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  text-align: left;
+  transition: all 0.2s;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.workflow-card:hover {
+  border-color: var(--accent);
+}
+
+.workflow-card.active {
+  border-color: var(--accent);
+  background: rgba(79, 143, 247, 0.1);
+}
+
+.workflow-icon {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent);
+  background: rgba(79, 143, 247, 0.15);
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-family: var(--font);
+}
+
+.workflow-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.workflow-desc {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.drop-zone:hover, .drop-zone.active {
+  border-color: var(--accent);
+  background: rgba(79, 143, 247, 0.03);
+}
+
+.drop-icon {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  background: rgba(79, 143, 247, 0.15);
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-family: var(--font);
+}
+
+.drop-text {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.drop-formats {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.text-input {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 12px;
+  line-height: 1.6;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.input-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.process-log {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font);
+  font-size: 0.75rem;
+}
+
+.log-entry {
+  padding: 2px 0;
+  display: flex;
+  gap: 12px;
+}
+
+.log-entry.warning {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.log-time {
+  color: var(--text-dim);
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.log-msg {
+  color: var(--text);
+}
+
+.log-entry.warning .log-msg {
+  color: var(--warning);
+}
+
+.proposal-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.proposal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.proposal-card {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.proposal-card:hover {
+  border-color: var(--accent);
+}
+
+.proposal-card.accepted {
+  border-color: var(--success);
+  background: rgba(92, 184, 92, 0.05);
+}
+
+.proposal-card.critical-warning {
+  border-color: var(--critical);
+}
+
+.proposal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.proposal-check {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.proposal-action {
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-family: var(--font);
+  text-transform: uppercase;
+}
+
+.proposal-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.proposal-badge.critical {
+  background: rgba(239, 100, 97, 0.15);
+  color: var(--critical);
+}
+
+.proposal-badge.warning {
+  background: rgba(240, 173, 78, 0.15);
+  color: var(--warning);
+}
+
+.proposal-confidence {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-family: var(--font);
+}
+
+.proposal-body {
+  font-size: 0.8rem;
+  padding-left: 24px;
+}
+
+.proposal-body div {
+  margin-bottom: 2px;
+}
+
+.proposal-reason {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-style: italic;
+}
+
 .print-header, .print-footer { display: none; }
 
 @media (max-width: 400px) {

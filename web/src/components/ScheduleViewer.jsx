@@ -4,8 +4,9 @@ import ListView from './ListView.jsx';
 import CalendarView from './CalendarView.jsx';
 import ExportPanel from './ExportPanel.jsx';
 import ProcurementPanel from './ProcurementPanel.jsx';
+import InputPanel from './InputPanel.jsx';
 
-export default function ScheduleViewer({ project, onProcurementImport }) {
+export default function ScheduleViewer({ project, onProcurementImport, onApplyProposals }) {
   const [activeTab, setActiveTab] = useState('gantt');
 
   const allTasks = project.wbs.flatMap(p => p.children || []);
@@ -65,6 +66,7 @@ export default function ScheduleViewer({ project, onProcurementImport }) {
           { id: 'list', label: 'List View' },
           { id: 'calendar', label: 'Calendar' },
           { id: 'procurement', label: 'Procurement' },
+          { id: 'input', label: 'Input' },
           { id: 'export', label: 'Export' },
         ].map(tab => (
           <button
@@ -82,6 +84,7 @@ export default function ScheduleViewer({ project, onProcurementImport }) {
         {activeTab === 'list' && <ListView project={project} />}
         {activeTab === 'calendar' && <CalendarView project={project} />}
         {activeTab === 'procurement' && <ProcurementPanel project={project} onImport={onProcurementImport} />}
+        {activeTab === 'input' && <InputPanel project={project} onApplyProposals={onApplyProposals} />}
         {activeTab === 'export' && <ExportPanel project={project} />}
       </div>
     </div>
