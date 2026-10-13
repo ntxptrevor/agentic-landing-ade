@@ -1,0 +1,434 @@
+module|seq|task|class|trade|csi|submittal_or_lead|lead_days|phase|milestone|duration_days|insert_after|gate_keywords
+base|1|Owner Request / Solicitation Received|project_management|Owner|00|N|0|preconstruction|N|1||
+base|2|Proposal Preparation & Submission|project_management|GC|00|N|0|preconstruction|N|10||
+base|3|Notice of Award / Contract Execution|project_management|Owner|00|N|0|preconstruction|Y|5||
+base|4|Payment & Performance Bonds Submitted|project_management|GC|00|N|0|preconstruction|N|5||
+base|5|Certificates of Insurance Submitted|project_management|GC|00|N|0|preconstruction|N|3||
+base|6|HUB Subcontracting Plan Submitted|project_management|GC|00|N|0|preconstruction|N|3||
+base|7|Preconstruction Meeting (OAC Kickoff)|oac|GC|01|N|0|preconstruction|Y|1||
+base|8|Notice to Proceed Issued|project_management|Owner|00|N|0|preconstruction|Y|1||
+base|9|Baseline CPM Schedule Submitted|project_management|GC|01|Y|0|preconstruction|N|5||
+base|10|Schedule of Values Submitted|project_management|GC|01|Y|0|preconstruction|N|3||
+base|11|Subcontract Buyout & Purchase Orders|project_management|GC|01|N|0|preconstruction|N|10||
+base|12|Submittal Register Created|project_management|GC|01|N|0|preconstruction|N|2||
+base|13|Site Logistics & Safety Plan|project_management|GC|01|Y|0|preconstruction|N|3||
+base|14|Existing Conditions Survey & Photo Documentation|project_management|GC|01|N|0|preconstruction|N|2||
+base|15|Hazardous Materials Survey Review|project_management|Owner|02|N|0|preconstruction|N|2||
+base|16|Utility Locate & Shutdown Coordination Plan|project_management|GC|01|N|0|preconstruction|N|2||
+base|17|Building Permit Application|permit|GC|01|N|0|preconstruction|N|2||
+base|18|Plan Review by AHJ|permit|AHJ|01|N|0|preconstruction|N|15||
+base|19|Building Permit Issued|permit|AHJ|01|N|0|preconstruction|Y|1||
+base|20|TDLR TAS Project Registration & RAS Plan Review|permit|Architect|01|N|0|preconstruction|N|10||
+base|21|Submittals: Demolition Plan & Temporary Protection|project_management|Demolition|02|Y|0|preconstruction|N|5||
+base|22|Submittals: Concrete & Patching Materials|project_management|Concrete|03|Y|7|preconstruction|N|5||
+base|23|Submittals: Masonry Units & Grout|project_management|Masonry|04|Y|14|preconstruction|N|5||
+base|24|Submittals: Structural Steel & Misc Metals|project_management|Steel|05|Y|21|preconstruction|N|7||
+base|25|Submittals: Framing, Drywall & Insulation|project_management|Framing/Drywall|09|Y|10|preconstruction|N|5||
+base|26|Submittals: Insulation, Firestopping & Sealants|project_management|Firestopping|07|Y|7|preconstruction|N|5||
+base|27|Submittals: Doors, Frames & Hardware|project_management|Doors/Hardware|08|Y|56|preconstruction|N|7||
+base|28|Submittals: Interior Glazing & Storefront|project_management|Glazing|08|Y|42|preconstruction|N|7||
+base|29|Submittals: Millwork & Casework|project_management|Millwork|06|Y|42|preconstruction|N|7||
+base|30|Submittals: Ceilings (ACT)|project_management|Ceilings|09|Y|21|preconstruction|N|5||
+base|31|Submittals: Tile, Flooring & Base|project_management|Flooring|09|Y|28|preconstruction|N|5||
+base|32|Submittals: Paint & Wall Finishes|project_management|Painting|09|Y|7|preconstruction|N|5||
+base|33|Submittals: Toilet Partitions & Accessories|project_management|Specialties|10|Y|35|preconstruction|N|5||
+base|34|Submittals: Signage & Specialties|project_management|Specialties|10|Y|28|preconstruction|N|5||
+base|35|Submittals: Equipment & Appliances|project_management|GC|11|Y|42|preconstruction|N|5||
+base|36|Submittals: Window Treatments & Furnishings|project_management|Specialties|12|Y|28|preconstruction|N|5||
+base|37|Submittals: Plumbing Fixtures & Equipment|project_management|Plumbing|22|Y|35|preconstruction|N|7||
+base|38|Submittals: HVAC Equipment & Controls|project_management|HVAC|23|Y|70|preconstruction|N|10||
+base|39|Submittals: Electrical Gear, Lighting & Devices|project_management|Electrical|26|Y|56|preconstruction|N|10||
+base|40|Architect Submittal Review & Approval|design|Architect|01|N|0|preconstruction|N|14||
+base|41|Long-Lead Materials Released for Fabrication|project_management|GC|01|Y|70|preconstruction|Y|1||
+base|42|Pre-Installation Meetings (Key Trades)|oac|GC|01|N|0|preconstruction|N|1||
+base|43|Mobilization|standard_renovation|GC|01|N|0|construction|Y|2||
+base|44|Temporary Facilities (Office, Toilets, Storage)|standard_renovation|GC|01|N|0|construction|N|1||
+base|45|Temporary Power & Lighting|standard_renovation|Electrical|01|N|0|construction|N|2||
+base|46|Temporary Dust Partitions & Floor Protection|standard_renovation|GC|01|N|0|construction|N|2||
+base|47|Safety Orientation & Site Signage|project_management|GC|01|N|0|construction|N|1||
+base|48|Weekly OAC Meetings (Recurring)|oac|GC|01|N|0|construction|N|1||
+base|49|Daily Reports & Safety Inspections (Recurring)|project_management|GC|01|N|0|construction|N|1||
+base|50|Submittal & RFI Log Updates (Recurring)|project_management|GC|01|N|0|construction|N|1||
+base|51|Monthly Schedule Updates (Recurring)|project_management|GC|01|N|0|construction|N|1||
+base|52|Monthly Pay Application (Recurring)|project_management|GC|01|N|0|construction|N|2||
+base|53|Change Order / PCO Management (Recurring)|project_management|GC|01|N|0|construction|N|1||
+base|54|Third-Party Special Inspections & Testing (Recurring)|inspection|Testing Agency|01|N|0|construction|N|1||
+base|55|Owner Furniture/Equipment Removal Complete|project_management|Owner|01|N|0|construction|Y|2||
+base|56|MEP Safe-Off & Make-Safe Disconnects|standard_renovation|Electrical|26|N|0|construction|N|2||
+base|57|Interior Demolition - Ceilings & Finishes|standard_renovation|Demolition|02|N|0|construction|N|6||
+base|58|Interior Demolition - Walls & Doors|standard_renovation|Demolition|02|N|0|construction|N|5||
+base|59|MEP Demolition (Abandoned Duct, Conduit, Piping)|standard_renovation|Demolition|02|N|0|construction|N|4||
+base|60|Debris Removal & Recycling Documentation|standard_renovation|Demolition|02|N|0|construction|N|2||
+base|61|Post-Demo Field Verification & Conditions Walk|oac|GC|01|N|0|construction|Y|1||
+base|62|RFIs for Concealed Conditions|design|Architect|01|N|0|construction|N|5||
+base|63|Layout & Wall Lines Snapped|standard_renovation|Framing/Drywall|09|N|0|construction|N|1||
+base|64|Floor Slab Saw-Cutting & Trenching|standard_renovation|Concrete|03|N|0|construction|N|3||
+base|65|Underground Plumbing Rough-In|standard_renovation|Plumbing|22|Y|14|construction|N|4||
+base|66|Underground Plumbing Inspection|inspection|AHJ|22|N|0|construction|N|1||
+base|67|Concrete Slab Patch/Infill at Trenches|standard_renovation|Concrete|03|Y|7|construction|N|2||
+base|68|Masonry Infill & Openings|standard_renovation|Masonry|04|Y|14|construction|N|4||
+base|69|Structural Steel, Lintels & Supports|standard_renovation|Steel|05|Y|21|construction|N|3||
+base|70|Misc Metals (Equipment Supports, Embeds)|standard_renovation|Steel|05|Y|21|construction|N|2||
+base|71|Floor Leveling & Slab Prep|standard_renovation|Concrete|03|N|0|construction|N|2||
+base|72|Metal Stud Framing - Top Track & Full-Height Walls|standard_renovation|Framing/Drywall|09|Y|10|construction|N|6||
+base|73|In-Wall Blocking & Backing|standard_renovation|Framing/Drywall|06|N|0|construction|N|2||
+base|74|Door Frame Installation (Hollow Metal)|standard_renovation|Doors/Hardware|08|Y|42|construction|N|3||
+base|75|Framing Inspection|inspection|AHJ|09|N|0|construction|N|1||
+base|76|Drywall Hang - First Side|standard_renovation|Framing/Drywall|09|Y|10|construction|N|4||
+base|77|Overhead Ductwork Rough-In|standard_renovation|HVAC|23|Y|21|construction|N|8||
+base|78|HVAC Piping Rough-In (Hydronic/Refrigerant)|standard_renovation|HVAC|23|Y|14|construction|N|5||
+base|79|Overhead Plumbing Rough-In (Waste, Vent, Water)|standard_renovation|Plumbing|22|Y|14|construction|N|5||
+base|80|Plumbing Tie-In to Existing Mains|standard_renovation|Plumbing|22|N|0|construction|N|1||
+base|81|In-Wall Plumbing Rough-In|standard_renovation|Plumbing|22|Y|14|construction|N|4||
+base|82|Plumbing Rough-In Pressure Test|inspection|Plumbing|22|N|0|construction|N|1||
+base|83|Panelboard & Distribution Equipment Set|standard_renovation|Electrical|26|Y|70|construction|N|3||
+base|84|Overhead Electrical Rough-In (Conduit, Boxes, Feeders)|standard_renovation|Electrical|26|Y|14|construction|N|8||
+base|85|In-Wall Electrical Rough-In|standard_renovation|Electrical|26|N|0|construction|N|5||
+base|86|Electrical Service Shutdown & Tie-In|standard_renovation|Electrical|26|N|0|construction|N|1||
+base|87|Low Voltage Sleeves & J-Box Rough (Pathways)|low_voltage|Electrical|27|N|0|construction|N|2||
+base|88|HVAC Terminal Units & VAV Boxes Set|standard_renovation|HVAC|23|Y|56|construction|N|3||
+base|89|HVAC Equipment Set (AHU/RTU/Split Systems)|standard_renovation|HVAC|23|Y|84|construction|N|3||
+base|90|HVAC Controls Rough-In (BAS Wiring)|standard_renovation|Controls|23|Y|42|construction|N|4||
+base|91|Duct Insulation & Leakage Test|standard_renovation|HVAC|23|N|0|construction|N|2||
+base|92|Plumbing Piping Insulation|standard_renovation|Plumbing|22|N|0|construction|N|2||
+base|93|MEP In-Wall Rough-In Inspection|inspection|AHJ|01|N|0|construction|N|1||
+base|94|Firestopping at Rated Penetrations|life_safety|Firestopping|07|Y|7|construction|N|3||
+base|95|Wall Insulation & Acoustical Batts|standard_renovation|Insulation|07|Y|7|construction|N|2||
+base|96|Pre-Cover (Close-In) Inspection|inspection|AHJ|01|N|0|construction|Y|1||
+base|97|Drywall Hang - Second Side & Hard Lid Ceilings|standard_renovation|Framing/Drywall|09|N|0|construction|N|4||
+base|98|Rated Wall Inspection & Fire Partition Labeling|life_safety|GC|09|N|0|construction|N|1||
+base|99|Drywall Tape, Float & Finish (Level 4/5)|standard_renovation|Framing/Drywall|09|N|0|construction|N|6||
+base|100|Ceiling Grid Layout & Main Runners|standard_renovation|Ceilings|09|Y|21|construction|N|3||
+base|101|Above-Ceiling MEP Coordination Walk|oac|GC|01|N|0|construction|N|1||
+base|102|Above-Ceiling Inspection (AHJ)|inspection|AHJ|01|N|0|construction|Y|1||
+base|103|Owner/Architect Above-Ceiling Review|oac|Architect|01|N|0|construction|N|1||
+base|104|Prime Paint - Walls|standard_renovation|Painting|09|Y|7|construction|N|3||
+base|105|Ceiling Grid Completion (Cross Tees)|standard_renovation|Ceilings|09|N|0|construction|N|2||
+base|106|Light Fixtures Installed in Grid|standard_renovation|Electrical|26|Y|42|construction|N|3||
+base|107|Diffusers, Grilles & Registers Installed|standard_renovation|HVAC|23|Y|21|construction|N|2||
+base|108|Emergency/Exit Lighting Installation & Test|life_safety|Electrical|26|Y|42|construction|N|1||
+base|109|Interior Glazing & Storefront Installation|standard_renovation|Glazing|08|Y|42|construction|N|3||
+base|110|Wall Tile / Ceramic Tile at Restrooms|standard_renovation|Tile|09|Y|28|construction|N|5||
+base|111|Millwork & Casework Installation|standard_renovation|Millwork|06|Y|42|construction|N|5||
+base|112|Countertops Template & Install|standard_renovation|Millwork|12|Y|21|construction|N|3||
+base|113|Finish Paint - Walls (First Finish Coat)|standard_renovation|Painting|09|N|0|construction|N|4||
+base|114|Ceiling Tile Installation|standard_renovation|Ceilings|09|Y|21|construction|N|3||
+base|115|Floor Moisture & pH Testing|inspection|Flooring|09|N|0|construction|N|1||
+base|116|Floor Prep & Self-Leveler|standard_renovation|Flooring|09|N|0|construction|N|2||
+base|117|Resilient Flooring (LVT/VCT/Sheet) Install|standard_renovation|Flooring|09|Y|28|construction|N|5||
+base|118|Carpet Tile Install|standard_renovation|Flooring|09|Y|28|construction|N|3||
+base|119|Resilient Base Install|standard_renovation|Flooring|09|Y|28|construction|N|2||
+base|120|Door Installation (Leafs)|standard_renovation|Doors/Hardware|08|Y|56|construction|N|2||
+base|121|Door Hardware Installation|standard_renovation|Doors/Hardware|08|Y|56|construction|N|3||
+base|122|Fire-Rated Door Inspection (NFPA 80)|life_safety|Doors/Hardware|08|N|0|construction|N|1||
+base|123|Toilet Partitions & Accessories Install|standard_renovation|Specialties|10|Y|35|construction|N|3||
+base|124|Plumbing Fixture Trim-Out|standard_renovation|Plumbing|22|Y|35|construction|N|3||
+base|125|Electrical Device Trim-Out (Receptacles, Switches, Covers)|standard_renovation|Electrical|26|Y|14|construction|N|3||
+base|126|Lighting Controls Programming|standard_renovation|Electrical|26|N|0|construction|N|1||
+base|127|Panel Schedules & Circuit Labeling|standard_renovation|Electrical|26|N|0|construction|N|1||
+base|128|HVAC Thermostats & Sensors Trim|standard_renovation|Controls|23|N|0|construction|N|1||
+base|129|Signage Installation (Room ID/ADA)|standard_renovation|Specialties|10|Y|28|construction|N|2||
+base|130|Wall Protection & Corner Guards|standard_renovation|Specialties|10|Y|28|construction|N|2||
+base|131|Fire Extinguishers & Cabinets|life_safety|Specialties|10|Y|14|construction|N|1||
+base|132|Window Treatments & Blinds|standard_renovation|Specialties|12|Y|28|construction|N|2||
+base|133|Equipment Install (Appliances, Owner-Furnished)|standard_renovation|GC|11|Y|42|construction|N|2||
+base|134|Joint Sealants & Caulking|standard_renovation|Painting|07|N|0|construction|N|2||
+base|135|Final Paint Touch-Up Coat|standard_renovation|Painting|09|N|0|construction|N|2||
+base|136|Equipment Startup (HVAC)|standard_renovation|HVAC|23|N|0|construction|N|2||
+base|137|Test, Adjust & Balance (TAB)|inspection|HVAC|23|N|0|construction|N|3||
+base|138|Controls Programming & Point-to-Point Checkout|standard_renovation|Controls|23|N|0|construction|N|3||
+base|139|Electrical Testing (Megger/Torque)|inspection|Electrical|26|N|0|construction|N|1||
+base|140|Water System Flush & Disinfection|inspection|Plumbing|22|N|0|construction|N|1||
+base|141|Commissioning Functional Testing|inspection|Commissioning Agent|01|N|0|construction|N|3||
+base|142|Rough Clean|standard_renovation|GC|01|N|0|construction|N|2||
+base|143|Fire Marshal Final Inspection|inspection|AHJ|01|N|0|construction|Y|1||
+base|144|Final Building Inspection (AHJ)|inspection|AHJ|01|N|0|construction|Y|1||
+base|145|Certificate of Occupancy / Completion Issued|permit|AHJ|01|N|0|construction|Y|1||
+base|146|Final Cleaning|standard_renovation|GC|01|N|0|construction|N|2||
+base|147|Substantial Completion Walk & Punch List|oac|Architect|01|N|0|closeout|N|1||
+base|148|Punch List Corrections|standard_renovation|GC|01|N|0|closeout|N|5||
+base|149|Punch List Back-Check|oac|Architect|01|N|0|closeout|N|1||
+base|150|Substantial Completion Certificate (G704)|project_management|Architect|01|N|0|closeout|Y|1||
+base|151|Owner Occupancy / Move-In|project_management|Owner|01|N|0|closeout|Y|3||
+base|152|Demobilization|standard_renovation|GC|01|N|0|closeout|N|2||
+base|153|O&M Manuals Submitted|project_management|GC|01|N|0|closeout|N|5||
+base|154|As-Built / Record Drawings Submitted|project_management|GC|01|N|0|closeout|N|5||
+base|155|Warranties & Guarantees Submitted|project_management|GC|01|N|0|closeout|N|3||
+base|156|Attic Stock & Spare Materials Turnover|project_management|GC|01|N|0|closeout|N|1||
+base|157|Final Keying & Key Turnover|standard_renovation|Doors/Hardware|08|N|0|closeout|N|1||
+base|158|Owner Training Sessions|project_management|GC|01|N|0|closeout|N|2||
+base|159|Final TAB & Commissioning Reports Submitted|project_management|HVAC|23|N|0|closeout|N|2||
+base|160|TDLR RAS Inspection|inspection|Architect|01|N|0|closeout|N|1||
+base|161|RAS Deficiency Corrections|standard_renovation|GC|01|N|0|closeout|N|3||
+base|162|Final Lien Waivers & Consent of Surety|project_management|GC|00|N|0|closeout|N|3||
+base|163|Final Retainage Pay Application|project_management|GC|01|N|0|closeout|N|3||
+base|164|Final Completion Walk & Owner Acceptance|oac|Owner|01|N|0|closeout|Y|1||
+base|165|Final Payment Released|project_management|Owner|00|N|0|closeout|Y|1||
+base|166|Project Closeout File Archive|project_management|GC|01|N|0|closeout|N|1||
+base|167|11-Month Warranty Walk|oac|GC|01|N|0|closeout|Y|1||
+low_voltage|1|Submittals: Structured Cabling, Pathways & AV|project_management|Low Voltage|27|Y|21|preconstruction|N|7|after:Submittals: Electrical Gear, Lighting & Devices|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|2|Cable Tray & J-Hook Pathway Installation|low_voltage|Low Voltage|27|Y|14|construction|N|3|after:Overhead Electrical Rough-In (Conduit, Boxes, Feeders)|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|3|Paging/Intercom & Clock Speaker Rough-In|low_voltage|Low Voltage|27|N|0|construction|N|2|after:Overhead Electrical Rough-In (Conduit, Boxes, Feeders)|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|4|AV Display Mounts & Projector Rough-In|low_voltage|Low Voltage|27|N|0|construction|N|2|after:In-Wall Electrical Rough-In|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|5|Horizontal Cable Pull (Cat6/6A)|low_voltage|Low Voltage|27|Y|14|construction|N|5|after:HVAC Controls Rough-In (BAS Wiring)|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|6|Fiber Backbone Install & Splicing|low_voltage|Low Voltage|27|Y|21|construction|N|2|after:HVAC Controls Rough-In (BAS Wiring)|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|7|Telecom Room Backboard, Grounding & Racks|low_voltage|Low Voltage|27|Y|21|construction|N|2|after:Drywall Tape, Float & Finish (Level 4/5)|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|8|Patch Panel & Data Outlet Termination/Labeling|low_voltage|Low Voltage|27|N|0|construction|N|3|after:Ceiling Tile Installation|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|9|WAP & Speaker Mounting in Ceiling|low_voltage|Low Voltage|27|N|0|construction|N|1|after:Ceiling Tile Installation|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|10|Cable Certification Testing & Reports|inspection|Low Voltage|27|N|0|construction|N|2|after:Electrical Device Trim-Out (Receptacles, Switches, Covers)|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|11|AV Equipment Install & Programming|low_voltage|Low Voltage|27|Y|28|construction|N|3|after:Final Paint Touch-Up Coat|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+low_voltage|12|Owner IT Network Equipment Install (OFOI)|low_voltage|Owner|27|N|0|construction|N|2|after:Electrical Testing (Megger/Torque)|structured cabling,cat6,cat6a,data,telecom,IDF,MDF,low voltage,division 27,WAP,AV,paging
+access_control|1|Submittals: Access Control & Security Hardware|project_management|Low Voltage|28|Y|42|preconstruction|N|7|after:Submittals: Doors, Frames & Hardware|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|2|Electrified Hardware Prep in Frames (EPT, Raceway)|security|Doors/Hardware|08|N|0|construction|N|1|after:Door Frame Installation (Hollow Metal)|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|3|Access Control Conduit & Back Box Rough-In|security|Electrical|28|N|0|construction|N|2|after:In-Wall Electrical Rough-In|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|4|Reader, REX, Door Contact & Camera Cabling|security|Low Voltage|28|N|0|construction|N|3|after:HVAC Controls Rough-In (BAS Wiring)|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|5|Access Control Panels & Power Supplies Install|security|Low Voltage|28|Y|42|construction|N|2|after:Drywall Tape, Float & Finish (Level 4/5)|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|6|CCTV Cameras & Intrusion Devices Install|security|Low Voltage|28|Y|28|construction|N|2|after:Ceiling Tile Installation|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|7|Electrified Locksets, Mag Locks & Readers Install|security|Doors/Hardware|28|Y|56|construction|N|2|after:Door Hardware Installation|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|8|Access Control Programming & Owner Database Setup|security|Low Voltage|28|N|0|construction|N|2|after:Electrical Testing (Megger/Torque)|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+access_control|9|Egress Release Test with Fire Alarm Interface|life_safety|Low Voltage|28|N|0|construction|N|1|after:Commissioning Functional Testing|access control,card reader,security,CCTV,camera,intrusion,electrified hardware,division 28,mag lock,video surveillance
+fire_alarm|1|Fire Alarm Shop Drawings & Battery Calcs (NICET)|life_safety|Fire Alarm|28|Y|21|preconstruction|N|10|after:Submittals: Electrical Gear, Lighting & Devices|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|2|Fire Alarm Permit Submittal to Fire Marshal|permit|Fire Alarm|28|N|0|preconstruction|N|1|after:Building Permit Application|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|3|Fire Alarm Permit Approved|permit|AHJ|28|N|0|preconstruction|Y|10|after:Plan Review by AHJ|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|4|Fire Alarm Impairment Notice & Fire Watch Plan|life_safety|Fire Alarm|28|N|0|construction|N|1|after:MEP Safe-Off & Make-Safe Disconnects|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|5|Fire Alarm Device Demo & Temporary Coverage|life_safety|Fire Alarm|28|N|0|construction|N|2|after:MEP Safe-Off & Make-Safe Disconnects|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|6|Fire Alarm Cabling Pull (Overhead)|life_safety|Fire Alarm|28|N|0|construction|N|3|after:Overhead Electrical Rough-In (Conduit, Boxes, Feeders)|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|7|Fire Alarm Back Boxes & In-Wall Rough-In|life_safety|Fire Alarm|28|N|0|construction|N|2|after:In-Wall Electrical Rough-In|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|8|FACP / NAC Panel Install|life_safety|Fire Alarm|28|Y|35|construction|N|2|after:Drywall Tape, Float & Finish (Level 4/5)|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|9|Fire Alarm Device Trim (Detectors, Horn/Strobes)|life_safety|Fire Alarm|28|Y|28|construction|N|2|after:Ceiling Tile Installation|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|10|Fire Alarm Programming & Contractor Pre-Test|life_safety|Fire Alarm|28|N|0|construction|N|2|after:Electrical Device Trim-Out (Receptacles, Switches, Covers)|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|11|Duct Detector & HVAC Shutdown Interlock Test|life_safety|Fire Alarm|28|N|0|construction|N|1|after:Test, Adjust & Balance (TAB)|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|12|Fire Alarm 100% Acceptance Test (Fire Marshal)|inspection|AHJ|28|N|0|construction|Y|1|after:Commissioning Functional Testing|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_alarm|13|NFPA 72 Record of Completion & As-Builts|life_safety|Fire Alarm|28|N|0|closeout|N|1|after:As-Built / Record Drawings Submitted|fire alarm,FACP,smoke detector,horn strobe,NFPA 72,notification,28 31,mass notification,voice evac
+fire_suppression|1|Sprinkler Hydraulic Calcs & Shop Drawings|life_safety|Fire Sprinkler|21|Y|21|preconstruction|N|10|after:Submittals: Plumbing Fixtures & Equipment|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|2|Sprinkler Permit Submittal to Fire Marshal|permit|Fire Sprinkler|21|N|0|preconstruction|N|1|after:Building Permit Application|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|3|Sprinkler Permit Approved|permit|AHJ|21|N|0|preconstruction|Y|10|after:Plan Review by AHJ|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|4|Sprinkler Impairment Notice & Fire Watch|life_safety|Fire Sprinkler|21|N|0|construction|N|1|after:MEP Safe-Off & Make-Safe Disconnects|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|5|Sprinkler Drain-Down & Head/Branch Demo|life_safety|Fire Sprinkler|21|N|0|construction|N|2|after:Interior Demolition - Ceilings & Finishes|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|6|Sprinkler Main & Branch Line Relocation|life_safety|Fire Sprinkler|21|Y|14|construction|N|5|after:Overhead Ductwork Rough-In|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|7|Sprinkler Hydrostatic Test (200 psi / 2 hr)|inspection|Fire Sprinkler|21|N|0|construction|N|1|after:Plumbing Rough-In Pressure Test|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|8|Sprinkler Rough-In Inspection (Fire Marshal)|inspection|AHJ|21|N|0|construction|Y|1|after:Plumbing Rough-In Pressure Test|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|9|Sprinkler Drops Cut to Ceiling Grid|life_safety|Fire Sprinkler|21|N|0|construction|N|2|after:Ceiling Grid Completion (Cross Tees)|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|10|Sprinkler Heads & Escutcheons Trim|life_safety|Fire Sprinkler|21|Y|14|construction|N|2|after:Ceiling Tile Installation|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|11|Sprinkler Final, Main Drain & Flow Test|inspection|AHJ|21|N|0|construction|Y|1|after:Commissioning Functional Testing|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+fire_suppression|12|Contractor's Material & Test Certificate (NFPA 13)|life_safety|Fire Sprinkler|21|N|0|closeout|N|1|after:As-Built / Record Drawings Submitted|fire sprinkler,sprinkler,NFPA 13,fire suppression,standpipe,fire protection,division 21,clean agent,sprinkler head
+selective_demo|1|Selective Demo Plan & Owner Salvage/Retain List|standard_renovation|Demolition|02|Y|0|preconstruction|N|2|after:Existing Conditions Survey & Photo Documentation|selective demolition,remove and salvage,existing to remain,demo plan,salvage,remove and reinstall,02 41 19,relocate existing
+selective_demo|2|Owner Salvage Items Removed, Tagged & Stored|standard_renovation|Demolition|02|N|0|construction|N|2|after:Owner Furniture/Equipment Removal Complete|selective demolition,remove and salvage,existing to remain,demo plan,salvage,remove and reinstall,02 41 19,relocate existing
+selective_demo|3|Protection of Existing-to-Remain Finishes|standard_renovation|Demolition|02|N|0|construction|N|1|after:Owner Furniture/Equipment Removal Complete|selective demolition,remove and salvage,existing to remain,demo plan,salvage,remove and reinstall,02 41 19,relocate existing
+selective_demo|4|GPR / X-Ray Scan Before Coring or Saw-Cutting|inspection|Testing Agency|03|N|0|construction|N|1|after:Post-Demo Field Verification & Conditions Walk|selective demolition,remove and salvage,existing to remain,demo plan,salvage,remove and reinstall,02 41 19,relocate existing
+selective_demo|5|Temporary Shoring for Wall/Opening Removals|standard_renovation|Demolition|05|Y|7|construction|N|2|after:Post-Demo Field Verification & Conditions Walk|selective demolition,remove and salvage,existing to remain,demo plan,salvage,remove and reinstall,02 41 19,relocate existing
+selective_demo|6|Selective Removal at Masonry / Load-Bearing Openings|standard_renovation|Demolition|02|N|0|construction|N|3|after:Post-Demo Field Verification & Conditions Walk|selective demolition,remove and salvage,existing to remain,demo plan,salvage,remove and reinstall,02 41 19,relocate existing
+selective_demo|7|Reinstall Salvaged Items|standard_renovation|GC|02|N|0|construction|N|2|after:Final Paint Touch-Up Coat|selective demolition,remove and salvage,existing to remain,demo plan,salvage,remove and reinstall,02 41 19,relocate existing
+icra|1|ICRA Risk Matrix & Construction Class Determination|hospital|GC|01|N|0|preconstruction|N|2|after:Site Logistics & Safety Plan|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|2|ICRA Permit Signed by Infection Prevention|permit|Owner|01|N|0|preconstruction|Y|3|after:Site Logistics & Safety Plan|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|3|ICRA Worker Training & Certification|hospital|GC|01|N|0|construction|N|1|after:Mobilization|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|4|Hard-Wall ICRA Barriers & Anteroom Construction|hospital|GC|01|N|0|construction|N|2|after:Temporary Dust Partitions & Floor Protection|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|5|Return Air & Duct Isolation/Sealing|hospital|HVAC|23|N|0|construction|N|1|after:Temporary Dust Partitions & Floor Protection|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|6|Negative Air Machines & HEPA Exhaust Setup|hospital|GC|01|N|0|construction|N|1|after:Temporary Dust Partitions & Floor Protection|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|7|ICRA Barrier Inspection by Infection Prevention|inspection|Owner|01|N|0|construction|Y|1|after:Temporary Dust Partitions & Floor Protection|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|8|Daily Pressure Monitoring & Barrier Log (Recurring)|hospital|GC|01|N|0|construction|N|1|after:Daily Reports & Safety Inspections (Recurring)|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|9|HEPA Terminal Clean & ICRA Barrier Removal|hospital|GC|01|N|0|construction|N|2|after:Final Cleaning|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+icra|10|Particle Count / Air Quality Test Before Occupancy|inspection|Testing Agency|01|N|0|construction|Y|1|after:Final Cleaning|ICRA,infection control,negative pressure,HEPA,anteroom,patient care,hospital,clinic,class III,class IV
+medical_specialties|1|Submittals: Medical Gas Outlets, Zone Valves & Alarms|project_management|Plumbing|22|Y|42|preconstruction|N|7|after:Submittals: Plumbing Fixtures & Equipment|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|2|Submittals: Nurse Call System|project_management|Low Voltage|27|Y|42|preconstruction|N|7|after:Submittals: Electrical Gear, Lighting & Devices|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|3|Submittals: Headwalls & Patient Lift Systems|project_management|Medical Equipment|11|Y|56|preconstruction|N|7|after:Submittals: Millwork & Casework|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|4|Patient Lift Track Structural Supports|hospital|Steel|05|Y|21|construction|N|2|after:Misc Metals (Equipment Supports, Embeds)|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|5|Medical Gas Shutdown Coordination & Tie-In|hospital|Plumbing|22|N|0|construction|N|1|after:Overhead Plumbing Rough-In (Waste, Vent, Water)|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|6|Medical Gas Piping Rough-In (Brazed, N2 Purge)|hospital|Plumbing|22|Y|28|construction|N|5|after:Overhead Plumbing Rough-In (Waste, Vent, Water)|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|7|Med Gas Rough-In Pressure & Cross-Connection Test|inspection|Plumbing|22|N|0|construction|N|1|after:Plumbing Rough-In Pressure Test|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|8|Nurse Call Rough-In & Cabling|hospital|Low Voltage|27|N|0|construction|N|3|after:In-Wall Electrical Rough-In|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|9|Headwall / Wall Unit Installation|hospital|Medical Equipment|11|Y|56|construction|N|3|after:Millwork & Casework Installation|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|10|Medical Gas Outlets & Zone Valve Box Trim|hospital|Plumbing|22|N|0|construction|N|2|after:Plumbing Fixture Trim-Out|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|11|Nurse Call Devices Trim & Programming|hospital|Low Voltage|27|N|0|construction|N|2|after:Electrical Device Trim-Out (Receptacles, Switches, Covers)|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|12|Essential Electrical System Branch Testing|life_safety|Electrical|26|N|0|construction|N|1|after:Electrical Testing (Megger/Torque)|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specialties|13|ASSE 6030 Medical Gas Verification & Certification|inspection|Medical Gas Verifier|22|N|0|construction|Y|2|after:Commissioning Functional Testing|medical gas,oxygen,vacuum,nurse call,headwall,patient lift,NFPA 99,zone valve,med gas,critical branch
+medical_specific|1|Pre-Construction Risk Assessment (PCRA)|hospital|Owner|01|N|0|preconstruction|N|2|after:Site Logistics & Safety Plan|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|2|Interim Life Safety Measures (ILSM) Plan|life_safety|Owner|01|N|0|preconstruction|N|2|after:Site Logistics & Safety Plan|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|3|Owner Equipment Planner OFCI/OFOI Matrix|project_management|Owner|11|Y|0|preconstruction|N|3|after:Submittal Register Created|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|4|Texas HHSC Licensing Plan Review Submittal|permit|Architect|01|N|0|preconstruction|N|20|after:Building Permit Application|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|5|Hospital Utility Shutdown Request Approvals|project_management|Owner|01|N|0|preconstruction|N|5|after:Utility Locate & Shutdown Coordination Plan|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|6|Contractor Badging, Escort & Hospital Orientation|hospital|GC|01|N|0|construction|N|1|after:Mobilization|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|7|Pressure Relationship Verification (Iso/Clean Rms)|inspection|HVAC|23|N|0|construction|N|1|after:Test, Adjust & Balance (TAB)|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|8|Owner Medical Equipment Install & Biomed Checkout|hospital|Medical Equipment|11|Y|60|construction|N|3|after:Equipment Install (Appliances, Owner-Furnished)|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|9|HHSC / State Licensing Final Survey|inspection|AHJ|01|N|0|construction|Y|1|after:Final Building Inspection (AHJ)|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+medical_specific|10|Life Safety Drawing (LSD) Updates for TJC|life_safety|Architect|01|N|0|closeout|N|3|after:As-Built / Record Drawings Submitted|hospital,clinic,HHSC,Joint Commission,TJC,CMS,ILSM,PCRA,FGI,patient,healthcare,medical office
+imaging|1|Physicist Shielding Design Report Review|hospital|Architect|13|N|0|preconstruction|N|5|after:Submittal Register Created|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|2|Imaging Vendor Site Planning Drawings|design|Medical Equipment|11|N|0|preconstruction|N|10|after:Submittal Register Created|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|3|Submittals: Lead-Lined Drywall, Doors & Leaded Glass|project_management|Framing/Drywall|13|Y|42|preconstruction|N|7|after:Submittals: Framing, Drywall & Insulation|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|4|Submittals: MRI RF Shield & Magnetic Shielding|project_management|Medical Equipment|13|Y|90|preconstruction|N|10|after:Submittals: Structural Steel & Misc Metals|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|5|Equipment Floor Reinforcement & Ceiling Unistrut|hospital|Steel|05|Y|21|construction|N|3|after:Misc Metals (Equipment Supports, Embeds)|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|6|Dedicated Imaging Power & Equipment Cooling|hospital|Electrical|26|Y|56|construction|N|3|after:Panelboard & Distribution Equipment Set|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|7|Lead-Lined Drywall & Lead Lapping at Penetrations|hospital|Framing/Drywall|13|Y|42|construction|N|4|after:Drywall Hang - First Side|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|8|Physicist Lead Shielding Inspection (Pre-Cover)|inspection|Physicist|13|N|0|construction|Y|1|after:Pre-Cover (Close-In) Inspection|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|9|MRI RF Shield Room Installation|hospital|Medical Equipment|13|Y|90|construction|N|10|after:Drywall Hang - Second Side & Hard Lid Ceilings|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|10|RF Shield Integrity / Attenuation Test|inspection|Medical Equipment|13|N|0|construction|Y|1|after:Ceiling Tile Installation|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|11|Imaging Equipment Rigging & Vendor Install|hospital|Medical Equipment|11|Y|120|construction|N|10|after:Final Paint Touch-Up Coat|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|12|Calibration & Physicist Acceptance Testing|inspection|Physicist|11|N|0|construction|Y|3|after:Commissioning Functional Testing|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+imaging|13|Texas DSHS Radiation Machine Registration|permit|Owner|11|N|0|closeout|N|5|after:Certificate of Occupancy / Completion Issued|x-ray,CT,MRI,radiology,lead lined,shielding,RF shield,imaging,fluoroscopy,cath lab,DSHS,mammography
+isd_college|1|Board Approval & District Purchase Order|project_management|Owner|00|N|0|preconstruction|Y|10|after:Notice of Award / Contract Execution|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|2|Criminal History Background Checks (Ed Code 22.0834)|security|GC|00|N|0|preconstruction|N|5|after:Certificates of Insurance Submitted|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|3|Schedule Aligned to Academic Calendar (Summer/Breaks)|project_management|GC|01|N|0|preconstruction|N|2|after:Baseline CPM Schedule Submitted|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|4|Campus Coordination Meeting (Principal/Facilities)|oac|GC|01|N|0|preconstruction|N|1|after:Preconstruction Meeting (OAC Kickoff)|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|5|Contractor Badging & Campus Sign-In Procedures|security|GC|01|N|0|construction|N|1|after:Mobilization|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|6|Submittals: Markerboards, Tackboards & Lockers|project_management|Specialties|10|Y|28|preconstruction|N|5|after:Submittals: Signage & Specialties|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|7|Markerboards, Tackboards & Display Cases Install|standard_renovation|Specialties|10|Y|28|construction|N|2|after:Finish Paint - Walls (First Finish Coat)|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|8|Lockers & Cubbies Install|standard_renovation|Specialties|10|Y|42|construction|N|2|after:Resilient Base Install|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|9|Campus Ready for Teacher Move-In / Students|project_management|Owner|01|N|0|closeout|Y|1|after:Substantial Completion Certificate (G704)|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+isd_college|10|AHERA Asbestos Management Plan Update|project_management|Owner|02|N|0|closeout|N|2|after:As-Built / Record Drawings Submitted|ISD,school district,campus,college,university,classroom,school,student,TEA,community college,elementary,high school
+mep_lab|1|Submittals: Lab Casework, Epoxy Tops & Fume Hoods|project_management|Millwork|12|Y|70|preconstruction|N|7|after:Submittals: Millwork & Casework|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|2|Submittals: Lab Gases, Acid Waste & Emergency Fixtures|project_management|Plumbing|22|Y|42|preconstruction|N|7|after:Submittals: Plumbing Fixtures & Equipment|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|3|Acid-Resistant Waste Piping & Neutralization Tank|standard_renovation|Plumbing|22|Y|42|construction|N|3|after:Underground Plumbing Rough-In|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|4|Lab Gas, Vacuum & DI/RO Water Piping Rough-In|standard_renovation|Plumbing|22|Y|21|construction|N|5|after:Overhead Plumbing Rough-In (Waste, Vent, Water)|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|5|Fume Hood Exhaust Ductwork & Exhaust Fans|standard_renovation|HVAC|23|Y|56|construction|N|4|after:Overhead Ductwork Rough-In|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|6|Lab Gas Pressure Test & Purity Verification|inspection|Plumbing|22|N|0|construction|N|1|after:Plumbing Rough-In Pressure Test|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|7|Lab Airflow Controls (Venturi Valves) Rough-In|standard_renovation|Controls|23|Y|42|construction|N|3|after:HVAC Controls Rough-In (BAS Wiring)|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|8|Lab Casework, Epoxy Tops & Fume Hood Set|standard_renovation|Millwork|12|Y|70|construction|N|5|after:Millwork & Casework Installation|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|9|Emergency Eyewash/Shower Install & Flow Test|life_safety|Plumbing|22|Y|28|construction|N|1|after:Plumbing Fixture Trim-Out|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+mep_lab|10|Fume Hood Certification (ASHRAE 110)|inspection|Testing Agency|23|N|0|construction|Y|1|after:Test, Adjust & Balance (TAB)|laboratory,lab,fume hood,acid waste,lab gas,science lab,eyewash,DI water,epoxy,BSC,biosafety
+opci|1|OPCI Item Matrix & Responsibility Schedule|project_management|GC|01|N|0|preconstruction|N|2|after:Submittal Register Created|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+opci|2|Owner Equipment Cut Sheets & Rough-In Data Received|design|Owner|11|Y|0|preconstruction|N|10|after:Architect Submittal Review & Approval|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+opci|3|OPCI Rough-In Coordination (Power, Water, Data, Blocking)|standard_renovation|GC|01|N|0|construction|N|2|after:In-Wall Blocking & Backing|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+opci|4|OPCI Delivery Schedule Confirmed with Owner|project_management|Owner|01|Y|60|construction|N|1|after:Ceiling Tile Installation|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+opci|5|OPCI Receiving Inspection & Damage Report|inspection|GC|01|N|0|construction|N|1|after:Ceiling Tile Installation|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+opci|6|OPCI Item Installation|standard_renovation|GC|01|N|0|construction|N|3|after:Equipment Install (Appliances, Owner-Furnished)|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+opci|7|OPCI Final Connections & Vendor Startup|standard_renovation|GC|01|N|0|construction|N|1|after:Equipment Install (Appliances, Owner-Furnished)|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+opci|8|OPCI Warranty Responsibility Documentation|project_management|GC|01|N|0|closeout|N|1|after:Warranties & Guarantees Submitted|OPCI,OFCI,owner furnished,owner provided,contractor installed,N.I.C.,owner supplied,by owner
+site_work|1|Texas 811 Locates & Private Utility Survey|project_management|Earthwork|31|N|0|preconstruction|N|3|after:Utility Locate & Shutdown Coordination Plan|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|2|SWPPP / TCEQ NOI & Erosion Control Install|permit|Earthwork|31|N|0|construction|N|2|after:Mobilization|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|3|Site Demolition (Paving, Curbs, Sidewalks)|standard_renovation|Demolition|02|N|0|construction|N|4|after:Safety Orientation & Site Signage|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|4|Earthwork, Grading & Subgrade Prep|standard_renovation|Earthwork|31|N|0|construction|N|5|after:Safety Orientation & Site Signage|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|5|Site Utilities Install (Water, Sewer, Storm)|standard_renovation|Utilities|33|Y|21|construction|N|8|after:Underground Plumbing Rough-In|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|6|Utility Tie-In & City Inspection|inspection|AHJ|33|N|0|construction|N|1|after:Underground Plumbing Inspection|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|7|Compaction & Concrete Testing (Third Party)|inspection|Testing Agency|31|N|0|construction|N|2|after:Concrete Slab Patch/Infill at Trenches|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|8|Concrete Paving, Curbs, Sidewalks & ADA Ramps|standard_renovation|Concrete|32|Y|7|construction|N|8|after:Concrete Slab Patch/Infill at Trenches|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|9|Pavement Striping, Signage & Wheel Stops|standard_renovation|Concrete|32|N|0|construction|N|2|after:Final Paint Touch-Up Coat|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|10|Landscape, Irrigation & Sod|standard_renovation|Landscape|32|Y|14|construction|N|4|after:Final Paint Touch-Up Coat|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+site_work|11|Final Stabilization & SWPPP NOT Filed|permit|Earthwork|31|N|0|closeout|N|1|after:Punch List Corrections|sitework,site work,paving,grading,earthwork,storm drain,site utilities,SWPPP,sidewalk,parking lot,division 31,division 32,division 33
+exterior_improvements|1|Submittals: Exterior Storefront, Windows & Sealants|project_management|Glazing|08|Y|56|preconstruction|N|7|after:Submittals: Interior Glazing & Storefront|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|2|Exterior Scaffolding / Lift Setup|standard_renovation|GC|01|N|0|construction|N|1|after:Safety Orientation & Site Signage|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|3|Exterior Demolition (Windows, Cladding, Canopies)|standard_renovation|Demolition|02|N|0|construction|N|4|after:Interior Demolition - Walls & Doors|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|4|Air/Water Barrier & Opening Flashing|standard_renovation|Glazing|07|Y|14|construction|N|3|after:Metal Stud Framing - Top Track & Full-Height Walls|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|5|Exterior Storefront & Window Installation (Dry-In)|standard_renovation|Glazing|08|Y|56|construction|Y|5|after:Metal Stud Framing - Top Track & Full-Height Walls|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|6|Window Field Water Test (AAMA 501.2)|inspection|Testing Agency|08|N|0|construction|N|1|after:Metal Stud Framing - Top Track & Full-Height Walls|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|7|Exterior Cladding, Masonry & EIFS Repairs|standard_renovation|Masonry|04|Y|21|construction|N|5|after:Drywall Hang - First Side|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|8|Canopy & Exterior Lighting Installation|standard_renovation|Electrical|26|Y|42|construction|N|3|after:Light Fixtures Installed in Grid|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|9|Exterior Sealants & Joint Replacement|standard_renovation|Glazing|07|N|0|construction|N|2|after:Joint Sealants & Caulking|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+exterior_improvements|10|Exterior Painting & Coatings|standard_renovation|Painting|09|Y|7|construction|N|4|after:Final Paint Touch-Up Coat|exterior,storefront,curtain wall,window replacement,facade,cladding,EIFS,masonry repair,canopy,exterior paint,tuckpoint
+abatement|1|Licensed Asbestos/Lead Survey Confirmation (DSHS)|inspection|Abatement|02|N|0|preconstruction|N|5|after:Hazardous Materials Survey Review|asbestos,ACM,lead paint,abatement,mold,hazardous materials,TDSHS,DSHS,NESHAP,AHERA,PCB,mercury
+abatement|2|Abatement Project Design & Work Plan|design|Abatement|02|Y|0|preconstruction|N|5|after:Hazardous Materials Survey Review|asbestos,ACM,lead paint,abatement,mold,hazardous materials,TDSHS,DSHS,NESHAP,AHERA,PCB,mercury
+abatement|3|Texas DSHS 10-Working-Day Asbestos Notification|permit|Abatement|02|N|0|preconstruction|Y|10|after:Hazardous Materials Survey Review|asbestos,ACM,lead paint,abatement,mold,hazardous materials,TDSHS,DSHS,NESHAP,AHERA,PCB,mercury
+abatement|4|Abatement Containment & Negative Air Setup|standard_renovation|Abatement|02|N|0|construction|N|2|after:Owner Furniture/Equipment Removal Complete|asbestos,ACM,lead paint,abatement,mold,hazardous materials,TDSHS,DSHS,NESHAP,AHERA,PCB,mercury
+abatement|5|Asbestos / Lead / Mold Removal|standard_renovation|Abatement|02|N|0|construction|N|8|after:Owner Furniture/Equipment Removal Complete|asbestos,ACM,lead paint,abatement,mold,hazardous materials,TDSHS,DSHS,NESHAP,AHERA,PCB,mercury
+abatement|6|Visual Inspection & Final Air Clearance (Third-Party)|inspection|Testing Agency|02|N|0|construction|Y|1|after:Owner Furniture/Equipment Removal Complete|asbestos,ACM,lead paint,abatement,mold,hazardous materials,TDSHS,DSHS,NESHAP,AHERA,PCB,mercury
+abatement|7|Waste Manifests & Abatement Closeout Report|project_management|Abatement|02|N|0|closeout|N|3|after:As-Built / Record Drawings Submitted|asbestos,ACM,lead paint,abatement,mold,hazardous materials,TDSHS,DSHS,NESHAP,AHERA,PCB,mercury
+complex_owner|1|Owner User Group / Department Review Meetings|oac|Owner|01|N|0|preconstruction|N|2|after:Preconstruction Meeting (OAC Kickoff)|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+complex_owner|2|Owner Value Engineering & Scope Reconciliation|project_management|GC|01|N|0|preconstruction|N|5|after:Subcontract Buyout & Purchase Orders|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+complex_owner|3|Owner Finish Selections & Color Board Approval|design|Architect|09|Y|0|preconstruction|Y|10|after:Submittals: Paint & Wall Finishes|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+complex_owner|4|Renderings / Cutsheet Packages for Owner Approval|design|Architect|01|Y|0|preconstruction|Y|10|after:Architect Submittal Review & Approval|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+complex_owner|5|Staging Area & Swing Space Setup|standard_renovation|GC|01|N|0|construction|N|2|after:Temporary Facilities (Office, Toilets, Storage)|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+complex_owner|6|Mockup Room / Sample Panel Construction|standard_renovation|GC|01|Y|14|construction|N|5|after:Drywall Tape, Float & Finish (Level 4/5)|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+complex_owner|7|Mockup Review & Owner Sign-Off|oac|Owner|01|N|0|construction|Y|2|after:Drywall Tape, Float & Finish (Level 4/5)|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+complex_owner|8|Owner Executive Pre-Turnover Walkthrough|oac|Owner|01|N|0|closeout|N|1|after:Punch List Corrections|mockup,mock-up,rendering,owner approval,color board,sample panel,staging,swing space,user group,design review,cutout
+secured_building|1|Facility Security Clearance & Background Checks|security|GC|00|N|0|preconstruction|N|10|after:Certificates of Insurance Submitted|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|2|Tool & Material Control (Contraband) Plan|security|GC|01|N|0|preconstruction|N|2|after:Site Logistics & Safety Plan|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|3|Submittals: Detention Hollow Metal & Hardware|project_management|Detention Equipment|08|Y|90|preconstruction|N|10|after:Submittals: Doors, Frames & Hardware|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|4|Submittals: Detention Equipment, Glazing & Fixtures|project_management|Detention Equipment|11|Y|84|preconstruction|N|10|after:Submittals: Plumbing Fixtures & Equipment|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|5|Escorted Work Zones & Daily Tool Inventory|security|GC|01|N|0|construction|N|1|after:Mobilization|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|6|Grouted/Reinforced CMU Security Walls|security|Masonry|04|Y|14|construction|N|5|after:Masonry Infill & Openings|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|7|Detention Frames Set & Grouted|security|Detention Equipment|08|Y|90|construction|N|3|after:Door Frame Installation (Hollow Metal)|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|8|Security Electronics (Intercom, PLC) Rough-In|security|Low Voltage|28|N|0|construction|N|4|after:In-Wall Electrical Rough-In|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|9|Security Ceilings & Sheet Steel Barrier Install|security|Detention Equipment|11|Y|56|construction|N|4|after:Ceiling Grid Layout & Main Runners|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|10|Detention Plumbing Fixtures (Combo Units)|security|Plumbing|22|Y|84|construction|N|3|after:Plumbing Fixture Trim-Out|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|11|Detention Doors, Locks & Sliding Devices|security|Detention Equipment|08|Y|90|construction|N|4|after:Door Hardware Installation|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|12|Security Glazing & Vision Panels|security|Glazing|08|Y|70|construction|N|2|after:Door Hardware Installation|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|13|Tamper-Resistant Fasteners & Security Sealant|security|Detention Equipment|07|N|0|construction|N|2|after:Joint Sealants & Caulking|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|14|PLC / Touchscreen Door Control Commissioning|inspection|Detention Equipment|28|N|0|construction|N|3|after:Commissioning Functional Testing|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+secured_building|15|Texas Commission on Jail Standards Inspection|inspection|AHJ|01|N|0|construction|Y|1|after:Final Building Inspection (AHJ)|jail,detention,cell,holding,sally port,courtroom,court,TCJS,security glazing,correctional,judicial,juvenile
+occupied_phasing|1|Phasing Plan & Owner Occupancy Schedule|project_management|GC|01|N|0|preconstruction|N|3|after:Site Logistics & Safety Plan|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+occupied_phasing|2|After-Hours / Weekend Work Approval|project_management|Owner|01|N|0|preconstruction|N|2|after:Baseline CPM Schedule Submitted|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+occupied_phasing|3|Temporary Egress Paths & Exit Signage|life_safety|GC|01|N|0|construction|N|1|after:Temporary Dust Partitions & Floor Protection|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+occupied_phasing|4|Temporary MEP Feeds to Occupied Areas|standard_renovation|Electrical|26|N|0|construction|N|2|after:MEP Safe-Off & Make-Safe Disconnects|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+occupied_phasing|5|Noise/Odor Work Window Notices (Recurring)|project_management|GC|01|N|0|construction|N|1|after:Weekly OAC Meetings (Recurring)|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+occupied_phasing|6|Daily Cleanup at Occupied Interfaces (Recurring)|standard_renovation|GC|01|N|0|construction|N|1|after:Daily Reports & Safety Inspections (Recurring)|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+occupied_phasing|7|Phase Turnover & Owner Relocation (Per Phase)|project_management|Owner|01|N|0|construction|Y|2|after:Final Cleaning|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+occupied_phasing|8|Next Phase Re-Mobilization & Protection|standard_renovation|GC|01|N|0|construction|N|2|after:Final Cleaning|occupied,phasing,phase,after hours,night work,weekend work,operational,remain in service,temporary relocation,in use
+roofing|1|Roof Cores & Existing Warranty Review|inspection|Roofing|07|N|0|preconstruction|N|2|after:Existing Conditions Survey & Photo Documentation|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|2|Submittals: Roofing System & Mfr Warranty Approval|project_management|Roofing|07|Y|28|preconstruction|N|7|after:Submittals: Insulation, Firestopping & Sealants|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|3|Roofing Manufacturer Pre-Installation Meeting|oac|Roofing|07|N|0|preconstruction|N|1|after:Pre-Installation Meetings (Key Trades)|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|4|Roof Tear-Off with Daily Dry-In|standard_renovation|Roofing|07|N|0|construction|N|5|after:Safety Orientation & Site Signage|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|5|Deck Repair & Fastening Inspection|inspection|Roofing|05|Y|14|construction|N|2|after:Safety Orientation & Site Signage|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|6|Roof Insulation, Tapered System & Cover Board|standard_renovation|Roofing|07|Y|28|construction|N|4|after:Safety Orientation & Site Signage|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|7|Roof Membrane Installation|standard_renovation|Roofing|07|Y|28|construction|Y|6|after:Safety Orientation & Site Signage|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|8|Curbs, Penetrations & RTU Flashing|standard_renovation|Roofing|07|N|0|construction|N|2|after:HVAC Equipment Set (AHU/RTU/Split Systems)|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|9|Sheet Metal Copings, Edge Metal & Gutters|standard_renovation|Roofing|07|Y|21|construction|N|3|after:HVAC Equipment Set (AHU/RTU/Split Systems)|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|10|Roofing Manufacturer Final Inspection|inspection|Roofing|07|N|0|construction|Y|1|after:Commissioning Functional Testing|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+roofing|11|NDL Roof Warranty Issued|project_management|Roofing|07|N|0|closeout|N|5|after:Warranties & Guarantees Submitted|roofing,reroof,re-roof,roof membrane,TPO,PVC,modified bitumen,coping,flashing,07 50,roof replacement
+elevator|1|Submittals: Elevator Modernization Equipment|project_management|Elevator|14|Y|120|preconstruction|N|10|after:Submittals: Electrical Gear, Lighting & Devices|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|2|TDLR Elevator Alteration Permit|permit|Elevator|14|N|0|preconstruction|N|10|after:Building Permit Application|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|3|Elevator Removed from Service & Barricaded|standard_renovation|Elevator|14|N|0|construction|Y|1|after:Interior Demolition - Ceilings & Finishes|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|4|Machine Room Dedicated Power, HVAC & Disconnects|standard_renovation|Electrical|26|N|0|construction|N|3|after:Panelboard & Distribution Equipment Set|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|5|Hoistway & Pit Prep (Lighting, Ladder, Sump)|standard_renovation|Electrical|14|N|0|construction|N|3|after:Overhead Electrical Rough-In (Conduit, Boxes, Feeders)|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|6|Elevator Equipment Install (Controller, Machine, Fixtures)|standard_renovation|Elevator|14|Y|120|construction|N|25|after:Drywall Tape, Float & Finish (Level 4/5)|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|7|Elevator Cab Interior Finishes|standard_renovation|Elevator|14|Y|42|construction|N|3|after:Finish Paint - Walls (First Finish Coat)|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|8|Fire Recall & Shunt Trip Interface Test|life_safety|Elevator|14|N|0|construction|N|1|after:Commissioning Functional Testing|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+elevator|9|TDLR Elevator Inspection & Certificate of Compliance|inspection|AHJ|14|N|0|construction|Y|1|after:Commissioning Functional Testing|elevator,lift,hoistway,modernization,elevator controller,machine room,wheelchair lift,platform lift,division 14
+kitchen_foodservice|1|Submittals: Foodservice Equipment & Exhaust Hood|project_management|Food Service|11|Y|84|preconstruction|N|10|after:Submittals: HVAC Equipment & Controls|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|2|Health Department Plan Review|permit|Architect|11|N|0|preconstruction|N|15|after:Building Permit Application|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|3|Grease Interceptor, Floor Sinks & Trench Drains|standard_renovation|Plumbing|22|Y|28|construction|N|4|after:Underground Plumbing Rough-In|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|4|Welded Grease Duct & Rated Enclosure|life_safety|HVAC|23|N|0|construction|N|4|after:Overhead Ductwork Rough-In|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|5|Makeup Air Unit & Hood Exhaust Fan Set|standard_renovation|HVAC|23|Y|70|construction|N|2|after:HVAC Equipment Set (AHU/RTU/Split Systems)|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|6|Walk-In Cooler/Freezer Installation|standard_renovation|Food Service|11|Y|56|construction|N|3|after:Wall Tile / Ceramic Tile at Restrooms|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|7|Kitchen Equipment Set & Utility Connections|standard_renovation|Food Service|11|Y|84|construction|N|4|after:Plumbing Fixture Trim-Out|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|8|Hood Fire Suppression System Install|life_safety|Fire Sprinkler|21|Y|21|construction|N|2|after:Electrical Device Trim-Out (Receptacles, Switches, Covers)|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|9|Hood Suppression Trip Test & Fire Marshal Inspection|inspection|AHJ|21|N|0|construction|Y|1|after:Commissioning Functional Testing|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|10|Health Department Final Inspection|inspection|AHJ|11|N|0|construction|Y|1|after:Final Building Inspection (AHJ)|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+kitchen_foodservice|11|Foodservice Equipment Startup & Staff Training|project_management|Food Service|11|N|0|closeout|N|2|after:Owner Training Sessions|kitchen,foodservice,food service,cafeteria,hood,grease interceptor,walk-in cooler,commercial kitchen,11 40,serving line
+joc_csp_admin|1|JOC Joint Scope Meeting & Site Walk|oac|GC|00|N|0|preconstruction|N|1|after:Owner Request / Solicitation Received|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|2|Detailed Scope of Work (DSOW) Prepared|project_management|GC|00|N|0|preconstruction|N|3|after:Owner Request / Solicitation Received|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|3|Non-Prepriced Item Sub Quotes & Backup|project_management|GC|00|N|0|preconstruction|N|5|after:Owner Request / Solicitation Received|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|4|UPB Line-Item Proposal with Coefficient Submitted|project_management|GC|00|N|0|preconstruction|N|5|after:Owner Request / Solicitation Received|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|5|CSP Evaluation, Interview & Best-and-Final Offer|project_management|Owner|00|N|0|preconstruction|N|10|after:Proposal Preparation & Submission|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|6|Owner Proposal Review & Negotiation|project_management|Owner|00|N|0|preconstruction|N|5|after:Proposal Preparation & Submission|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|7|Job Order / Purchase Order Issued|project_management|Owner|00|N|0|preconstruction|Y|1|after:Notice of Award / Contract Execution|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|8|Co-op (TIPS/BuyBoard) PO Logged & Fee Setup|project_management|GC|00|N|0|preconstruction|N|1|after:Notice of Award / Contract Execution|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|9|Prevailing Wage Certified Payrolls (Recurring)|project_management|GC|00|N|0|construction|N|1|after:Monthly Pay Application (Recurring)|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|10|HUB Progress Assessment Reports (Recurring)|project_management|GC|00|N|0|construction|N|1|after:Monthly Pay Application (Recurring)|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|11|Change Order Pricing per UPB & Coefficient|project_management|GC|00|N|0|construction|N|3|after:Change Order / PCO Management (Recurring)|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+joc_csp_admin|12|Final Job Order Reconciliation & Close-Out|project_management|GC|00|N|0|closeout|N|3|after:Final Retainage Pay Application|JOC,job order,CSP,competitive sealed proposal,TIPS,BuyBoard,Choice Partners,coefficient,UPB,RSMeans,prevailing wage,HUB
+hvac_replacement|1|Submittals: RTU/AHU/Chiller Replacement Equipment|project_management|HVAC|23|Y|120|preconstruction|N|10|after:Submittals: HVAC Equipment & Controls|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|2|Structural Review of Roof for New Unit Weights|design|Architect|05|N|0|preconstruction|N|5|after:Architect Submittal Review & Approval|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|3|Crane Lift Plan & Street/Lane Closure Permit|permit|GC|01|N|0|preconstruction|N|5|after:Building Permit Issued|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|4|Temporary Cooling/Heating Rental Setup|standard_renovation|HVAC|23|N|0|construction|N|2|after:Temporary Power & Lighting|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|5|Existing Unit Disconnect & Refrigerant Recovery|standard_renovation|HVAC|23|N|0|construction|N|2|after:MEP Safe-Off & Make-Safe Disconnects|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|6|Crane Day: Remove Old & Set New Units|standard_renovation|HVAC|23|Y|120|construction|Y|1|after:HVAC Equipment Set (AHU/RTU/Split Systems)|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|7|Curb Adapters & Roof Patching at Units|standard_renovation|Roofing|07|Y|21|construction|N|2|after:HVAC Equipment Set (AHU/RTU/Split Systems)|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|8|Manufacturer Factory Startup & Warranty Registration|standard_renovation|HVAC|23|N|0|construction|N|1|after:Equipment Startup (HVAC)|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+hvac_replacement|9|EPA Refrigerant Records & Old Unit Disposal Docs|project_management|HVAC|23|N|0|closeout|N|1|after:Warranties & Guarantees Submitted|RTU replacement,chiller,boiler,AHU replacement,crane,HVAC replacement,mechanical upgrade,cooling tower,DX unit,central plant
+emergency_power|1|Submittals: Generator, ATS & Fuel System|project_management|Electrical|26|Y|180|preconstruction|N|10|after:Submittals: Electrical Gear, Lighting & Devices|generator,emergency power,ATS,automatic transfer switch,NFPA 110,standby power,fuel tank,life safety branch
+emergency_power|2|Generator Pad & Fuel Tank Foundation|standard_renovation|Concrete|03|Y|7|construction|N|3|after:Concrete Slab Patch/Infill at Trenches|generator,emergency power,ATS,automatic transfer switch,NFPA 110,standby power,fuel tank,life safety branch
+emergency_power|3|Generator & ATS Setting|standard_renovation|Electrical|26|Y|180|construction|Y|2|after:Panelboard & Distribution Equipment Set|generator,emergency power,ATS,automatic transfer switch,NFPA 110,standby power,fuel tank,life safety branch
+emergency_power|4|Emergency Branch Feeders & Distribution|life_safety|Electrical|26|N|0|construction|N|4|after:Overhead Electrical Rough-In (Conduit, Boxes, Feeders)|generator,emergency power,ATS,automatic transfer switch,NFPA 110,standby power,fuel tank,life safety branch
+emergency_power|5|Fuel Fill & TCEQ Tank Registration (if req)|permit|Electrical|26|N|0|construction|N|2|after:Electrical Testing (Megger/Torque)|generator,emergency power,ATS,automatic transfer switch,NFPA 110,standby power,fuel tank,life safety branch
+emergency_power|6|Generator Load Bank Test (NFPA 110)|inspection|Electrical|26|N|0|construction|N|1|after:Electrical Testing (Megger/Torque)|generator,emergency power,ATS,automatic transfer switch,NFPA 110,standby power,fuel tank,life safety branch
+emergency_power|7|ATS Transfer Test Witnessed by AHJ|inspection|AHJ|26|N|0|construction|Y|1|after:Commissioning Functional Testing|generator,emergency power,ATS,automatic transfer switch,NFPA 110,standby power,fuel tank,life safety branch
+storm_shelter|1|ICC 500 Shelter Design & Peer Review|design|Architect|01|N|0|preconstruction|N|15|after:Plan Review by AHJ|storm shelter,ICC 500,FEMA 361,safe room,tornado shelter,hardened,community shelter
+storm_shelter|2|Submittals: Storm-Rated Doors, Hardware & Louvers|project_management|Doors/Hardware|08|Y|90|preconstruction|N|7|after:Submittals: Doors, Frames & Hardware|storm shelter,ICC 500,FEMA 361,safe room,tornado shelter,hardened,community shelter
+storm_shelter|3|Reinforced CMU/Concrete Shelter Walls & Roof|standard_renovation|Masonry|04|Y|14|construction|N|10|after:Masonry Infill & Openings|storm shelter,ICC 500,FEMA 361,safe room,tornado shelter,hardened,community shelter
+storm_shelter|4|ICC 500 Special Inspections (Rebar, Grout, Concrete)|inspection|Testing Agency|04|N|0|construction|Y|2|after:Masonry Infill & Openings|storm shelter,ICC 500,FEMA 361,safe room,tornado shelter,hardened,community shelter
+storm_shelter|5|Storm-Rated Door & Hardware Installation|standard_renovation|Doors/Hardware|08|Y|90|construction|N|2|after:Door Hardware Installation|storm shelter,ICC 500,FEMA 361,safe room,tornado shelter,hardened,community shelter
+storm_shelter|6|Shelter Ventilation & Emergency Lighting|life_safety|Electrical|26|N|0|construction|N|2|after:Emergency/Exit Lighting Installation & Test|storm shelter,ICC 500,FEMA 361,safe room,tornado shelter,hardened,community shelter
+storm_shelter|7|Shelter Signage & Quality Assurance Report|life_safety|Architect|10|N|0|closeout|N|2|after:Signage Installation (Room ID/ADA)|storm shelter,ICC 500,FEMA 361,safe room,tornado shelter,hardened,community shelter
+### NOTES
+- No demolition or ceiling removal until abatement final air clearance passes and impairment/fire-watch notices for fire alarm and sprinkler are filed.
+- Building permit, plus fire alarm and sprinkler permits where those modules apply, must be in hand before any rough-in that the permit covers.
+- Underground plumbing inspection must pass before trench infill; MEP in-wall rough-in, firestopping and insulation must pass the pre-cover inspection before the second side of drywall is hung.
+- Above-ceiling AHJ inspection, plus sprinkler hydrostatic, fire alarm cabling and LV pulls where they apply, must pass before ceiling tile goes in. Grid can go up first; tile cannot.
+- Long-lead releases (switchgear, RTUs, hollow-metal and detention doors, generators, elevators) are on the critical path: track the date of submittal approval plus lead_days against the install date.
+- Finish paint goes on before flooring, and flooring before base, toilet partitions and fixture trim. Floor moisture and pH testing must pass before resilient flooring.
+- Life-safety acceptance (fire alarm 100% test, sprinkler final, egress/access release, elevator recall) must be done before the fire marshal and building finals. The final inspections come before the CO, and the CO comes before occupancy.
+- TAB and controls checkout must be finished before commissioning functional testing. In hospitals, pressure relationships are verified before ICRA barriers come down.
+- For ISD work, background checks must be cleared before any worker goes on campus, and the work must fit the academic calendar. For jail/court work, TCJS rules, tool control and escort rules apply every day.
+- The TDLR RAS inspection is required within 1 year of substantial completion for TAS-registered projects. Track it as a closeout item that blocks final retainage when the contract says so.
+- hvac_replacement: RTU, chiller, boiler or AHU replacement with crane picks, temporary conditioning and refrigerant recovery. Common for ISD summer jobs and county buildings.
+- emergency_power: generator, ATS and emergency-branch work under NFPA 110 with load bank and transfer testing. Common for hospitals, jails, EOCs and shelters.
+- storm_shelter: ICC 500 / FEMA 361 storm shelters and safe rooms, with special inspections. Often triggered in Texas school additions and renovations.

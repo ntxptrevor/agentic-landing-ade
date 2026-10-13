@@ -1,0 +1,102 @@
+{
+  "schema": "bidforge.sync.v1",
+  "generatedAt": "2026-10-13T11:06:54.191Z",
+  "project": {
+    "slug": "parkland-clinic-renovation",
+    "canonicalVersion": 2
+  },
+  "window": {
+    "from": "2026-11-02T00:00:00Z",
+    "to": "2026-12-15T00:00:00Z"
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "jobtread_daily",
+      "title": "Daily log 12/08 — Superintendent",
+      "date": "2026-12-08",
+      "summary": "Demo crew finished; abatement clearance letter received."
+    },
+    {
+      "id": "s2",
+      "kind": "gemini_notes",
+      "title": "OAC #4 minutes (Gemini)",
+      "date": "2026-12-10",
+      "summary": "Architect added ASI-03 at nurse station; owner asked about SC date."
+    },
+    {
+      "id": "s3",
+      "kind": "gmail",
+      "title": "RE: Drywall manpower",
+      "date": "2026-12-11",
+      "summary": "Drywall sub short-staffed; requests +3 days."
+    }
+  ],
+  "items": [
+    {
+      "id": "i1",
+      "sourceId": "s1",
+      "type": "actual_dates",
+      "priority": 1,
+      "jevRating": 1,
+      "taskId": "1.1",
+      "actualStart": "2026-11-02",
+      "actualFinish": "2026-11-02",
+      "summary": "Contract executed on plan"
+    },
+    {
+      "id": "i2",
+      "sourceId": "s2",
+      "type": "add_event",
+      "priority": 1,
+      "jevRating": 2,
+      "name": "OAC Meeting #4",
+      "date": "2026-12-10",
+      "phase": "construction",
+      "summary": "Backfilled OAC #4",
+      "tag": "oac"
+    },
+    {
+      "id": "i3",
+      "sourceId": "s3",
+      "type": "duration_change",
+      "priority": 2,
+      "jevRating": 4,
+      "taskId": "2.45",
+      "duration": 13,
+      "summary": "Drywall +3d (manpower)",
+      "constraint": "Sub manpower"
+    },
+    {
+      "id": "i4",
+      "sourceId": "s2",
+      "type": "milestone_move",
+      "priority": 3,
+      "jevRating": 5,
+      "taskId": "2.88",
+      "oldDate": "2028-03-07",
+      "newDate": "2028-01-15",
+      "summary": "Projected SC slip",
+      "approved": false
+    },
+    {
+      "id": "i5",
+      "sourceId": "s2",
+      "type": "tracker_update",
+      "priority": 2,
+      "jevRating": 3,
+      "tracker": "asis",
+      "record": {
+        "id": "ASI-03",
+        "subject": "Nurse station revision",
+        "distributedTo": [
+          "owner",
+          "architect",
+          "gc"
+        ]
+      },
+      "summary": "ASI-03 not sent to subs",
+      "tag": "asi"
+    }
+  ]
+}

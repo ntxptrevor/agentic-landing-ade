@@ -26,21 +26,21 @@ export function calculateSchedule(project) {
         let candidateStart;
 
         if (type === 'FS') {
-          candidateStart = addWorkingDays(predEnd, lag, workingDays, holidays);
+          candidateStart = addWorkingDays(predEnd, 1 + lag, workingDays, holidays);
         } else if (type === 'SS') {
           candidateStart = addWorkingDays(parseDate(pred.startDate), lag, workingDays, holidays);
         } else if (type === 'FF') {
           const predEndWithLag = addWorkingDays(predEnd, lag, workingDays, holidays);
-          candidateStart = subtractWorkingDays(predEndWithLag, task.duration, workingDays, holidays);
+          candidateStart = subtractWorkingDays(predEndWithLag, Math.max(task.duration - 1, 0), workingDays, holidays);
         } else if (type === 'SF') {
           candidateStart = subtractWorkingDays(
             addWorkingDays(parseDate(pred.startDate), lag, workingDays, holidays),
-            task.duration,
+            Math.max(task.duration - 1, 0),
             workingDays,
             holidays
           );
         } else {
-          candidateStart = addWorkingDays(predEnd, lag, workingDays, holidays);
+          candidateStart = addWorkingDays(predEnd, 1 + lag, workingDays, holidays);
         }
 
         if (candidateStart > earlyStart) {
@@ -49,13 +49,27 @@ export function calculateSchedule(project) {
       }
     }
 
+    // Start-no-earlier-than from a confirmed date (JobTread edit, approved milestone move)
+    if (task.constraintStart) {
+      const c = parseDate(task.constraintStart);
+      if (c > earlyStart) earlyStart = c;
+    }
+
     // Make sure earlyStart lands on a working day
     while (!isWorkingDay(earlyStart, workingDays, holidays)) {
       earlyStart.setDate(earlyStart.getDate() + 1);
     }
 
+    // Recorded actuals always win over computed dates
+    if (task.actualStart) earlyStart = parseDate(task.actualStart);
+
     task.startDate = formatDate(earlyStart);
-    task.endDate = formatDate(addWorkingDays(earlyStart, task.duration - 1, workingDays, holidays));
+    task.endDate = task.actualFinish
+      ? task.actualFinish
+      : formatDate(task.duration > 0 ? addWorkingDays(earlyStart, task.duration - 1, workingDays, holidays) : earlyStart);
+    if (task.contractDate) {
+      task.milestoneVariance = calendarDaysBetween(parseDate(task.contractDate), parseDate(task.endDate));
+    }
   }
 
   // Update phase dates
@@ -90,7 +104,21 @@ export function calculateSchedule(project) {
         if (!succ._lateStart) continue;
         const dep = project.dependencies?.find(d => d.from === task.id && d.to === succ.id);
         const lag = dep?.lag || 0;
-        const candidateFinish = subtractWorkingDays(succ._lateStart, lag, workingDays, holidays);
+        const type = dep?.type || 'FS';
+        const shift = (date, n) => (n >= 0
+          ? addWorkingDays(date, n, workingDays, holidays)
+          : subtractWorkingDays(date, -n, workingDays, holidays));
+        let candidateFinish;
+        if (type === 'SS') {
+          candidateFinish = shift(succ._lateStart, task.duration - 1 - lag);
+        } else if (type === 'FF') {
+          candidateFinish = shift(succ._lateFinish, -lag);
+        } else if (type === 'SF') {
+          candidateFinish = shift(succ._lateFinish, task.duration - 1 - lag);
+        } else {
+          // FS: succ starts the working day after pred finishes, plus lag
+          candidateFinish = shift(succ._lateStart, -(1 + lag));
+        }
         if (candidateFinish < lateFinish) {
           lateFinish = candidateFinish;
         }
@@ -108,10 +136,16 @@ export function calculateSchedule(project) {
 
   // Calculate project summary
   const projectStartDate = parseDate(startDate);
-  const workDuration = workingDaysBetween(projectStartDate, projectEnd, workingDays, holidays);
+  // Inclusive of the start date when the start is itself a working day
+  const workDuration = workingDaysBetween(projectStartDate, projectEnd, workingDays, holidays)
+    + (isWorkingDay(projectStartDate, workingDays, holidays) ? 1 : 0);
   const calDuration = calendarDaysBetween(projectStartDate, projectEnd);
   const criticalTasks = allTasks.filter(t => t.isCritical && t.type !== 'phase');
-  const criticalDuration = criticalTasks.reduce((sum, t) => sum + (t.duration || 0), 0);
+  const criticalEnds = criticalTasks.filter(t => t.endDate).map(t => parseDate(t.endDate));
+  const criticalStarts = criticalTasks.filter(t => t.startDate).map(t => parseDate(t.startDate));
+  const criticalDuration = criticalStarts.length > 0 && criticalEnds.length > 0
+    ? workingDaysBetween(new Date(Math.min(...criticalStarts)), new Date(Math.max(...criticalEnds)), workingDays, holidays) + 1
+    : 0;
 
   return {
     ...project,

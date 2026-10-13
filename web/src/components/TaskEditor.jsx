@@ -40,23 +40,29 @@ export default function TaskEditor({ wbs: initialWbs, dependencies: initialDeps,
   };
 
   const removeTask = (phaseIdx, taskIdx) => {
-    setWbs(prev => {
-      const next = JSON.parse(JSON.stringify(prev));
-      const removed = next[phaseIdx].children.splice(taskIdx, 1)[0];
-      // Clean up dependencies referencing removed task
-      for (const phase of next) {
-        for (const task of phase.children) {
-          task.predecessors = task.predecessors.filter(id => id !== removed.id);
-        }
-      }
-      // Re-number tasks in this phase
-      next[phaseIdx].children.forEach((t, i) => {
-        t.id = `${next[phaseIdx].id}.${i + 1}`;
-        t.wbsCode = t.id;
-      });
-      return next;
+    // Work from the current state so the WBS and the dependency list are remapped together.
+    const next = JSON.parse(JSON.stringify(wbs));
+    const removed = next[phaseIdx].children.splice(taskIdx, 1)[0];
+    if (!removed) return;
+    // Old-to-new IDs for the tasks renumbered in this phase
+    const idMap = new Map();
+    next[phaseIdx].children.forEach((t, i) => {
+      const newId = `${next[phaseIdx].id}.${i + 1}`;
+      if (t.id !== newId) idMap.set(t.id, newId);
+      t.id = newId;
+      t.wbsCode = newId;
     });
-    setDeps(prev => prev.filter(d => d.from !== wbs[phaseIdx].children[taskIdx]?.id && d.to !== wbs[phaseIdx].children[taskIdx]?.id));
+    const remap = id => idMap.get(id) || id;
+    // Drop links to the removed task and remap every remaining reference
+    for (const phase of next) {
+      for (const task of phase.children) {
+        task.predecessors = (task.predecessors || []).filter(id => id !== removed.id).map(remap);
+      }
+    }
+    setWbs(next);
+    setDeps(prev => prev
+      .filter(d => d.from !== removed.id && d.to !== removed.id)
+      .map(d => ({ ...d, from: remap(d.from), to: remap(d.to) })));
   };
 
   const updatePredecessors = (phaseIdx, taskIdx, value) => {
