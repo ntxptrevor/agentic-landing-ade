@@ -42,6 +42,11 @@ export function markCodaBackupPending(meta) {
 // Result reported by the agent (or carried in a sync bundle) after writing Notes.
 export function recordCodaBackup(meta, result) {
   const cb = meta.sync?.codaBackup || {};
+  // A result only counts as a verified backup when it is for the Coda as it stands now;
+  // a stale bundle or a result without a hash is recorded as a mismatch.
+  if ((result.status === 'written' || result.status === 'unchanged') && result.hash !== codaHash(meta.coda || {})) {
+    result = { ...result, status: 'mismatch', error: result.hash ? `backup sha ${result.hash} is not the current Coda (sha ${codaHash(meta.coda || {})})` : 'backup result has no hash' };
+  }
   const ok = result.status === 'written' || result.status === 'unchanged';
   const failures = ok ? 0 : (cb.failures || 0) + 1;
   const m = { ...meta, sync: { ...meta.sync, codaBackup: { status: result.status, lastAt: result.at || now(), lastHash: result.hash || cb.lastHash, failures, error: ok ? null : result.error || 'unknown' } } };

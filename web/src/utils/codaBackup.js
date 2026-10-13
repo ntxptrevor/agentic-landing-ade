@@ -33,16 +33,18 @@ export function emptyCoda() {
   };
 }
 
+const clean = v => String(v ?? '').replace(/\s+/g, ' ').trim();
+
 // FNV-1a over the Coda content lines only (not timestamps), so the hash changes only
 // when the Coda itself changes.
 export function codaHash(coda) {
-  const s = CODA_FIELDS.map(([k]) => `${k}=${coda?.[k] ?? ''}`).join('\n') + `\nv=${coda?.version ?? 0}`;
+  // Hash the values exactly as they are serialized into the block, so an untouched block
+  // always re-hashes to its declared value.
+  const s = CODA_FIELDS.map(([k]) => `${k}=${clean(coda?.[k])}`).join('\n') + `\nv=${coda?.version ?? 0}`;
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
   return h.toString(16).padStart(8, '0');
 }
-
-const clean = v => String(v ?? '').replace(/\s+/g, ' ').trim();
 
 export function buildCodaBlock(coda, { event = 'sync', at = new Date().toISOString(), canonicalVersion = 0, lastChange = '' } = {}) {
   const lines = CODA_FIELDS.map(([k, label]) => `${label}: ${clean(coda[k]) || 'not located'}`);
@@ -61,19 +63,39 @@ export function buildCodaBlock(coda, { event = 'sync', at = new Date().toISOStri
   return block;
 }
 
-// Replace the previous block (if any) and keep everything the team wrote.
-export function mergeNotes(existing, block) {
-  const text = String(existing ?? '');
+function blockSpan(text) {
   const s = text.indexOf(CODA_START);
   const e = s >= 0 ? text.indexOf(CODA_END, s) : -1;
-  const human = s >= 0 && e >= 0
-    ? (text.slice(0, s) + text.slice(e + CODA_END.length)).replace(/\n{3,}/g, '\n\n').trim()
-    : text.trim();
-  return human ? `${human}\n\n${block}` : block;
+  return s >= 0 && e >= 0 ? [s, e + CODA_END.length] : null;
 }
 
+// Replace the previous block in place, or append one. Every byte outside the block is kept
+// exactly as the team wrote it (no trimming or whitespace normalization).
+export function mergeNotes(existing, block) {
+  const text = String(existing ?? '');
+  const span = blockSpan(text);
+  if (span) return text.slice(0, span[0]) + block + text.slice(span[1]);
+  if (!text) return block;
+  return text + (text.endsWith('\n\n') ? '' : text.endsWith('\n') ? '\n' : '\n\n') + block;
+}
+
+// True when `next` differs from `existing` only inside the Coda block (plus the separator
+// added on first append).
+export function preservesTeamNotes(existing, next) {
+  const before = String(existing ?? '');
+  const after = String(next ?? '');
+  const a = blockSpan(before);
+  const b = blockSpan(after);
+  if (!b) return false;
+  if (a) return before.slice(0, a[0]) === after.slice(0, b[0]) && before.slice(a[1]) === after.slice(b[1]);
+  return after.slice(0, before.length) === before && /^\n{0,2}$/.test(after.slice(before.length, b[0])) && b[1] === after.length;
+}
+
+// The team's text with the Coda block removed (exact bytes, separator left in place).
 export function humanNotes(existing) {
-  return mergeNotes(existing, '').trim();
+  const text = String(existing ?? '');
+  const span = blockSpan(text);
+  return span ? text.slice(0, span[0]) + text.slice(span[1]) : text;
 }
 
 // Parse a block back into a Coda (restore path). Returns null when no block exists.

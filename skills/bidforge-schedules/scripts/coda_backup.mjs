@@ -22,9 +22,8 @@ const readNotes = p => (!p || p === '-' ? '' : fs.readFileSync(p, 'utf8'));
 if (cmd === 'build') {
   const [canonPath, notesPath, event = 'sync'] = args;
   const doc = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
-  const coda = doc.coda && (doc.coda.version || doc.coda.kb || doc.coda.jobtread)
-    ? doc.coda
-    : lib.codaFromLinks(doc.project || {}, doc.project?.name);
+  const hasCoda = !!(doc.coda && (doc.coda.version || doc.coda.kb || doc.coda.jobtread));
+  const coda = hasCoda ? doc.coda : lib.codaFromLinks(doc.project || {}, doc.project?.name);
   const jobId = flag('--job', doc.project?.jobtreadJobId);
   const field = flag('--field', lib.CODA_FIELD_NAME);
   if (!jobId) { console.error('No JobTread job id (canonical project.jobtreadJobId or --job).'); process.exit(2); }
@@ -38,7 +37,10 @@ if (cmd === 'build') {
     jobId, field, event, hash, chars: notes.length, blockChars: block.length,
     changed: !prior || prior.actualHash !== hash,
     priorTampered: !!prior?.tampered,
-    humanNotesPreserved: lib.humanNotes(existing) === lib.humanNotes(notes),
+    humanNotesPreserved: lib.preservesTeamNotes(existing, notes),
+    // When the canonical file had no Coda, this derived Coda must be saved as the canonical
+    // Coda (updateCoda) so the backup hash matches it.
+    derivedCoda: hasCoda ? null : coda,
     notes, block,
     mutation: { updateJob: { $: { id: jobId, customFieldValues: { [field]: notes } } } },
     readBack: { job: { $: { id: jobId }, customFieldValues: { $: { size: 50 }, nodes: { value: {}, customField: { name: {} } } } } },

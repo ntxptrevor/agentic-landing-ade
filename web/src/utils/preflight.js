@@ -1,3 +1,5 @@
+import { codaHash } from './codaBackup.js';
+
 // Deterministic pre-flight checks run before every canonical output. Their results
 // are the input to the model-council inspection and the final integrity audit.
 
@@ -42,7 +44,9 @@ export function dataChecks(project, meta) {
   const missing = ['jobtreadJobId', 'driveFolderId', 'kbPath'].filter(k => !links[k]);
   out.push({ id: 'sync_links', ok: missing.length === 0, warnOnly: true, msg: missing.length ? `Sync links missing: ${missing.join(', ')}` : 'JobTread, Drive and KB links set' });
   const cb = meta.sync?.codaBackup || { status: 'never' };
-  out.push({ id: 'coda_backup', ok: ['written', 'unchanged'].includes(cb.status), warnOnly: cb.status !== 'failed' && cb.status !== 'mismatch', msg: `Project Coda → JobTread "Notes": ${cb.status}${cb.failures ? ` (${cb.failures} failures)` : ''}` });
+  const current = cb.lastHash && cb.lastHash === codaHash(meta.coda || {});
+  const verified = ['written', 'unchanged'].includes(cb.status) && current;
+  out.push({ id: 'coda_backup', ok: verified, warnOnly: cb.status !== 'failed' && cb.status !== 'mismatch', msg: `Project Coda → JobTread "Notes": ${cb.status}${cb.status !== 'never' && !current ? ' (not the current Coda)' : ''}${cb.failures ? ` (${cb.failures} failures)` : ''}` });
   return out;
 }
 

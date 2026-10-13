@@ -99,7 +99,10 @@ Procedure (deterministic; the logistics tier runs it, no judgment needed):
    `{ "job": { "$": { "id": "<jobId>" }, "customFieldValues": { "$": { "size": 50 }, "nodes": { "value": {}, "customField": { "name": {} } } } } }`
    and save the "Notes" value to `notes.txt` (use `-` if it is empty).
 2. `node scripts/coda_backup.mjs build canonical.json notes.txt <event> > coda.json`.
-   The output carries `mutation`, `readBack` and `changed`.
+   The output carries `mutation`, `readBack` and `changed`. If it returns `derivedCoda` (the
+   canonical file had no Coda yet), save that as the canonical Coda first (`updateCoda`). The
+   backup is only accepted when its sha matches the current Coda; stale results count as a
+   mismatch.
 3. Send `coda.json.mutation` through `mcp__JobTread__query` (`updateJob` with
    `customFieldValues: { "Notes": <merged value> }`). Write even when `changed` is false, so the
    "Last sync" line stays current.
