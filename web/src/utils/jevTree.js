@@ -77,6 +77,16 @@ export function scopeFactor(scope = {}) {
 // Parametric construction-WD envelope (ntxp-gantt-schedule formula), used by the sanity gate.
 export function envelopeWd(scope = {}) {
   if (!scope.sf) return null;
+  // Zones run one after another (each completes before the next), so the yardstick is the sum
+  // of each zone's own envelope plus each phase's turnover (punch 5 WD + clean/walk 5 WD) and
+  // the owner change-over days.
+  if (isZoned(scope)) {
+    const phases = scope.phasing.phases;
+    const zones = phases.flatMap(ph => ph.zones);
+    const zoneSum = zones.reduce((a, z) => a + (envelopeWd({ ...scope, phasing: null, sf: Number(z.sf) || 0 }) || 0), 0);
+    const tails = phases.reduce((a, ph, i) => a + (i < phases.length - 1 ? 10 : 5) + (Number(ph.changeoverDays) || 0), 0);
+    return zoneSum + tails;
+  }
   const e = DURATION_MODEL.envelope;
   const sector = SECTORS[scope.sector]?.factor || 1;
   const raw = (scope.constraints || []).reduce((k, c) => k * (CONSTRAINTS[c]?.factor || 1), 1);
@@ -85,10 +95,10 @@ export function envelopeWd(scope = {}) {
 }
 
 function scaleRows(phases, scope) {
-  const f = scopeFactor(scope);
   const { min, max } = DURATION_MODEL.perTask;
   for (const p of phases) {
     if (p.id === 'preconstruction') continue;
+    const f = scopeFactor({ ...scope, sf: p.sf || scope.sf });
     const out = [];
     for (const r of p.rows) {
       let d = r.duration;
@@ -114,8 +124,60 @@ function scaleRows(phases, scope) {
   }
 }
 
+// Phased / zoned work (user rule 2026-10-13): each phase is a complete work group and each
+// zone is a complete sub-group. A zone carries only the trade groups chosen for it, runs the
+// full overlap model inside itself, and must finish (zone handover) before the next zone
+// starts. Each phase ends with its own clean, punch walk, corrections and owner turnover
+// before the next phase begins. Evidence: Rocksprings (punch walk and owner change-over between
+// phases), Parkland (owner objected to Phase 1 punch overlapping Phase 2), Ralls (restroom zones
+// with only their own trades).
+const PHASE_TAIL = ['Final Clean', 'Owner Punch Walk / Substantial Completion'];
+export function isZoned(scope) {
+  const ph = scope?.phasing?.phases || [];
+  return ph.length > 1 || (ph[0]?.zones || []).length > 1;
+}
+
+function expandZones(phases, scope) {
+  const cons = phases.find(p => p.id === 'construction');
+  if (!cons) return phases;
+  const list = scope.phasing.phases;
+  const groups = [];
+  list.forEach((ph, pi) => {
+    const lastPhase = pi === list.length - 1;
+    let phaseSf = 0;
+    (ph.zones || []).forEach((z, zi) => {
+      phaseSf += Number(z.sf) || 0;
+      const subs = new Set(z.subs || []);
+      const rows = cons.rows
+        .filter(r => !PHASE_TAIL.includes(r.baseName || r.name))
+        .filter(r => (r.baseName || r.name) !== 'Mobilization' || (pi === 0 && zi === 0))
+        .filter(r => !subs.size || subs.has(r.sub) || (r.baseName || r.name) === 'Mobilization')
+        .map(r => ({ ...r, name: `${z.name}: ${r.name}`, baseName: r.baseName || r.name, sub: `${z.name} · ${r.sub}` }));
+      rows.push({ name: `${z.name} complete — handover`, baseName: 'Zone Complete', duration: 0, milestone: true, critical: true, trade: 'GC', category: 'deliverable', cls: 'project_management', sub: `${z.name} · Handover`, source: 'zone' });
+      groups.push({ id: 'construction', name: `Construction — ${ph.name} · ${z.name}`, rows, sf: Number(z.sf) || scope.sf });
+    });
+    const tail = cons.rows.filter(r => PHASE_TAIL.includes(r.baseName || r.name)).map(r => ({
+      ...r,
+      name: lastPhase ? r.name : `${ph.name}: ${r.name === 'Owner Punch Walk / Substantial Completion' ? 'Owner Punch Walk' : r.name}`,
+      baseName: r.baseName || r.name, sub: `${ph.name} · Turnover`,
+    }));
+    if (!lastPhase) {
+      tail.push({ name: `${ph.name}: Punch Corrections`, baseName: 'Phase Punch Corrections', duration: 5, trade: 'General', category: 'activity', critical: true, sub: `${ph.name} · Turnover`, source: 'zone' });
+      tail.push({ name: `${ph.name}: Turnover to Owner`, baseName: 'Phase Turnover', duration: 0, milestone: true, critical: true, trade: 'Owner', category: 'deliverable', cls: 'oac', sub: `${ph.name} · Turnover`, source: 'zone' });
+      if (Number(ph.changeoverDays) > 0) {
+        tail.push({ name: `${ph.name}: Owner Move / Change-over`, baseName: 'Owner Change-over', duration: Number(ph.changeoverDays), trade: 'Owner', category: 'activity', cls: 'oac', sub: `${ph.name} · Turnover`, source: 'zone' });
+      }
+    }
+    groups.push({ id: 'construction', name: `Construction — ${ph.name} Turnover`, rows: tail, sf: phaseSf || scope.sf });
+  });
+  const i = phases.indexOf(cons);
+  return [...phases.slice(0, i), ...groups, ...phases.slice(i + 1)];
+}
+
 export function buildWbs(confirmedIds, scope = null) {
-  const { phases, unplaced } = composeSequence(confirmedIds, scope?.tier);
+  const composed = composeSequence(confirmedIds, scope?.tier);
+  const unplaced = composed.unplaced;
+  const phases = isZoned(scope) ? expandZones(composed.phases, scope) : composed.phases;
   if (scope) scaleRows(phases, scope);
   const deps = [];
   const wbs = phases.map((p, pi) => {
@@ -176,6 +238,9 @@ export function buildWbs(confirmedIds, scope = null) {
         link(task, phase.children[i + task.predOffset]);
       } else if (lastSeq) {
         link(task, lastSeq);
+      } else if (lastOfPrevPhase) {
+        // Group opened with a parallel/module row: the chain still starts from the previous group.
+        link(task, lastOfPrevPhase);
       }
       // Unlinked reference milestones (e.g. contract SC date) never carry the chain.
       const reference = i > 0 && task.predOffset === null;
@@ -208,7 +273,11 @@ export function buildWbs(confirmedIds, scope = null) {
 // holds the work that depends on it through an explicit link (e.g. Cover-Up → Drywall); a gate
 // that merely sat before the task in backbone order no longer serializes it.
 function applyOverlap(wbs, deps) {
-  const all = wbs.flatMap(p => p.children);
+  // Links resolve inside one WBS group (precon, each zone, closeout), never across zones.
+  for (const group of wbs) applyOverlapGroup(group.children, deps);
+}
+
+function applyOverlapGroup(all, deps) {
   const byBase = new Map();
   for (const t of all) { if (!byBase.has(t.baseName)) byBase.set(t.baseName, []); byBase.get(t.baseName).push(t); }
   const pick = (name, end) => { const xs = byBase.get(name); return xs ? (end === 'last' ? xs[xs.length - 1] : xs[0]) : null; };
@@ -236,21 +305,22 @@ function applyOverlap(wbs, deps) {
   }
 }
 
-// Every activity needs a successor (DISD 01 32 16): a task left dangling after rewiring
-// feeds the next hard gate (or the last task) in its phase.
+// Every activity needs a successor that its *finish* drives (DISD 01 32 16). A task with no
+// successor, or only SS successors (an open finish), feeds the next hard gate in its group —
+// for a zone that is its handover, so a zone cannot hand over until all its work is done.
 function feedDeadEnds(wbs, deps) {
-  const hasSucc = new Set(deps.map(d => d.from));
+  const finishDriven = new Set(deps.filter(d => d.type !== 'SS').map(d => d.from));
   const lastPhase = wbs[wbs.length - 1];
   const lastTask = lastPhase?.children[lastPhase.children.length - 1];
   for (const phase of wbs) {
     phase.children.forEach((t, i) => {
-      if (hasSucc.has(t.id) || t.isReference || t.noGate || t === lastTask) return;
+      if (finishDriven.has(t.id) || t.isReference || t.noGate || t === lastTask) return;
       const later = phase.children.slice(i + 1).filter(x => !x.isReference);
       const target = later.find(x => HARD_GATES.includes(x.baseName)) || later[later.length - 1];
-      if (!target) return;
+      if (!target || target.predecessors.includes(t.id)) return;
       target.predecessors.push(t.id);
-      deps.push({ from: t.id, to: target.id, type: 'FS', lag: 0, lagUnit: 'days', source: 'dead-end' });
-      hasSucc.add(t.id);
+      deps.push({ from: t.id, to: target.id, type: 'FS', lag: 0, lagUnit: 'days', source: 'open-finish' });
+      finishDriven.add(t.id);
     });
   }
 }

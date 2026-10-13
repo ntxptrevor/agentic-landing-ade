@@ -4,6 +4,12 @@ import { CONSTRUCTION_PHASES } from '../data/constructionPhases.js';
 import { MODULE_TASKS } from '../data/jevModuleTasks.js';
 import { SCOPE_TIERS, SECTORS, CONSTRAINTS } from '../data/jevOverlap.js';
 
+// Trade groups a zone can carry (construction sub-phases; final clean / SC belong to the phase).
+const TRADE_GROUPS = [...new Set(CONSTRUCTION_PHASES.find(p => p.id === 'construction').defaultTasks.map(t => t.sub))]
+  .filter(sub => sub && !/final clean/i.test(sub));
+const newZone = (n) => ({ name: `Zone ${String.fromCharCode(64 + n)}`, sf: '', subs: [...TRADE_GROUPS] });
+const newPhase = (n) => ({ name: `Phase ${n}`, changeoverDays: 0, zones: [newZone(1)] });
+
 // Modules that remove NTXP backbone tasks when declined must be answered explicitly.
 const BACKBONE_MODULES = new Set(CONSTRUCTION_PHASES.flatMap(p => p.defaultTasks.flatMap(t => t.module || [])));
 
@@ -26,7 +32,12 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
     sector: detMap.icra || detMap.medical_specific ? 'healthcare' : detMap.secured_building ? 'secured' : detMap.isd_college ? 'isd' : '',
     constraints: [detMap.occupied_phasing && 'occupied', detMap.icra && 'icra'].filter(Boolean),
   });
-  const scopeReady = scope.tier && scope.sector && Number(scope.sf) > 0 && (scope.tier !== 'equipment' || Number(scope.units) > 0);
+  const zoned = !!scope.phasing;
+  const zones = zoned ? scope.phasing.phases.flatMap(ph => ph.zones) : [];
+  const zoneSf = zones.reduce((a, z) => a + (Number(z.sf) || 0), 0);
+  const zonesReady = !zoned || zones.every(z => Number(z.sf) > 0 && z.subs.length && z.name.trim());
+  const scopeReady = scope.tier && scope.sector && (zoned ? zoneSf > 0 : Number(scope.sf) > 0) && zonesReady && (scope.tier !== 'equipment' || Number(scope.units) > 0);
+  const setPhasing = fn => setScope(x => ({ ...x, phasing: fn(JSON.parse(JSON.stringify(x.phasing))) }));
   const toggleConstraint = c => setScope(x => ({ ...x, constraints: x.constraints.includes(c) ? x.constraints.filter(y => y !== c) : [...x.constraints, c] }));
   const pending = JEV_MODULES.filter(m => choice[m.id] === null);
   const set = (id, v) => setChoice(prev => ({ ...prev, [id]: v }));
@@ -39,7 +50,11 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
       evidence: detMap[m.id] ? `documents: ${detMap[m.id].hits.map(h => h.keyword).join(', ')}` : 'user conversation',
       confirmedBy: 'user',
       at: new Date().toISOString(),
-    })), { tier: scope.tier, sf: Number(scope.sf), sector: scope.sector, constraints: scope.constraints, units: Number(scope.units) || 0 });
+    })), {
+      tier: scope.tier, sf: zoned ? zoneSf : Number(scope.sf), sector: scope.sector, constraints: scope.constraints,
+      units: Number(scope.units) || 0,
+      phasing: zoned ? { phases: scope.phasing.phases.map(ph => ({ ...ph, changeoverDays: Number(ph.changeoverDays) || 0, zones: ph.zones.map(z => ({ ...z, sf: Number(z.sf) })) })) } : null,
+    });
   };
 
   return (
@@ -59,10 +74,10 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
               {Object.entries(SCOPE_TIERS).map(([k, t]) => <option key={k} value={k}>{t.label}</option>)}
             </select>
           </div>
-          <div className="form-group">
+          {!zoned && <div className="form-group">
             <label>Affected area (SF)</label>
             <input type="number" min="1" value={scope.sf} onChange={e => setScope(x => ({ ...x, sf: e.target.value }))} placeholder="e.g. 6000" />
-          </div>
+          </div>}
           <div className="form-group">
             <label>Owner sector</label>
             <select value={scope.sector} onChange={e => setScope(x => ({ ...x, sector: e.target.value }))}>
@@ -84,6 +99,46 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
             </label>
           ))}
         </div>
+        <label className="constraint-chip" style={{ marginBottom: 8 }}>
+          <input type="checkbox" checked={zoned} onChange={e => setScope(x => ({ ...x, phasing: e.target.checked ? { phases: [newPhase(1)] } : null, constraints: e.target.checked && !x.constraints.includes('phased') ? [...x.constraints, 'phased'] : x.constraints }))} />
+          {zoned ? '☑' : '☐'} Phased / zoned work — each phase and each zone is completed before the next starts
+        </label>
+        {zoned && (
+          <div className="phasing-editor">
+            {scope.phasing.phases.map((ph, pi) => (
+              <div key={pi} className="phase-block">
+                <div className="phase-head">
+                  <input value={ph.name} onChange={e => setPhasing(p => { p.phases[pi].name = e.target.value; return p; })} />
+                  <label>Owner change-over after (WD)
+                    <input type="number" min="0" value={ph.changeoverDays} onChange={e => setPhasing(p => { p.phases[pi].changeoverDays = e.target.value; return p; })} style={{ width: 70 }} />
+                  </label>
+                  {scope.phasing.phases.length > 1 && <button className="btn btn-danger btn-sm" onClick={() => setPhasing(p => { p.phases.splice(pi, 1); return p; })}>Remove phase</button>}
+                </div>
+                {ph.zones.map((z, zi) => (
+                  <div key={zi} className="zone-block">
+                    <div className="zone-head">
+                      <input value={z.name} onChange={e => setPhasing(p => { p.phases[pi].zones[zi].name = e.target.value; return p; })} />
+                      <input type="number" min="1" placeholder="SF" value={z.sf} onChange={e => setPhasing(p => { p.phases[pi].zones[zi].sf = e.target.value; return p; })} style={{ width: 90 }} />
+                      {ph.zones.length > 1 && <button className="btn btn-secondary btn-sm" onClick={() => setPhasing(p => { p.phases[pi].zones.splice(zi, 1); return p; })}>Remove</button>}
+                    </div>
+                    <div className="constraint-row">
+                      {TRADE_GROUPS.map(g => (
+                        <label key={g} className={`constraint-chip ${z.subs.includes(g) ? 'on' : ''}`}>
+                          <input type="checkbox" checked={z.subs.includes(g)} onChange={() => setPhasing(p => { const zz = p.phases[pi].zones[zi]; zz.subs = zz.subs.includes(g) ? zz.subs.filter(x => x !== g) : [...zz.subs, g]; return p; })} /> {g}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <button className="btn btn-secondary btn-sm" onClick={() => setPhasing(p => { p.phases[pi].zones.push(newZone(p.phases[pi].zones.length + 1)); return p; })}>+ Zone</button>
+              </div>
+            ))}
+            <div className="btn-group" style={{ marginTop: 6 }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => setPhasing(p => { p.phases.push(newPhase(p.phases.length + 1)); return p; })}>+ Phase</button>
+              <span className="input-hint" style={{ margin: 0 }}>Total {zoneSf.toLocaleString()} SF across {zones.length} zone(s). Each zone only carries the trade groups selected; it hands over before the next zone starts, and each phase ends with its own clean, punch and owner turnover.</span>
+            </div>
+          </div>
+        )}
         <p className="input-hint">Rows a tier removes are removed by your decision and logged. Size, sector and constraints scale trade durations (fixed-time items such as inspections, reviews and tests never scale); no construction activity exceeds 10 working days.</p>
       </div>
       {pending.length > 0 && <div className="gate-banner warn">{pending.length} module{pending.length > 1 ? 's' : ''} need a yes/no answer before continuing.</div>}

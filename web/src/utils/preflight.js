@@ -16,7 +16,7 @@ const SEQUENCE_RULES = [
   { id: 'fa_accept_before_sc', before: /fire alarm 100% acceptance/i, after: /substantial completion/i, msg: 'Fire alarm acceptance before substantial completion' },
   { id: 'icra_clear_before_removal', before: /icra barrier inspection/i, after: /hepa terminal clean/i, msg: 'ICRA barrier inspection precedes terminal clean & removal' },
   { id: 'final_clean_before_sc', before: /final clean/i, after: /substantial completion/i, msg: 'Final clean before owner punch / substantial completion' },
-  { id: 'punch_before_turnover', before: /complete punch/i, after: /^turnover/i, msg: 'Punch complete before turnover' },
+  { id: 'punch_before_turnover', before: /perform punch corrections/i, after: /^turnover/i, msg: 'Punch complete before turnover' },
 ];
 
 export function sequenceChecks(project) {
@@ -59,7 +59,13 @@ export function sanityChecks(project, meta) {
   const g = DURATION_MODEL.gate;
   const out = [];
   const wd = (a, b) => { let n = 0; for (let x = new Date(`${a}T00:00:00`); x <= new Date(`${b}T00:00:00`); x = new Date(x.getTime() + 86400000)) { const w = x.getDay(); if (w && w < 6) n++; } return n; };
-  const phase = k => project.wbs.find(p => p.phaseKey === k);
+  // Zoned schedules have one construction group per zone/turnover; measure them together.
+  const groups = k => project.wbs.filter(p => p.phaseKey === k);
+  const phase = k => {
+    const gs = groups(k).filter(g => g.startDate && g.endDate);
+    if (!gs.length) return null;
+    return { startDate: gs.map(g => g.startDate).sort()[0], endDate: gs.map(g => g.endDate).sort().pop(), children: gs.flatMap(g => g.children) };
+  };
   const span = p => (p?.startDate && p?.endDate ? wd(p.startDate, p.endDate) : 0);
   const cons = (phase('construction')?.children || []).filter(t => t.duration > 0);
   const all = project.wbs.flatMap(p => p.children).filter(t => !t.isReference);

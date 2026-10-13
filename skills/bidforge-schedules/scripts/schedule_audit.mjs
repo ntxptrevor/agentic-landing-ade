@@ -31,7 +31,10 @@ const wdBetween = (a, b) => { let n = 0; for (let x = d(a); x <= d(b); x = new D
 function audit(sc) {
   const { wbs, dependencies } = buildWbs(sc.modules, sc.scope || null);
   const p = calculateSchedule({ name: sc.label, startDate: '2027-01-04', workingDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], holidays: [], hoursPerDay: 8, wbs, dependencies });
-  const phase = k => p.wbs.find(x => x.phaseKey === k);
+  const phase = k => {
+    const gs = p.wbs.filter(x => x.phaseKey === k && x.startDate);
+    return gs.length ? { startDate: gs.map(g => g.startDate).sort()[0], endDate: gs.map(g => g.endDate).sort().pop(), children: gs.flatMap(g => g.children) } : null;
+  };
   const span = ph => (ph?.startDate && ph?.endDate ? wdBetween(ph.startDate, ph.endDate) : 0);
   const cons = (phase('construction')?.children || []).filter(t => t.duration > 0);
   const concurrent = cons.filter(t => cons.some(o => o !== t && o.startDate <= t.endDate && o.endDate >= t.startDate)).length;

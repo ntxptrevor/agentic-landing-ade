@@ -11,3 +11,5 @@ Read at initialization and applied before JEV defaults. User directives are cano
 | 2026-10-13 | Sub invoices are due the 20th for payment the following month; accept only with PM approval, NTXP PO and conditional waiver. | user | trackers.js rateSubInvoice |
 | 2026-10-13 | Milestone dates move only with user permission. | user | Hard rule 4; sync P3 |
 | 2026-10-13 | Back up the Project Coda to the JobTread job custom field "Notes" during every sync event. | user | Hard rule 9; canonical-and-offramp § 4b; scripts/coda_backup.mjs |
+| 2026-10-13 | Merge "Complete Punch Items" into "Perform Punch Corrections". | user | LL-2026-10-13-20 |
+| 2026-10-13 | Each phase is a complete work group; each zone/area is a complete sub-group that need not include all trades; each must finish before the next group starts. | user | LL-2026-10-13-21; jevTree expandZones |

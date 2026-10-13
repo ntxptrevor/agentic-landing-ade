@@ -48,6 +48,21 @@ Inspections, tests, reviews, meetings and admin rows never scale. A construction
 split by area (DISD 01 32 16). Sectors: ISD 1.0, college 1.05, municipal/TxDOT 1.0, healthcare
 1.15, secured 1.2. Constraints: occupied 1.10, ICRA 1.15, phased 1.10, secure 1.10, night 1.30.
 
+## Phases and zones (user rule, 2026-10-13)
+
+Each **phase** is a complete work group and each **zone or area** is a complete sub-group. A zone
+carries only the trade groups chosen for it (construction sub-phases: demo, underground MEP,
+framing, wall rough-in, drywall & ceiling, finishes, punch prep, low voltage & controls). The full
+overlap model runs inside the zone, and the zone must finish (`<Zone> complete — handover`) before
+the next zone starts. Each phase then closes with its own final clean, owner punch walk, punch
+corrections and `Turnover to Owner`, plus optional owner change-over days, before the next phase.
+The last phase's walk is the project's Substantial Completion.
+
+Precedents from past NTXP jobs: Rocksprings (punch walk and owner change-over between phases),
+Parkland (owner objected to Phase 1 punch overlapping Phase 2), Ralls (restroom zones carrying only
+demo, rough-in, tile/finish and fixtures). Days gate for zoned work: sum of each zone's envelope plus
+phase turnovers and change-over days.
+
 ## Overlap model
 
 - `OVERLAP_LINKS`: 51 SS/FF/FS links with lags. A link is adopted when at least 2 of 3 council

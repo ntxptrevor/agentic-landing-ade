@@ -131,10 +131,9 @@ export const CONSTRUCTION_PHASES = [
     defaultTasks: [
       { name: 'GC Generated Punch List Sent to Architect / Owner', duration: 2, trade: 'PM', category: 'deliverable', critical: true, sub: 'Punch List' },
       { name: 'Architect Approved Punch List Received', duration: 5, trade: 'Architect', category: 'deliverable', critical: true, sub: 'Punch List' },
-      { name: 'Perform Punch Corrections', duration: 10, trade: 'General', category: 'activity', critical: true, sub: 'Punch List' },
+      { name: 'Perform Punch Corrections', duration: 10, trade: 'General', category: 'activity', critical: true, sub: 'Punch List', lesson: 'LL-2026-10-13-20' },
       { name: 'Submit 100% Pay App', duration: 2, trade: 'PM', category: 'deliverable', sub: 'Pay Application & Documentation' },
       { name: 'Begin Closeout Documentation', duration: 5, trade: 'PM', category: 'deliverable', sub: 'Pay Application & Documentation' },
-      { name: 'Complete Punch Items', duration: 5, trade: 'General', category: 'activity', critical: true, sub: 'Pay Application & Documentation' },
       { name: 'Verify Acceptance of Closeout Docs', duration: 3, trade: 'Owner', category: 'deliverable', sub: 'Pay Application & Documentation' },
       { name: 'Final Walk', duration: 1, trade: 'Owner', category: 'deliverable', critical: true, sub: 'Final Acceptance' },
       { name: 'TDLR RAS Inspection (within 1 year of SC)', duration: 1, trade: 'AHJ', category: 'deliverable', cls: 'inspection', parallel: true, noGate: true, lesson: 'LL-2026-10-13-03', sub: 'Final Acceptance' },

@@ -5,6 +5,17 @@ Format and vote rules: ../references/self-improvement.md. Newest first.
 
 ## 2026-10-13
 
+### LL-2026-10-13-21 — Phases and zones as complete, sequential work groups
+Status: applied (user decision — canon)   Scope: jevTree expandZones, ModuleSelection phasing editor, preflight/audit aggregation, envelope
+Rule: each phase is a complete work group; each zone is a complete sub-group with only its chosen trade groups; each group finishes before the next begins. Each phase ends with clean, punch walk, corrections and owner turnover (plus change-over days).
+Engine fixes found while building it: a group that opens with a parallel/module row still chains from the previous group; any task whose finish drives nothing (no successor, or only SS successors) now feeds the next hard gate (DISD 01 32 16), so a zone cannot hand over with work still open.
+Remove by: turn off "Phased / zoned work" for a project; delete expandZones to remove globally.
+
+### LL-2026-10-13-20 — Merge Complete Punch Items into Perform Punch Corrections
+Status: applied (user decision — canon)   Scope: backbone/closeout
+Change: removed "Complete Punch Items" (protected row, removed by the user's explicit decision); "Perform Punch Corrections" (10 WD, size-scaled) now covers punch completion. The round-2 SS+5 link between the rows is removed.
+Remove by: restore the row in constructionPhases.js and the link in jevOverlap.js.
+
 ### LL-2026-10-13-09…18 — Schedule engine realism (council schedule audit)
 Status: applied (R1–R6, R8–R10 were 3/3 adopt votes; link values from the ≥2-seat merge)   Scope: jevTree, scheduler, jevOverlap, preflight, trackers, setup
 Evidence: knowledge/council/2026-10-13-schedule-audit/ (Drive benchmarks for Parkland, Ralls, TAMU, TxDOT; seats A/B/C rounds 1–2; engine audits before and after).
@@ -15,8 +26,8 @@ Remove by: delete the entries in web/src/data/jevOverlap.js, or pass no scope to
 
 ### LL-2026-10-13-19 — Decisions surfaced to the user (not overwhelming)
 Status: **awaiting-user**
-1. Merge "Complete Punch Items" into "Perform Punch Corrections" (3/3 favored, but the row is user-protected). Round 2 overlapped the two rows instead (SS+5, 3/3), so nothing is removed.
-2. Location-based area repetition for phased or occupied work (3/3 favor on value; one seat says phase 2; large build). Not built.
+1. ~~Merge Complete Punch Items~~ — answered yes by the user → LL-2026-10-13-20.
+2. ~~Area repetition for phased work~~ — answered by the user (complete, sequential phase/zone groups) → LL-2026-10-13-21.
 3. Inspection notice lead of 5 WD plus a 2-day re-inspection contingency (2/3).
 4. Healthcare mockup gates before rough-in and before finishes (1/3, supported by the Parkland HW comment).
 5. A Finish Paint row; split Drywall into Hang + Tape/Float (1/3 each).

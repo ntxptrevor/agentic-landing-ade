@@ -56,7 +56,6 @@ export const OVERLAP_LINKS = [
   { from: 'Install Wall Base', to: 'Install ADA Room Signage', type: 'SS', lag: 1, seats: 2, round: 2 },
   { from: 'Install ADA Room Signage', to: 'Furniture, Wall Hangings & Owner Item Installation', type: 'SS', lag: 1, seats: 2, round: 2 },
   { from: 'Furniture, Wall Hangings & Owner Item Installation', to: 'Final Clean', type: 'FF', lag: 1, seats: 2, round: 2 },
-  { from: 'Perform Punch Corrections', to: 'Complete Punch Items', type: 'SS', lag: 5, seats: 3, round: 2 },
   { from: 'GC Generated Punch List Sent to Architect / Owner', to: 'Perform Punch Corrections', type: 'SS', lag: 2, seats: 2, round: 2 },
 ];
 
@@ -66,7 +65,7 @@ export const HARD_GATES = [
   'Confirm Job Start Approval (Gate)', 'Ready to Mobilize — Confirmed NTXP PM / Super',
   'Make Safe', 'Underground MEP Inspections', 'Cover-Up Inspections', 'T-Bar Above-Ceiling MEP Inspection',
   'Slab Moisture / pH Testing (Resilient Flooring)', 'Final Clean', 'Owner Punch Walk / Substantial Completion',
-  'Final Walk', 'Turnover (Project Complete)',
+  'Final Walk', 'Turnover (Project Complete)', 'Zone Complete', 'Phase Turnover',
 ];
 
 // Scope tiers (rows dropped by >= 2 of 3 seats). Chosen by the user at the scope step, so a

@@ -10,7 +10,7 @@ description: >-
   "save this to memory" or "from now on" about scheduling.
 metadata:
   author: NTXP LLC
-  version: "2.2.0"
+  version: "2.3.0"
   canonical_schema: bidforge.canonical.v1
   sync_schema: bidforge.sync.v1
 ---
@@ -81,7 +81,7 @@ work hours, phasing, milestones, liquidated damages, submittal/inspection/closeo
 module signals. Or capture the explicit "none exist" acknowledgement.
 
 ### 3 · Build with the JEV tree — `references/jev-tree.md`
-Scope profile first (tier, affected SF, sector, constraints, units), then the backbone (NTXP 3-phase
+Scope profile first (tier, affected SF, sector, constraints, units, and optional phases/zones that each complete before the next), then the backbone (NTXP 3-phase
 canon) plus gated modules, wired with the council overlap model (SS/FF links; FS only at hard gates). Detection is deterministic (`detectModules`);
 **confirmation** comes from documents (strong evidence) or the user. Every line item gets
 class → trade → has-submittal/lead → phase → milestone. CPM is code (`web/src/utils/scheduler.js`).
