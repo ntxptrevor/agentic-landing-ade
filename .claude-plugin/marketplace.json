@@ -28,6 +28,18 @@
       "category": "construction",
       "tags": ["construction", "scheduling", "project-management", "wbs"],
       "homepage": "https://github.com/jaewon42/agentic-landing-ade"
+    },
+    {
+      "name": "jobtread-integration",
+      "description": "JobTread integration via the Pave API. Interactive curl-based workflows to read, list, export, create, and update JobTread jobs, customers, accounts, contacts, locations, documents, tasks, and daily logs.",
+      "version": "1.0.0",
+      "author": {
+        "name": "NTXP"
+      },
+      "source": "./",
+      "category": "construction",
+      "tags": ["construction", "jobtread", "pave", "integration", "api", "project-management"],
+      "homepage": "https://github.com/jaewon42/agentic-landing-ade"
     }
   ]
 }

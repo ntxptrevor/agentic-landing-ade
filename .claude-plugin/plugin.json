@@ -14,6 +14,11 @@
       "name": "bidforge-schedules",
       "description": "NTXP BidForge Schedules - Interactive construction WBS schedule generator from bid documents using LandingAI document extraction.",
       "path": "skills/bidforge-schedules/SKILL.md"
+    },
+    {
+      "name": "jobtread-integration",
+      "description": "JobTread integration via the Pave API. Read, list, export, create, and update JobTread jobs, customers, accounts, contacts, locations, documents, tasks, and daily logs using interactive curl-based Pave queries.",
+      "path": "skills/jobtread-integration/SKILL.md"
     }
   ]
 }
