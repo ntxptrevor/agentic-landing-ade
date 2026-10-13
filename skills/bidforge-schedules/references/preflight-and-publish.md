@@ -10,6 +10,16 @@ clean→SC, punch→turnover), every task dated and linked, requirements gate sa
 variance reported, sync links present (warning), and DOM layout checks: no clipped text, ≥3px
 padding between text and every border, one font family.
 
+### Days sanity gate (`sanityChecks`)
+
+Construction WD must fall within 0.7–1.4× the parametric envelope
+(`2.13 × SF^0.379 × tier × sector × constraints`). At least 50% of construction activities must
+run concurrently (NTXP actuals are 85–95%), and at most 50% may be critical. No construction
+activity may exceed 10 WD. The projected SC must leave 10% float to the contract SC date when that
+date is set. Preconstruction ≤ 45 WD and closeout ≤ 20 WD are warnings. A failure blocks
+publishing; the engine never compresses durations to pass. Run
+`node scripts/schedule_audit.mjs` to re-check the five reference scenarios after any change.
+
 ## Stage 2 — Council inspection (`agents/preflight-inspector.md`)
 
 ≥3 distinct providers (reduced Claude council if the engine is absent). Input: the deterministic

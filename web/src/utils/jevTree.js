@@ -93,8 +93,11 @@ function scaleRows(phases, scope) {
     for (const r of p.rows) {
       let d = r.duration;
       const labor = d > 0 && !r.milestone && !FIXED_TIME_RE.test(r.name) && !(r.cls && ['inspection', 'permit', 'oac', 'design'].includes(r.cls));
-      if (scope.tier === 'equipment' && /hvac|mechanical/i.test(r.trade || '') && /set|install|replace|disconnect|curb/i.test(r.name)) {
-        d = Math.max(DURATION_MODEL.equipment.minSet, Math.ceil((scope.units || 1) * DURATION_MODEL.equipment.setDaysPerUnit));
+      const units = scope.units || 1;
+      if (scope.tier === 'equipment' && /crane|\bset\b/i.test(r.name)) {
+        d = Math.max(DURATION_MODEL.equipment.minSet, Math.ceil(units * DURATION_MODEL.equipment.setDaysPerUnit));
+      } else if (scope.tier === 'equipment' && /disconnect|recovery|curb adapter/i.test(r.name)) {
+        d = Math.max(1, Math.ceil(units * DURATION_MODEL.equipment.setDaysPerUnit / 2));
       } else if (labor && scope.sf) {
         d = Math.max(min, Math.round(d * f));
       }
@@ -201,8 +204,9 @@ export function buildWbs(confirmedIds, scope = null) {
   return { wbs, dependencies: deps, unplaced };
 }
 
-// Council overlap links replace the plain sequential FS link into a task. Links into a
-// task from a hard gate stay FS, so nothing overlaps an inspection or a release.
+// Council overlap links replace the plain sequential FS link into a task. A hard gate only
+// holds the work that depends on it through an explicit link (e.g. Cover-Up → Drywall); a gate
+// that merely sat before the task in backbone order no longer serializes it.
 function applyOverlap(wbs, deps) {
   const all = wbs.flatMap(p => p.children);
   const byBase = new Map();
@@ -219,10 +223,9 @@ function applyOverlap(wbs, deps) {
     const lag = l.type === 'SS' ? Math.min(l.lag, Math.max((from.duration || 1) - 1, 0)) : l.lag;
     incoming.get(to.id).push({ from: from.id, to: to.id, type: l.type, lag, lagUnit: 'days', source: 'council' });
   }
-  const gateIds = new Set(all.filter(t => HARD_GATES.includes(t.baseName)).map(t => t.id));
   for (const [toId, links] of incoming) {
     const task = all.find(t => t.id === toId);
-    const keep = task.predecessors.filter(p => gateIds.has(p) || links.some(l => l.from === p));
+    const keep = task.predecessors.filter(p => links.some(l => l.from === p));
     for (let i = deps.length - 1; i >= 0; i--) {
       if (deps[i].to === toId && !keep.includes(deps[i].from)) deps.splice(i, 1);
       else if (deps[i].to === toId && links.some(l => l.from === deps[i].from)) deps.splice(i, 1);

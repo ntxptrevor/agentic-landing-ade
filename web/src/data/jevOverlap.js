@@ -30,7 +30,8 @@ export const OVERLAP_LINKS = [
   { from: 'Underground MEP Inspections', to: 'Pourback — Interior Trenches', type: 'FS', lag: 0, seats: 2 },
   { from: 'Wall MEP Rough', to: 'Overhead MEP Rough', type: 'SS', lag: 0, seats: 2 },
   { from: 'Wall MEP Rough', to: 'Fire Alarm & Low Voltage Prewiring', type: 'SS', lag: 3, seats: 2 },
-  { from: 'Cover-Up Inspections', to: 'Drywall & Taping', type: 'SS', lag: 2, seats: 2 },
+  // Seats A + C: the first inspected area is a hard FS (A: 'first area is hard FS'; C: FS per area).
+  { from: 'Cover-Up Inspections', to: 'Drywall & Taping', type: 'FS', lag: 0, seats: 2 },
   { from: 'Overhead MEP Rough', to: 'T-Bar Above-Ceiling MEP Inspection', type: 'FS', lag: 0, seats: 2 },
   { from: 'Prime Coat Walls', to: 'Install Millwork / Cabinetry / Casework', type: 'SS', lag: 4, seats: 2 },
   { from: 'Prime Coat Walls', to: 'Install Doors', type: 'SS', lag: 5, seats: 2 },
@@ -46,6 +47,17 @@ export const OVERLAP_LINKS = [
   { from: 'Install Door Hardware & Accessories', to: 'Terminate & Integrate Access Control & Building Controls', type: 'SS', lag: 1, seats: 2 },
   { from: 'Install Wall Base', to: 'GC PM / Super Pre-Punch', type: 'SS', lag: 0, seats: 2 },
   { from: 'GC Generated Punch List Sent to Architect / Owner', to: 'Perform Punch Corrections', type: 'SS', lag: 1, seats: 2 },
+  // Round 2 (same rule: identical pair voted yes by >= 2 seats) — remaining serial clusters.
+  { from: 'Prime Coat Walls', to: 'Prep Floor — Level or Grind', type: 'SS', lag: 2, seats: 3, round: 2 },
+  { from: 'Prime Coat Walls', to: 'Install Flooring — All Types', type: 'SS', lag: 3, seats: 2, round: 2 },
+  { from: 'Salvage Owner Items (Retain/Reuse/Turnover)', to: 'Selective & Interior Trench Demo', type: 'SS', lag: 1, seats: 3, round: 2 },
+  { from: 'Selective & Interior Trench Demo', to: 'GPR Scanning — Demo & Core Locations', type: 'SS', lag: 1, seats: 3, round: 2 },
+  { from: 'Selective & Interior Trench Demo', to: 'NLB Framing', type: 'SS', lag: 3, seats: 2, round: 2 },
+  { from: 'Install Wall Base', to: 'Install ADA Room Signage', type: 'SS', lag: 1, seats: 2, round: 2 },
+  { from: 'Install ADA Room Signage', to: 'Furniture, Wall Hangings & Owner Item Installation', type: 'SS', lag: 1, seats: 2, round: 2 },
+  { from: 'Furniture, Wall Hangings & Owner Item Installation', to: 'Final Clean', type: 'FF', lag: 1, seats: 2, round: 2 },
+  { from: 'Perform Punch Corrections', to: 'Complete Punch Items', type: 'SS', lag: 5, seats: 3, round: 2 },
+  { from: 'GC Generated Punch List Sent to Architect / Owner', to: 'Perform Punch Corrections', type: 'SS', lag: 2, seats: 2, round: 2 },
 ];
 
 // Hard gates are never overlapped: their successors wait for them to finish (FS), and any
@@ -70,6 +82,8 @@ export const SCOPE_TIERS = {
       'Wall MEP Rough', 'Cover-Up Inspections', 'Overhead MEP Rough', 'MEP Equipment Installation (Panels / HVAC Units)',
       'Fire Sealing — Wall & Floor Penetrations', 'Install Millwork / Cabinetry / Casework', 'Install Doors',
       'Install Door Hardware & Accessories', 'Terminate & Integrate Access Control & Building Controls',
+      // Seats A + C: keep only if ceiling MEP is disturbed — that job belongs in the standard tier.
+      'T-Bar Above-Ceiling MEP Inspection',
     ],
     override: { 'Drywall & Taping': { duration: 2, name: 'Drywall Patch & Repair' } },
   },

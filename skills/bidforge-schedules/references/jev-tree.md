@@ -30,6 +30,38 @@ Site Work, Underground Inspections, Pourback — Exterior). That is a user decis
 | 4 Phase | preconstruction, construction, closeout | anchor phase → library |
 | 5 Milestone | yes/no | explicit → rule (NTP, SC, turnover, gates, 0-day) |
 
+## Scope profile (required at the module step)
+
+Tier, affected SF, owner sector, constraints and, for equipment jobs, units. Rules live in
+`web/src/data/jevOverlap.js` (council schedule audit 2026-10-13):
+
+| Tier | Effect |
+|---|---|
+| light | Drops underground, structural, framing, rough-in, cover-up and above-ceiling inspections, MEP equipment, fire sealing, millwork, doors/hardware, controls; drywall becomes a 2-day patch |
+| standard | Drops underground MEP, pourback, structural and MEP equipment |
+| heavy | Drops structural only; adds TAB |
+| gut | Keeps every row; adds TAB |
+| equipment | Keeps only mobilization, containment, make safe, equipment set, above-ceiling inspection, controls, start-up, TAB, final clean, SC; unit-rate durations |
+
+Durations: trade rows scale by `(SF / 4500)^0.379 × sector × constraints^0.8` (capped at 1.6).
+Inspections, tests, reviews, meetings and admin rows never scale. A construction row over 10 WD is
+split by area (DISD 01 32 16). Sectors: ISD 1.0, college 1.05, municipal/TxDOT 1.0, healthcare
+1.15, secured 1.2. Constraints: occupied 1.10, ICRA 1.15, phased 1.10, secure 1.10, night 1.30.
+
+## Overlap model
+
+- `OVERLAP_LINKS`: 51 SS/FF/FS links with lags. A link is adopted when at least 2 of 3 council
+  seats proposed the identical pair; the lag is the median (scripts/council_lag_merge.mjs).
+  Examples: framing → wall rough-in SS+2 / FF+2, drywall → prime SS+5, prime → floor prep SS+2,
+  NTP → each preconstruction track SS+0–3.
+- A council link replaces the plain sequential link into a task. Hard gates (cover-up, above-ceiling,
+  moisture, underground inspection, make safe, final clean, SC, final walk, turnover) hold only the
+  work linked to them explicitly. An SS lag never exceeds the predecessor's duration.
+- Module rows in construction and closeout run as their own trade flow: the first row starts SS+1
+  after its anchor (FS if the anchor is a hard gate), and later rows follow in order.
+- Any task left without a successor feeds the next hard gate in its phase, so every activity has
+  a predecessor and a successor (DISD).
+
 ## Wiring rules (deterministic)
 
 - Sequential FS by default in backbone order; module rows insert right after their anchor in

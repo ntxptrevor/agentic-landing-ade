@@ -121,7 +121,7 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight }
       c = next;
     }
     const weeks = [];
-    const step = total > 400 ? 28 : total > 200 ? 14 : 7;
+    const step = total > 300 ? 28 : total > 110 ? 14 : 7;
     for (let d = 0; d < total; d += step) {
       const dt = new Date(startMonday.getTime() + d * DAY);
       weeks.push({ left: (d / total) * 100, label: `${dt.getMonth() + 1}/${dt.getDate()}` });

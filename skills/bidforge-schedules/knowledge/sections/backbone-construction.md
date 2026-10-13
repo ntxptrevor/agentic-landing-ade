@@ -1,8 +1,8 @@
 ---
 id: backbone-construction
-version: 1
+version: 2
 updated: 2026-10-13
-hash: ab0d6125f0fb
+hash: 849cc34a3302
 source: web/src/data/constructionPhases.js (NTXP canon)
 ---
 
@@ -67,8 +67,10 @@ source: web/src/data/constructionPhases.js (NTXP canon)
 | 55 | Trim Out & Test Low Voltage | 3 | Low Voltage | Low Voltage & Controls |  | low_voltage |  |
 | 56 | Terminate & Integrate Access Control & Building Controls | 3 | Controls | Low Voltage & Controls |  |  |  |
 | 57 | Start Up Control Systems & Test | 3 | Controls | Low Voltage & Controls |  |  |  |
-| 58 | Final Clean | 3 | General | Final Clean & Substantial Completion | yes |  |  |
-| 59 | Owner Punch Walk / Substantial Completion | 3 | Owner | Final Clean & Substantial Completion | yes |  |  |
+| 58 | Test, Adjust & Balance (TAB) | 3 | HVAC | Low Voltage & Controls |  |  | LL-2026-10-13-17 |
+| 59 | Final Clean | 3 | General | Final Clean & Substantial Completion | yes |  |  |
+| 60 | Owner Punch Walk / Substantial Completion | 3 | Owner | Final Clean & Substantial Completion | yes |  |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash 849cc34a3302)
 - v1 2026-10-13 — regenerated (hash ab0d6125f0fb)

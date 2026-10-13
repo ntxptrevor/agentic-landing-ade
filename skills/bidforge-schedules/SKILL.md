@@ -10,7 +10,7 @@ description: >-
   "save this to memory" or "from now on" about scheduling.
 metadata:
   author: NTXP LLC
-  version: "2.1.0"
+  version: "2.2.0"
   canonical_schema: bidforge.canonical.v1
   sync_schema: bidforge.sync.v1
 ---
@@ -81,7 +81,8 @@ work hours, phasing, milestones, liquidated damages, submittal/inspection/closeo
 module signals. Or capture the explicit "none exist" acknowledgement.
 
 ### 3 · Build with the JEV tree — `references/jev-tree.md`
-Backbone (NTXP 3-phase canon) + gated modules. Detection is deterministic (`detectModules`);
+Scope profile first (tier, affected SF, sector, constraints, units), then the backbone (NTXP 3-phase
+canon) plus gated modules, wired with the council overlap model (SS/FF links; FS only at hard gates). Detection is deterministic (`detectModules`);
 **confirmation** comes from documents (strong evidence) or the user. Every line item gets
 class → trade → has-submittal/lead → phase → milestone. CPM is code (`web/src/utils/scheduler.js`).
 
@@ -132,6 +133,9 @@ canon). Every applied change is a removable, dated entry in `knowledge/lessons-l
 | `scripts/council_merge.mjs` | Seats → consensus data files + report |
 | `scripts/schedule_diff.mjs` | JobTread export vs canonical → `jobtread_manual_edit` items |
 | `scripts/validate_bundle.mjs` | Sync bundle / canonical validation |
+| `scripts/schedule_audit.mjs` | Days sanity audit of five reference scenarios vs council bands |
+| `scripts/council_lag_merge.mjs` | Merges council lag tables (≥2 seats, median lag) |
+| `web/src/data/jevOverlap.js` | Overlap links, hard gates, scope tiers, duration model, gate thresholds |
 | `scripts/coda_backup.mjs` | Project Coda → JobTread job "Notes" block (build, verify, restore) |
 | `web/src/utils/codaBackup.js` | Coda block format, merge that preserves the team's notes, parser, hash |
 | `scripts/export_sections.mjs` | Writes versioned knowledge sections from the data files |
