@@ -27,6 +27,12 @@ if (doc.schema === 'bidforge.sync.v1') {
     if (it.type === 'add_event') need(it.name && it.date, `${it.id}: name/date required`);
     if (it.type === 'tracker_update') need(it.tracker && it.record?.id, `${it.id}: tracker/record.id required`);
   }
+  if (doc.codaBackup) {
+    need(['written', 'unchanged', 'mismatch', 'failed', 'skipped'].includes(doc.codaBackup.status), `codaBackup.status invalid: ${doc.codaBackup.status}`);
+    need(doc.codaBackup.at, 'codaBackup.at missing');
+  } else {
+    console.warn('! no codaBackup result — every sync event must back the Project Coda up to JobTread "Notes"');
+  }
 } else if (doc.schema === 'bidforge.canonical.v1') {
   need(['uploaded', 'acknowledged_none'].includes(doc.requirements?.status), 'requirements gate not satisfied');
   need(Array.isArray(doc.wbs) && doc.wbs.length, 'wbs empty');

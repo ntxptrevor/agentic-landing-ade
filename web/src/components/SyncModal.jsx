@@ -89,6 +89,14 @@ export default function SyncModal({ project, meta, onApply, onClose }) {
               ))}
             </div>
             <div className="sync-legend">
+              <span>
+                <b>Project Coda → JobTread "Notes":</b>{' '}
+                {bundle.codaBackup
+                  ? `${bundle.codaBackup.status}${bundle.codaBackup.hash ? ` (sha ${bundle.codaBackup.hash})` : ''}${bundle.codaBackup.error ? ` — ${bundle.codaBackup.error}` : ''}`
+                  : 'will be written by the agent with this sync'}
+              </span>
+            </div>
+            <div className="sync-legend">
               {Object.entries(SYNC_PRIORITIES).map(([k, v]) => <span key={k}><b>P{k}</b> {v}</span>)}
             </div>
             {sources.map(src => (

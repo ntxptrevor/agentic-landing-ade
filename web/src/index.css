@@ -1294,3 +1294,5 @@ input:focus, select:focus, textarea:focus {
 .sync-constraint { font-size: .74rem; color: var(--warning); margin-top: 2px; }
 .sync-ack { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-weight: 700; color: var(--critical); font-size: .78rem; }
 @media (max-width: 600px) { .preflight ul { columns: 1; } .module-grid { grid-template-columns: 1fr; } .modal { padding: 14px; } }
+.coda-status { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .78rem; margin-bottom: 12px; }
+.coda-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; font-family: var(--font); font-size: .72rem; white-space: pre-wrap; word-break: break-word; margin-top: 12px; }

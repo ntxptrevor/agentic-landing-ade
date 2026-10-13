@@ -32,7 +32,8 @@ Unanimous yes → stage 3. Any no → fix and repeat (max 3 rounds), then gate t
 
 Verify the established data sources and sync connections: JobTread job reachable and matching the
 Coda; Drive folder writable; KB path writable; the canonical version equals what will be pushed;
-`jobTreadTaskId` mapping complete; last pull newer than the last JobTread edit. Record the result
+`jobTreadTaskId` mapping complete; last pull newer than the last JobTread edit; the JobTread
+"Notes" Coda block exists, verifies by read-back, and its sha matches the KB Coda. Record the result
 in the changelog (`type: preflight`).
 
 ## Publish

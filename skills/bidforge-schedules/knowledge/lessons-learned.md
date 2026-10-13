@@ -5,6 +5,12 @@ Format and vote rules: ../references/self-improvement.md. Newest first.
 
 ## 2026-10-13
 
+### LL-2026-10-13-08 — Project Coda backup to JobTread "Notes" on every sync
+Status: applied (user directive — canon; no council vote needed)   Scope: sync, off-ramp, initialization, pre-flight
+Change: every sync event writes a delimited Coda block to the end of the JobTread job custom field "Notes" (field 22PEPTyrwL4W) and verifies it by read-back. The team's text outside the block is preserved. Initialization restores the Coda from the block when the KB copy is missing, and flags hand edits.
+Expected effect: Coda survives KB loss; every job shows its canonical sources in JobTread.
+Remove by: delete hard rule 9 in SKILL.md, § 4b in canonical-and-offramp.md, and the backup step in sync-workflow.md.
+
 ### LL-2026-10-13-07 — Fix FS/FF/SF off-by-one in CPM forward pass
 Status: applied (defect fix, not a methodology change)   Scope: web/src/utils/scheduler.js
 Evidence: zero-lag FS successors started on the predecessor's finish day while the backward pass assumed the next day, so real critical tasks showed float.

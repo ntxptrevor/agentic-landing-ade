@@ -2,6 +2,8 @@
 // Google Drive folder and JobTread are all derived from. Every mutation goes
 // through logChange so the changelog stays complete and auditable.
 
+import { emptyCoda, codaHash } from './codaBackup.js';
+
 export const CANONICAL_SCHEMA = 'bidforge.canonical.v1';
 
 export function slugify(name) {
@@ -20,8 +22,35 @@ export function emptyMeta() {
     inputs: [],
     optimizationChain: [],
     memory: [],
-    sync: { lastSyncAt: null, lastJobtreadPullAt: null },
+    coda: emptyCoda(),
+    sync: { lastSyncAt: null, lastJobtreadPullAt: null, codaBackup: { status: 'never', lastAt: null, lastHash: null, failures: 0 } },
   };
+}
+
+// Project Coda edits (KB is primary; the JobTread "Notes" block is the backup).
+export function updateCoda(meta, coda, source = 'environment') {
+  const next = { ...coda, version: (meta.coda?.version || 0) + 1, updatedAt: now() };
+  const m = logChange({ ...meta, coda: next }, { type: 'coda_updated', source, after: { version: next.version, hash: codaHash(next) }, reason: 'Project Coda changed — JobTread Notes backup due on next sync', jevRating: 2 });
+  return markCodaBackupPending(m);
+}
+
+export function markCodaBackupPending(meta) {
+  const cb = meta.sync?.codaBackup || {};
+  return { ...meta, sync: { ...meta.sync, codaBackup: { ...cb, status: 'pending' } } };
+}
+
+// Result reported by the agent (or carried in a sync bundle) after writing Notes.
+export function recordCodaBackup(meta, result) {
+  const cb = meta.sync?.codaBackup || {};
+  const ok = result.status === 'written' || result.status === 'unchanged';
+  const failures = ok ? 0 : (cb.failures || 0) + 1;
+  const m = { ...meta, sync: { ...meta.sync, codaBackup: { status: result.status, lastAt: result.at || now(), lastHash: result.hash || cb.lastHash, failures, error: ok ? null : result.error || 'unknown' } } };
+  return logChange(m, {
+    type: 'coda_backup', source: `JobTread job custom field "Notes"${result.event ? ` (${result.event})` : ''}`, actor: 'sync',
+    after: { status: result.status, hash: result.hash, chars: result.chars },
+    reason: ok ? 'Project Coda backed up to JobTread' : `Coda backup failed (${failures} in a row): ${result.error || 'unknown'}`,
+    jevRating: ok ? 1 : failures >= 3 ? 4 : 3,
+  });
 }
 
 const now = () => new Date().toISOString();
@@ -87,6 +116,7 @@ export function buildCanonicalDocument(project, meta) {
     inputs: meta.inputs,
     optimizationChain: meta.optimizationChain,
     memory: meta.memory,
+    coda: meta.coda,
     sync: meta.sync,
   };
 }
@@ -110,7 +140,7 @@ export function loadLocal() {
 // Split a canonical document back into app state.
 export function fromCanonicalDocument(doc) {
   const meta = emptyMeta();
-  for (const k of ['requirements', 'modules', 'trackers', 'changelog', 'inputs', 'optimizationChain', 'memory', 'sync']) {
+  for (const k of ['requirements', 'modules', 'trackers', 'changelog', 'inputs', 'optimizationChain', 'memory', 'coda', 'sync']) {
     if (doc[k]) meta[k] = doc[k];
   }
   meta.version = doc.version || 0;
@@ -207,5 +237,6 @@ export function applySyncItems(project, meta, items) {
       reason: it.summary, jevRating: it.jevRating || 1, priority: it.priority,
     });
   }
-  return { project: { ...project, wbs, dependencies: deps }, meta: { ...m, trackers, sync: { ...m.sync, lastSyncAt: now() } } };
+  // Every sync event backs the Coda up to JobTread; the agent performs the write.
+  return { project: { ...project, wbs, dependencies: deps }, meta: markCodaBackupPending({ ...m, trackers, sync: { ...m.sync, lastSyncAt: now() } }) };
 }

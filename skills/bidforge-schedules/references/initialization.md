@@ -31,7 +31,8 @@ JobTread job: <name> (<id>)                   <OK | NOT LOCATED | CORRECTED from
 Drive folder: <name> (<id>)                   <OK | NOT LOCATED | CORRECTED>
 QuickBooks:   <customer:job>                  <OK | NOT LOCATED>
 Knowledge base: <path>                        <OK | CREATED>
-Project Coda: <found v# | CREATED via council | PENDING>
+Project Coda: <found v# | CREATED via council | RESTORED from JobTread Notes | PENDING>
+Coda backup:  JobTread "Notes" <written <time> sha:<hash> | missing | tampered | stale>
 Anomalies:    <list or none>
 ```
 
@@ -59,5 +60,14 @@ Default models: orchestrator <model>; logistics <model>; judgment <model>
 Sync cadence: daily JobTread pull <time CT>; full sync on SYNC / weekly
 ```
 
-3. Any anomaly (job ID mismatch between Coda and JobTread search, folder moved) is corrected,
+3. **JobTread backup check.** Read the job's "Notes" field and run `scripts/coda_backup.mjs restore`
+   on it:
+   - KB Coda missing but a backup block exists → restore the Coda from the block, write it to the KB,
+     and log `coda_restored` (rating 3). Confirm the restored values in the Optimization block.
+   - Both exist and their hashes differ → the KB wins. Show the diff as an anomaly; the next sync
+     rewrites the backup.
+   - Backup flagged `tampered` (someone edited inside the markers) → anomaly, rating 3. Ask whether
+     the edit should be adopted into the KB Coda (the user's answer is canon), then rewrite.
+   - No block yet → write one now (§ 4b of canonical-and-offramp).
+4. Any anomaly (job ID mismatch between Coda and JobTread search, folder moved) is corrected,
    logged as a changelog entry (`type: coda_correction`) and shown in the Anomalies line.

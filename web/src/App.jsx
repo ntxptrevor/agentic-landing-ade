@@ -10,7 +10,7 @@ import { getUSFederalHolidays } from './utils/dateUtils.js';
 import { buildWbs, seedSubmittals } from './utils/jevTree.js';
 import { MODULE_BY_ID } from './data/jevTaxonomy.js';
 import {
-  emptyMeta, logChange, recordInput, addMemory, addOptimizationEntry, applySyncItems,
+  emptyMeta, logChange, recordInput, addMemory, addOptimizationEntry, applySyncItems, updateCoda, recordCodaBackup,
   saveLocal, loadLocal, fromCanonicalDocument,
 } from './utils/canonical.js';
 
@@ -195,10 +195,12 @@ export default function App() {
     const { project: p, meta: m } = applySyncItems(computed, meta, items);
     const c = recalc(p);
     setComputed(c);
-    setMeta(recordInput(m, { type: 'sync_bundle', name: `Sync ${bundle.window?.from?.slice(0, 10)} → ${bundle.window?.to?.slice(0, 10)}`, text: JSON.stringify(bundle.sources || []) }));
+    const withBackup = bundle.codaBackup ? recordCodaBackup(m, bundle.codaBackup) : m;
+    setMeta(recordInput(withBackup, { type: 'sync_bundle', name: `Sync ${bundle.window?.from?.slice(0, 10)} → ${bundle.window?.to?.slice(0, 10)}`, text: JSON.stringify(bundle.sources || []) }));
   };
 
   const handleConfirmOptimization = (entry) => setMeta(m => addOptimizationEntry(m, entry));
+  const handleCoda = (coda) => setMeta(m => updateCoda(m, coda));
   const handleLinks = (links) => setMeta(m => logChange({ ...m, links }, { type: 'links_updated', source: 'environment', after: links, reason: 'Canonical sync targets updated' }));
 
   const handleNewProject = () => {
@@ -265,6 +267,7 @@ export default function App() {
               onApplySync={handleApplySync}
               onConfirmOptimization={handleConfirmOptimization}
               onLinks={handleLinks}
+              onCoda={handleCoda}
             />
           )}
         </main>

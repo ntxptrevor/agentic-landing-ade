@@ -3,24 +3,95 @@
   "$id": "bidforge.sync.v1",
   "title": "BidForge sync bundle",
   "type": "object",
-  "required": ["schema", "generatedAt", "project", "window", "sources", "items"],
+  "required": [
+    "schema",
+    "generatedAt",
+    "project",
+    "window",
+    "sources",
+    "items"
+  ],
   "properties": {
-    "schema": { "const": "bidforge.sync.v1" },
-    "generatedAt": { "type": "string", "format": "date-time" },
-    "project": { "type": "object", "required": ["slug"], "properties": { "slug": { "type": "string" }, "name": { "type": "string" }, "canonicalVersion": { "type": "integer" } } },
-    "window": { "type": "object", "required": ["from", "to"], "properties": { "from": { "type": ["string", "null"] }, "to": { "type": "string" } } },
+    "schema": {
+      "const": "bidforge.sync.v1"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "slug"
+      ],
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "canonicalVersion": {
+          "type": "integer"
+        }
+      }
+    },
+    "window": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to": {
+          "type": "string"
+        }
+      }
+    },
     "sources": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "kind", "title"],
+        "required": [
+          "id",
+          "kind",
+          "title"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "kind": { "enum": ["jobtread", "jobtread_daily", "plaud", "gemini_notes", "calendar", "gmail", "drive", "chat", "manual"] },
-          "title": { "type": "string" },
-          "date": { "type": "string" },
-          "link": { "type": "string" },
-          "summary": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "jobtread",
+              "jobtread_daily",
+              "plaud",
+              "gemini_notes",
+              "calendar",
+              "gmail",
+              "drive",
+              "chat",
+              "manual"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
         }
       }
     },
@@ -28,31 +99,154 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "sourceId", "type", "priority", "jevRating", "summary"],
+        "required": [
+          "id",
+          "sourceId",
+          "type",
+          "priority",
+          "jevRating",
+          "summary"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "sourceId": { "type": "string" },
-          "type": { "enum": ["actual_dates", "add_event", "duration_change", "resequence", "milestone_move", "tracker_update", "jobtread_manual_edit", "note"] },
-          "priority": { "enum": [1, 2, 3] },
-          "jevRating": { "enum": [1, 2, 3, 4, 5] },
-          "summary": { "type": "string" },
-          "constraint": { "type": "string" },
-          "tag": { "type": "string", "description": "architect-revision | rfi | asi | inspection | submittal-chain | out-of-sequence | invoice" },
-          "taskId": { "type": "string" },
-          "actualStart": { "type": "string" },
-          "actualFinish": { "type": "string" },
-          "percentComplete": { "type": "number" },
-          "duration": { "type": "number" },
-          "startDate": { "type": "string" },
-          "predecessors": { "type": "array", "items": { "type": "string" } },
-          "oldDate": { "type": "string" },
-          "newDate": { "type": "string" },
-          "name": { "type": "string" },
-          "date": { "type": "string" },
-          "phase": { "enum": ["preconstruction", "construction", "closeout"] },
-          "milestone": { "type": "boolean" },
-          "tracker": { "enum": ["rfis", "submittals", "asis", "payApps", "subInvoices"] },
-          "record": { "type": "object" }
+          "id": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "actual_dates",
+              "add_event",
+              "duration_change",
+              "resequence",
+              "milestone_move",
+              "tracker_update",
+              "jobtread_manual_edit",
+              "note"
+            ]
+          },
+          "priority": {
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "jevRating": {
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "constraint": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string",
+            "description": "architect-revision | rfi | asi | inspection | submittal-chain | out-of-sequence | invoice"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "actualStart": {
+            "type": "string"
+          },
+          "actualFinish": {
+            "type": "string"
+          },
+          "percentComplete": {
+            "type": "number"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "predecessors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "oldDate": {
+            "type": "string"
+          },
+          "newDate": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "phase": {
+            "enum": [
+              "preconstruction",
+              "construction",
+              "closeout"
+            ]
+          },
+          "milestone": {
+            "type": "boolean"
+          },
+          "tracker": {
+            "enum": [
+              "rfis",
+              "submittals",
+              "asis",
+              "payApps",
+              "subInvoices"
+            ]
+          },
+          "record": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "codaBackup": {
+      "type": "object",
+      "description": "Result of writing the Project Coda block to the JobTread job custom field 'Notes' during this sync (scripts/coda_backup.mjs verify output).",
+      "required": [
+        "status",
+        "at"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "written",
+            "unchanged",
+            "mismatch",
+            "failed",
+            "skipped"
+          ]
+        },
+        "at": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "chars": {
+          "type": "integer"
+        },
+        "event": {
+          "type": "string"
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     }
