@@ -136,9 +136,17 @@ export default function App() {
   };
 
   const handleProcurementImport = (phaseId, tasks) => {
+    // Imported procurement events keep their source date through recalculation: past dates
+    // are actuals, future dates are start-no-earlier-than constraints.
+    const today = new Date().toISOString().slice(0, 10);
+    const dated = tasks.map(t => (t.startDate
+      ? (t.startDate <= today
+        ? { ...t, actualStart: t.startDate, actualFinish: t.endDate || t.startDate }
+        : { ...t, constraintStart: t.startDate })
+      : t));
     setComputed(prev => {
       if (!prev) return prev;
-      const next = { ...prev, wbs: prev.wbs.map(p => ({ ...p, children: p.id === phaseId ? [...p.children, ...tasks] : [...p.children] })) };
+      const next = { ...prev, wbs: prev.wbs.map(p => ({ ...p, children: p.id === phaseId ? [...p.children, ...dated] : [...p.children] })) };
       return recalc(next);
     });
     setMeta(m => logChange(m, { type: 'procurement_import', source: 'procurement panel', after: tasks.map(t => t.name), reason: `${tasks.length} procurement task(s) added` }));
@@ -182,6 +190,14 @@ export default function App() {
     setMeta(m => {
       let next = rawInput ? recordInput(m, rawInput) : m;
       for (const p of proposals) {
+        // Date references and notes carry no task to change: record them as logged, not applied.
+        if (p.action === 'date_update' || p.action === 'note') {
+          next = logChange(next, {
+            type: 'input_logged', source: rawInput?.type || 'input panel', actor: 'user',
+            after: p.date || null, reason: `Logged only — no schedule change: ${p.reason}`, jevRating: 1,
+          });
+          continue;
+        }
         next = logChange(next, {
           type: `input_${p.action}`, source: rawInput?.type || 'input panel', actor: p.isCriticalPath ? 'user (critical path override)' : 'user',
           target: p.taskId || p.taskName, before: p.oldValue, after: p.newValue ?? p.taskName, reason: p.reason,

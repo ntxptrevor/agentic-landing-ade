@@ -10,7 +10,7 @@ of cheap discovery calls, no model reasoning beyond filling the block.
 | Host model | `get_session` (session_context.model, last_served_model) or the system prompt model line | State "unknown" |
 | Council seats | `council_env` / `python3 -m council env`; else the NTXP Model Council sheet *01 Config* via Sheets connector | Use available Claude agents (Fable/Opus/Sonnet/Haiku) as a reduced council and say so |
 | Models + costs | ntxp-model-router `route.py registry`; fall back to `web/src/utils/modelRouter.js` registry | Note estimates |
-| Skills / plugins | Skill listing; look for: ntxp-model-council, ntxp-model-router, ntxp-branded-document-2, hostinger-ntxp-skill, jobtread-data-integrator, plaud-data-source, google-workspace-intelligence, meeting-intelligence-automator, submittal-register, dallas-isd-sov-payapp-review, canonical-project-model, ntxp-gantt-schedule, continuous-learning-v2 | List what is absent |
+| Skills / plugins | Skill listing; look for: ntxp-model-council, ntxp-model-router, ntxp-branded-document-2, hostinger-connector-v3 (or hostinger-ntxp-skill), jobtread / jobtread-data-integrator, plaud-data-source, google-workspace-intelligence, meeting-intelligence-automator, submittal-register, dallas-isd-sov-payapp-review, canonical-project-model, ntxp-gantt-schedule, continuous-learning-v2 | List what is absent |
 | Connectors | JobTread (`mcp__JobTread__query`), Gmail, Google Calendar, Google Drive, Plaud, QuickBooks | Mark unavailable; continue |
 | Project file | Canonical `canonical.json` in KB / Drive `Schedules/`; local `bidforge.canonical.*` | New project |
 | JobTread job | Search by project name, job number, address (jobtread-data-integrator § Project lookup) | Ask once, then record |

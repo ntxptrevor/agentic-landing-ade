@@ -51,7 +51,7 @@ in the changelog (`type: preflight`).
 1. Build: `cd web && npx vite build --outDir <out> --emptyOutDir`; add `.htaccess` (SPA rewrite).
 2. Add `canonical.json` (and `sync-bundle.json` if any) beside `index.html`. The app opens
    straight to the read-only canonical view when `canonical.json` is present.
-3. Host at `https://<slug>.ntxpllc.com/schedule` with hostinger-ntxp-skill (five-tier ladder:
+3. Host at `https://<slug>.ntxpllc.com/schedule` with hostinger-connector-v3 (or the older hostinger-ntxp-skill five-tier ladder:
    API → hPanel file manager → browser automation …). Create the subdomain if missing. Any
    available static host (Netlify/Vercel connector) is an acceptable fallback; record the URL in
    `links.hostUrl`.

@@ -88,6 +88,7 @@ export function ratePayApp(app, today, cycleDay = 25) {
   const due = new Date(t.getFullYear(), t.getMonth(), cycleDay);
   const daysToDue = Math.round((due - t) / DAY);
   if (app.status === 'not_started' && daysToDue <= 5 && daysToDue >= 0) { r = 4; issues.push(`Pay app due in ${daysToDue}d and not started`); }
+  if (app.status === 'not_started' && daysToDue < 0) { r = 4; issues.push(`Pay app ${-daysToDue}d past the cycle day and not started`); }
   if (app.status === 'submitted' && app.submittedDate && daysBetween(app.submittedDate, today) > 30 && !app.paidDate) { r = Math.max(r, 3); issues.push('Submitted >30 days, unpaid'); }
   if (app.percentBilled != null && app.percentComplete != null && app.percentBilled < app.percentComplete - 10) { r = Math.max(r, 3); issues.push(`Underbilled: ${app.percentBilled}% billed vs ${app.percentComplete}% complete`); }
   return { rating: clamp(r), issues };

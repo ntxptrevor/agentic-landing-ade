@@ -38,9 +38,11 @@ export function exportMSPDI(project, meta = {}) {
     if (r.kind !== 'task') {
       return `    <Task><UID>${r.uid}</UID><ID>${i + 1}</ID><Name>${esc(t.name)}</Name><OutlineNumber>${num}</OutlineNumber><OutlineLevel>${r.level}</OutlineLevel><Summary>1</Summary><Start>${start}</Start><Finish>${finish}</Finish></Task>`;
     }
-    const preds = (t.predecessors || []).filter(p => uidOf.has(p)).map(p => {
-      const d = (project.dependencies || []).find(x => x.from === p && x.to === t.id);
-      return `<PredecessorLink><PredecessorUID>${uidOf.get(p)}</PredecessorUID><Type>${LINK[d?.type || 'FS']}</Type><LinkLag>${(d?.lag || 0) * hpd * 600}</LinkLag><LagFormat>7</LagFormat></PredecessorLink>`;
+    // A pair can carry several links (e.g. SS+2 and FF+2); export every one of them.
+    const preds = [...new Set((t.predecessors || []).filter(p => uidOf.has(p)))].flatMap(p => {
+      const pairDeps = (project.dependencies || []).filter(x => x.from === p && x.to === t.id);
+      return (pairDeps.length ? pairDeps : [undefined]).map(d =>
+        `<PredecessorLink><PredecessorUID>${uidOf.get(p)}</PredecessorUID><Type>${LINK[d?.type || 'FS']}</Type><LinkLag>${(d?.lag || 0) * hpd * 600}</LinkLag><LagFormat>7</LagFormat></PredecessorLink>`);
     }).join('');
     const ms = t.isMilestone || t.duration === 0;
     const ext = [

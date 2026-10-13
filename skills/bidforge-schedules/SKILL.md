@@ -8,9 +8,16 @@ description: >-
   specifications or UGCs for scheduling; when they mention BidForge, MS Project / .mpp XML, the
   canonical schedule, or projecttitle.ntxpllc.com/schedule; and when they say "remember this",
   "save this to memory" or "from now on" about scheduling.
+license: MIT
+version: 2.4.0
+owner: trevor@ntxpllc.com
+requires:
+  skills: [ntxp-id, jobtread, ntxp-model-council, ntxp-model-router, hostinger-connector-v3]
+  tools: [node, curl]
+  connectors: [JobTread Pave (mcp__JobTread__query), Google Drive, Gmail, Google Calendar, Plaud (optional)]
+provides: [canonical-project-schedule, jev-schedule-tree, schedule-sync, schedule-trackers, mspdi-export, project-coda-backup]
 metadata:
   author: NTXP LLC
-  version: "2.4.0"
   canonical_schema: bidforge.canonical.v1
   sync_schema: bidforge.sync.v1
 ---
@@ -89,7 +96,7 @@ class → trade → has-submittal/lead → phase → milestone. CPM is code (`we
 ### 4 · Pre-flight and publish — `references/preflight-and-publish.md`
 Deterministic checks, council inspection (rules, sequence, spec instructions, visual layout),
 final integrity audit of data sources and sync links, then host at
-`https://<project-slug>.ntxpllc.com/schedule` (hostinger-ntxp-skill ladder). If hosting fails:
+`https://<project-slug>.ntxpllc.com/schedule` (hostinger-connector-v3, or hostinger-ntxp-skill where installed). If hosting fails:
 export HTML + 11x17 PDF + MSPDI XML to Drive and JobTread before quitting.
 
 ### 5 · Off-ramp and canonical sync — `references/canonical-and-offramp.md`

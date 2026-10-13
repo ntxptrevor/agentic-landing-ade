@@ -1,4 +1,5 @@
 import { codaHash } from './codaBackup.js';
+import { isWorkingDay } from './dateUtils.js';
 import { envelopeWd } from './jevTree.js';
 import { DURATION_MODEL } from '../data/jevOverlap.js';
 
@@ -58,7 +59,10 @@ export function dataChecks(project, meta) {
 export function sanityChecks(project, meta) {
   const g = DURATION_MODEL.gate;
   const out = [];
-  const wd = (a, b) => { let n = 0; for (let x = new Date(`${a}T00:00:00`); x <= new Date(`${b}T00:00:00`); x = new Date(x.getTime() + 86400000)) { const w = x.getDay(); if (w && w < 6) n++; } return n; };
+  // Count working days on the project's own calendar (work week + holidays/shutdowns).
+  const workingDays = project.workingDays || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  const holidays = project.holidays || [];
+  const wd = (a, b) => { let n = 0; for (let x = new Date(`${a}T00:00:00`); x <= new Date(`${b}T00:00:00`); x = new Date(x.getTime() + 86400000)) { if (isWorkingDay(x, workingDays, holidays)) n++; } return n; };
   // Zoned schedules have one construction group per zone/turnover; measure them together.
   const groups = k => project.wbs.filter(p => p.phaseKey === k);
   const phase = k => {
