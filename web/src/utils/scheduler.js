@@ -16,10 +16,11 @@ export function calculateSchedule(project) {
     let earlyStart = projStart;
     if (task.predecessors && task.predecessors.length > 0) {
       for (const predId of task.predecessors) {
-        const dep = project.dependencies?.find(d => d.from === predId && d.to === task.id);
         const pred = taskMap.get(predId);
         if (!pred || !pred.endDate) continue;
-
+        // A pair can carry more than one link (e.g. SS+2 with FF+2): honor each of them.
+        const pairDeps = (project.dependencies || []).filter(d => d.from === predId && d.to === task.id);
+        for (const dep of (pairDeps.length ? pairDeps : [undefined])) {
         const predEnd = parseDate(pred.endDate);
         const lag = dep?.lag || 0;
         const type = dep?.type || 'FS';
@@ -45,6 +46,7 @@ export function calculateSchedule(project) {
 
         if (candidateStart > earlyStart) {
           earlyStart = candidateStart;
+        }
         }
       }
     }
@@ -102,7 +104,8 @@ export function calculateSchedule(project) {
     if (successors.length > 0) {
       for (const succ of successors) {
         if (!succ._lateStart) continue;
-        const dep = project.dependencies?.find(d => d.from === task.id && d.to === succ.id);
+        const pairDeps = (project.dependencies || []).filter(d => d.from === task.id && d.to === succ.id);
+        for (const dep of (pairDeps.length ? pairDeps : [undefined])) {
         const lag = dep?.lag || 0;
         const type = dep?.type || 'FS';
         const shift = (date, n) => (n >= 0
@@ -121,6 +124,7 @@ export function calculateSchedule(project) {
         }
         if (candidateFinish < lateFinish) {
           lateFinish = candidateFinish;
+        }
         }
       }
     }

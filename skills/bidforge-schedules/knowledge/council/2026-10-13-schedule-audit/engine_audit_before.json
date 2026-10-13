@@ -1,0 +1,147 @@
+{
+  "engine": "bidforge jevTree + scheduler",
+  "at": "2026-10-13T12:21:55.315Z",
+  "results": [
+    {
+      "id": "A",
+      "label": "ISD light refresh — paint, ceilings, flooring, 3,000 SF, summer",
+      "modules": [
+        "isd_college"
+      ],
+      "activities": 79,
+      "totalWd": 254,
+      "totalCd": 353,
+      "precWd": 72,
+      "constructionWd": 147,
+      "closeoutWd": 36,
+      "benchmarkConstructionWd": 35,
+      "ratioToBenchmark": 4.2,
+      "pctConcurrentConstruction": 5,
+      "criticalPct": 95,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS"
+      ],
+      "sumOfDurationsConstruction": 149
+    },
+    {
+      "id": "B",
+      "label": "Standard interior renovation — 10,000 SF office/classroom",
+      "modules": [
+        "selective_demo",
+        "fire_alarm",
+        "fire_suppression",
+        "low_voltage"
+      ],
+      "activities": 118,
+      "totalWd": 351,
+      "totalCd": 490,
+      "precWd": 77,
+      "constructionWd": 237,
+      "closeoutWd": 37,
+      "benchmarkConstructionWd": 70,
+      "ratioToBenchmark": 3.39,
+      "pctConcurrentConstruction": 0,
+      "criticalPct": 94,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS"
+      ],
+      "sumOfDurationsConstruction": 237
+    },
+    {
+      "id": "C",
+      "label": "Occupied clinic renovation with ICRA — 6,000 SF",
+      "modules": [
+        "selective_demo",
+        "abatement",
+        "icra",
+        "occupied_phasing",
+        "medical_specific",
+        "medical_specialties",
+        "fire_alarm",
+        "fire_suppression",
+        "low_voltage"
+      ],
+      "activities": 151,
+      "totalWd": 408,
+      "totalCd": 569,
+      "precWd": 89,
+      "constructionWd": 282,
+      "closeoutWd": 37,
+      "benchmarkConstructionWd": 75,
+      "ratioToBenchmark": 3.76,
+      "pctConcurrentConstruction": 5,
+      "criticalPct": 89,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Texas HHSC Licensing Plan Review Submittal (15d)",
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS"
+      ],
+      "sumOfDurationsConstruction": 285
+    },
+    {
+      "id": "D",
+      "label": "ISD summer RTU replacement — 4 units",
+      "modules": [
+        "hvac_replacement",
+        "isd_college"
+      ],
+      "activities": 88,
+      "totalWd": 273,
+      "totalCd": 380,
+      "precWd": 79,
+      "constructionWd": 158,
+      "closeoutWd": 37,
+      "benchmarkConstructionWd": 34,
+      "ratioToBenchmark": 4.65,
+      "pctConcurrentConstruction": 8,
+      "criticalPct": 93,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS"
+      ],
+      "sumOfDurationsConstruction": 161
+    },
+    {
+      "id": "E",
+      "label": "County jail holding-area renovation — 4,000 SF",
+      "modules": [
+        "selective_demo",
+        "secured_building",
+        "access_control",
+        "fire_alarm"
+      ],
+      "activities": 118,
+      "totalWd": 357,
+      "totalCd": 498,
+      "precWd": 89,
+      "constructionWd": 232,
+      "closeoutWd": 36,
+      "benchmarkConstructionWd": 67,
+      "ratioToBenchmark": 3.46,
+      "pctConcurrentConstruction": 0,
+      "criticalPct": 92,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS"
+      ],
+      "sumOfDurationsConstruction": 232
+    }
+  ]
+}

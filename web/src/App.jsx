@@ -6,7 +6,7 @@ import TaskEditor from './components/TaskEditor.jsx';
 import ReviewGenerate from './components/ReviewGenerate.jsx';
 import ScheduleViewer from './components/ScheduleViewer.jsx';
 import { calculateSchedule } from './utils/scheduler.js';
-import { getUSFederalHolidays } from './utils/dateUtils.js';
+import { getUSFederalHolidays, getNtxpNonWorkDays } from './utils/dateUtils.js';
 import { buildWbs, seedSubmittals } from './utils/jevTree.js';
 import { MODULE_BY_ID } from './data/jevTaxonomy.js';
 import {
@@ -74,7 +74,9 @@ export default function App() {
     const startYear = new Date(data.startDate).getFullYear();
     const holidays = data.holidayPreset === 'us'
       ? Array.from({ length: 10 }, (_, k) => getUSFederalHolidays(startYear + k)).flat()
-      : data.holidays;
+      : data.holidayPreset === 'ntxp'
+        ? Array.from({ length: 10 }, (_, k) => getNtxpNonWorkDays(startYear + k)).flat()
+        : data.holidays;
     updateProject({ ...data, holidays });
     setMeta(m => logChange(m, { type: 'project_setup', source: 'wizard', after: { name: data.name, startDate: data.startDate }, reason: 'Project initialized' }));
     setStep('requirements');
@@ -95,12 +97,13 @@ export default function App() {
     setStep('modules');
   };
 
-  const handleModulesDone = (modules) => {
+  const handleModulesDone = (modules, scope) => {
     const confirmed = modules.filter(m => m.status === 'confirmed').map(m => m.id);
-    const { wbs, dependencies, unplaced } = buildWbs(confirmed);
+    const { wbs, dependencies, unplaced } = buildWbs(confirmed, scope);
     updateProject({ wbs, dependencies });
     setMeta(m => {
-      let next = logChange({ ...m, modules }, {
+      let next = logChange({ ...m, modules, scope }, { type: 'scope_profile', source: 'scope modules', jevRating: 3, after: scope, reason: `Tier ${scope.tier}, ${scope.sf} SF, ${scope.sector}${scope.constraints.length ? `, ${scope.constraints.join('/')}` : ''} — tier-dropped rows removed by user decision` });
+      next = logChange(next, {
         type: 'modules_confirmed', source: 'scope modules', jevRating: 3,
         after: confirmed.map(id => MODULE_BY_ID[id]?.label || id),
         reason: `${confirmed.length} module(s) confirmed; declined modules remove their backbone tasks by user decision${unplaced.length ? `; ${unplaced.length} rows appended at phase end (anchor missing)` : ''}`,
@@ -252,7 +255,7 @@ export default function App() {
           {step === 'setup' && <ProjectSetup project={project} onDone={handleSetupDone} />}
           {step === 'requirements' && <RequirementsGate requirements={meta.requirements} onDone={handleRequirementsDone} onBack={handleBack} />}
           {step === 'modules' && (
-            <ModuleSelection detected={meta.requirements.detected || []} initial={meta.modules} requirementsStatus={meta.requirements.status} onDone={handleModulesDone} onBack={handleBack} />
+            <ModuleSelection detected={meta.requirements.detected || []} initial={meta.modules} initialScope={meta.scope} requirementsStatus={meta.requirements.status} onDone={handleModulesDone} onBack={handleBack} />
           )}
           {step === 'tasks' && <TaskEditor wbs={project.wbs} dependencies={project.dependencies} onDone={handleTasksDone} onBack={handleBack} />}
           {step === 'review' && <ReviewGenerate project={project} onGenerate={handleGenerate} onBack={handleBack} />}

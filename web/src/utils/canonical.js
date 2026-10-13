@@ -17,6 +17,7 @@ export function emptyMeta() {
     links: { jobtreadJobId: '', driveFolderId: '', driveFolderName: '', quickbooksProjectId: '', kbPath: '', hostUrl: '' },
     requirements: { status: 'pending', documents: [], specText: '', acknowledgement: null },
     modules: [],
+    scope: null,
     trackers: { rfis: [], submittals: [], asis: [], payApps: [], subInvoices: [], payAppCycleDay: 25 },
     changelog: [],
     inputs: [],
@@ -114,6 +115,7 @@ export function buildCanonicalDocument(project, meta) {
     },
     requirements: meta.requirements,
     modules: meta.modules,
+    scope: meta.scope,
     wbs: project.wbs,
     dependencies: project.dependencies,
     trackers: meta.trackers,
@@ -145,7 +147,7 @@ export function loadLocal() {
 // Split a canonical document back into app state.
 export function fromCanonicalDocument(doc) {
   const meta = emptyMeta();
-  for (const k of ['requirements', 'modules', 'trackers', 'changelog', 'inputs', 'optimizationChain', 'memory', 'coda', 'sync']) {
+  for (const k of ['requirements', 'modules', 'scope', 'trackers', 'changelog', 'inputs', 'optimizationChain', 'memory', 'coda', 'sync']) {
     if (doc[k]) meta[k] = doc[k];
   }
   meta.version = doc.version || 0;

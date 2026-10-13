@@ -118,6 +118,7 @@ export const CONSTRUCTION_PHASES = [
       { name: 'Start Up Control Systems & Test', duration: 3, trade: 'Controls', category: 'deliverable', sub: 'Low Voltage & Controls' },
 
       // Final
+      { name: 'Test, Adjust & Balance (TAB)', duration: 3, trade: 'HVAC', category: 'deliverable', cls: 'inspection', tiers: ['heavy', 'gut', 'equipment'], lesson: 'LL-2026-10-13-17', sub: 'Low Voltage & Controls' },
       { name: 'Final Clean', duration: 3, trade: 'General', category: 'activity', critical: true, sub: 'Final Clean & Substantial Completion' },
       { name: 'Owner Punch Walk / Substantial Completion', duration: 3, trade: 'Owner', category: 'deliverable', critical: true, sub: 'Final Clean & Substantial Completion' },
     ],

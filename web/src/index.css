@@ -1296,3 +1296,8 @@ input:focus, select:focus, textarea:focus {
 @media (max-width: 600px) { .preflight ul { columns: 1; } .module-grid { grid-template-columns: 1fr; } .modal { padding: 14px; } }
 .coda-status { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .78rem; margin-bottom: 12px; }
 .coda-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; font-family: var(--font); font-size: .72rem; white-space: pre-wrap; word-break: break-word; margin-top: 12px; }
+.scope-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; }
+.constraint-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.constraint-chip { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; padding: 4px 10px; border: 1px solid var(--border); border-radius: 14px; cursor: pointer; }
+.constraint-chip.on { border-color: var(--accent); color: var(--accent); }
+.constraint-chip input { display: none; }

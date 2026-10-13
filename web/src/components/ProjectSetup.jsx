@@ -10,7 +10,7 @@ export default function ProjectSetup({ project, onDone }) {
   const [startDate, setStartDate] = useState(project.startDate);
   const [workDayPreset, setWorkDayPreset] = useState('mon-fri');
   const [hoursPerDay, setHoursPerDay] = useState(project.hoursPerDay);
-  const [holidayPreset, setHolidayPreset] = useState('none');
+  const [holidayPreset, setHolidayPreset] = useState('ntxp');
   const [customHolidays, setCustomHolidays] = useState('');
 
   const handleSubmit = (e) => {
@@ -78,6 +78,7 @@ export default function ProjectSetup({ project, onDone }) {
         <div className="form-group">
           <label>Holidays</label>
           <select value={holidayPreset} onChange={e => setHolidayPreset(e.target.value)}>
+            <option value="ntxp">NTXP calendar (federal + Thanksgiving week + Dec 22 – Jan 2)</option>
             <option value="none">No holidays</option>
             <option value="us">US Federal Holidays</option>
             <option value="custom">Custom (enter dates)</option>

@@ -1,0 +1,1433 @@
+{
+  "adopted": [
+    {
+      "from": "Notice to Proceed (NTP)",
+      "to": "MBE / SBE / HUB Plans Submitted",
+      "type": "SS",
+      "lag": 1,
+      "seats": 3,
+      "lags": [
+        1,
+        1,
+        0
+      ],
+      "conditions": [
+        "always",
+        "always",
+        "always"
+      ]
+    },
+    {
+      "from": "Notice to Proceed (NTP)",
+      "to": "Badging Meeting & Processing Time",
+      "type": "SS",
+      "lag": 2,
+      "seats": 3,
+      "lags": [
+        1,
+        3,
+        2
+      ],
+      "conditions": [
+        "always",
+        "isd/medical/secured",
+        "ISD/medical/jail"
+      ]
+    },
+    {
+      "from": "Submittal Register Approval",
+      "to": "Submittal Processing Time",
+      "type": "SS",
+      "lag": 2,
+      "seats": 3,
+      "lags": [
+        3,
+        0,
+        2
+      ],
+      "conditions": [
+        "long-lead packages first; rest rolling",
+        "per package, 10 WD each",
+        "per package, 14 CD review"
+      ]
+    },
+    {
+      "from": "GPR Scanning — Demo & Core Locations",
+      "to": "Selective Demo (Core Drilling Wall & Floor Penetrations)",
+      "type": "FS",
+      "lag": 0,
+      "seats": 3,
+      "lags": [
+        0,
+        0,
+        0
+      ],
+      "conditions": [
+        "hard gate before coring",
+        "hard gate",
+        "hard gate"
+      ]
+    },
+    {
+      "from": "Structural Metals / Masonry / Framing",
+      "to": "NLB Framing",
+      "type": "SS",
+      "lag": 3,
+      "seats": 3,
+      "lags": [
+        3,
+        3,
+        3
+      ],
+      "conditions": [
+        "start during cure, by area",
+        "framing during CMU cure",
+        "during CMU cure; +FF2"
+      ]
+    },
+    {
+      "from": "NLB Framing",
+      "to": "Install Door Frames",
+      "type": "SS",
+      "lag": 2,
+      "seats": 3,
+      "lags": [
+        3,
+        2,
+        2
+      ],
+      "conditions": [
+        "always",
+        "always",
+        "+FF1"
+      ]
+    },
+    {
+      "from": "NLB Framing",
+      "to": "Wood Blocking (Millwork, Windows, Wall-Mounted Items)",
+      "type": "SS",
+      "lag": 1,
+      "seats": 3,
+      "lags": [
+        1,
+        1,
+        1
+      ],
+      "conditions": [
+        "always",
+        "always",
+        "+FF1"
+      ]
+    },
+    {
+      "from": "NLB Framing",
+      "to": "Wall MEP Rough",
+      "type": "SS",
+      "lag": 2,
+      "seats": 3,
+      "lags": [
+        2,
+        2,
+        2
+      ],
+      "conditions": [
+        "release by area",
+        "plus FF+3",
+        "+FF2"
+      ]
+    },
+    {
+      "from": "NLB Framing",
+      "to": "Wall MEP Rough",
+      "type": "FF",
+      "lag": 2,
+      "seats": 3,
+      "lags": [
+        2,
+        3,
+        2
+      ],
+      "conditions": [
+        "always",
+        "from SS condition: plus FF+3",
+        "from SS condition: +FF2"
+      ]
+    },
+    {
+      "from": "Drywall & Taping",
+      "to": "Ceiling Grid or Hard Lid Installation & Prime",
+      "type": "SS",
+      "lag": 3,
+      "seats": 3,
+      "lags": [
+        3,
+        3,
+        2
+      ],
+      "conditions": [
+        "grid may go ahead of hard lid",
+        "grid before inspection allowed",
+        "grid only"
+      ]
+    },
+    {
+      "from": "Drywall & Taping",
+      "to": "Prime Coat Walls",
+      "type": "SS",
+      "lag": 5,
+      "seats": 3,
+      "lags": [
+        5,
+        6,
+        5
+      ],
+      "conditions": [
+        "tape/float started",
+        "plus FF+2",
+        "+FF2"
+      ]
+    },
+    {
+      "from": "T-Bar Above-Ceiling MEP Inspection",
+      "to": "Ceiling Tile Installation",
+      "type": "FS",
+      "lag": 0,
+      "seats": 3,
+      "lags": [
+        0,
+        0,
+        0
+      ],
+      "conditions": [
+        "hard gate",
+        "hard gate, after fixtures",
+        "hard gate"
+      ]
+    },
+    {
+      "from": "Slab Moisture / pH Testing (Resilient Flooring)",
+      "to": "Install Flooring — All Types",
+      "type": "FS",
+      "lag": 0,
+      "seats": 3,
+      "lags": [
+        0,
+        0,
+        0
+      ],
+      "conditions": [
+        "hard gate",
+        "hard gate, resilient",
+        "resilient only"
+      ]
+    },
+    {
+      "from": "Install Doors",
+      "to": "Install Door Hardware & Accessories",
+      "type": "SS",
+      "lag": 1,
+      "seats": 3,
+      "lags": [
+        1,
+        1,
+        1
+      ],
+      "conditions": [
+        "always",
+        "always",
+        "+FF1"
+      ]
+    },
+    {
+      "from": "Install Flooring — All Types",
+      "to": "Install Wall Base",
+      "type": "SS",
+      "lag": 2,
+      "seats": 3,
+      "lags": [
+        3,
+        2,
+        2
+      ],
+      "conditions": [
+        "always",
+        "always",
+        "+FF1"
+      ]
+    },
+    {
+      "from": "Final Clean",
+      "to": "Owner Punch Walk / Substantial Completion",
+      "type": "FS",
+      "lag": 0,
+      "seats": 3,
+      "lags": [
+        0,
+        0,
+        0
+      ],
+      "conditions": [
+        "hard gate",
+        "NTXP canon",
+        "hard gate"
+      ]
+    },
+    {
+      "from": "Notice to Proceed (NTP)",
+      "to": "TDLR TAS Project Registration & RAS Plan Review",
+      "type": "SS",
+      "lag": 3,
+      "seats": 2,
+      "lags": [
+        5,
+        3
+      ],
+      "conditions": [
+        "parallel",
+        "always"
+      ]
+    },
+    {
+      "from": "Notice to Proceed (NTP)",
+      "to": "All Subcontracts Signed — Confirmed",
+      "type": "SS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        5,
+        0
+      ],
+      "conditions": [
+        "always",
+        "always"
+      ]
+    },
+    {
+      "from": "Mobilization",
+      "to": "Interior Containment",
+      "type": "SS",
+      "lag": 1,
+      "seats": 2,
+      "lags": [
+        1,
+        1
+      ],
+      "conditions": [
+        "always",
+        "always"
+      ]
+    },
+    {
+      "from": "Interior Containment",
+      "to": "Make Safe",
+      "type": "FS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        0,
+        0
+      ],
+      "conditions": [
+        "ICRA barriers before demo (hard)",
+        "hard gate, ICRA verified"
+      ]
+    },
+    {
+      "from": "Interior Underground Plumbing",
+      "to": "Interior Underground Electrical",
+      "type": "SS",
+      "lag": 1,
+      "seats": 2,
+      "lags": [
+        1,
+        2
+      ],
+      "conditions": [
+        "heavy/full gut",
+        "always"
+      ]
+    },
+    {
+      "from": "Interior Underground Plumbing",
+      "to": "Interior Underground HVAC",
+      "type": "SS",
+      "lag": 1,
+      "seats": 2,
+      "lags": [
+        1,
+        2
+      ],
+      "conditions": [
+        "heavy/full gut",
+        "always"
+      ]
+    },
+    {
+      "from": "Underground MEP Inspections",
+      "to": "Pourback — Interior Trenches",
+      "type": "FS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        0,
+        0
+      ],
+      "conditions": [
+        "hard gate",
+        "hard gate"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Overhead MEP Rough",
+      "type": "SS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        1,
+        0
+      ],
+      "conditions": [
+        "always",
+        "+FF2"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Fire Alarm & Low Voltage Prewiring",
+      "type": "SS",
+      "lag": 3,
+      "seats": 2,
+      "lags": [
+        3,
+        3
+      ],
+      "conditions": [
+        "module:fire_alarm/low_voltage",
+        "+FF1"
+      ]
+    },
+    {
+      "from": "Cover-Up Inspections",
+      "to": "Drywall & Taping",
+      "type": "SS",
+      "lag": 2,
+      "seats": 2,
+      "lags": [
+        3,
+        2
+      ],
+      "conditions": [
+        "by area; first area is hard FS",
+        "inspected areas only"
+      ]
+    },
+    {
+      "from": "Overhead MEP Rough",
+      "to": "T-Bar Above-Ceiling MEP Inspection",
+      "type": "FS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        0,
+        0
+      ],
+      "conditions": [
+        "hard gate",
+        "hard; +2 d contingency"
+      ]
+    },
+    {
+      "from": "Prime Coat Walls",
+      "to": "Install Millwork / Cabinetry / Casework",
+      "type": "SS",
+      "lag": 4,
+      "seats": 2,
+      "lags": [
+        4,
+        4
+      ],
+      "conditions": [
+        "by area",
+        "+FF2"
+      ]
+    },
+    {
+      "from": "Prime Coat Walls",
+      "to": "Install Doors",
+      "type": "SS",
+      "lag": 5,
+      "seats": 2,
+      "lags": [
+        5,
+        5
+      ],
+      "conditions": [
+        "always",
+        "always"
+      ]
+    },
+    {
+      "from": "Ceiling Tile Installation",
+      "to": "Trim Out & Test Low Voltage",
+      "type": "SS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        1,
+        0
+      ],
+      "conditions": [
+        "module:low_voltage",
+        "low_voltage"
+      ]
+    },
+    {
+      "from": "GC Generated Punch List Sent to Architect / Owner",
+      "to": "Begin Closeout Documentation",
+      "type": "SS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        0,
+        0
+      ],
+      "conditions": [
+        "always",
+        "always"
+      ]
+    },
+    {
+      "from": "Notice to Proceed (NTP)",
+      "to": "Preliminary Schedule Submitted",
+      "type": "SS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        1,
+        0
+      ],
+      "conditions": [
+        "always",
+        "always"
+      ]
+    },
+    {
+      "from": "Selective & Interior Trench Demo",
+      "to": "Interior Underground Plumbing",
+      "type": "SS",
+      "lag": 3,
+      "seats": 2,
+      "lags": [
+        3,
+        3
+      ],
+      "conditions": [
+        "released trench areas",
+        "released area; +FF2"
+      ]
+    },
+    {
+      "from": "Overhead MEP Rough",
+      "to": "Fire Suppression Main Lines & Branch Pipe Rough",
+      "type": "SS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        0,
+        0
+      ],
+      "conditions": [
+        "FP leads ladder",
+        "fire_suppression"
+      ]
+    },
+    {
+      "from": "Overhead MEP Rough",
+      "to": "MEP Equipment Installation (Panels / HVAC Units)",
+      "type": "SS",
+      "lag": 3,
+      "seats": 2,
+      "lags": [
+        3,
+        3
+      ],
+      "conditions": [
+        "delivered",
+        "delivered"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Fire Sealing — Wall & Floor Penetrations",
+      "type": "SS",
+      "lag": 3,
+      "seats": 2,
+      "lags": [
+        4,
+        3
+      ],
+      "conditions": [
+        "always",
+        "+FF1"
+      ]
+    },
+    {
+      "from": "Drywall & Taping",
+      "to": "Prime Coat Walls",
+      "type": "FF",
+      "lag": 2,
+      "seats": 2,
+      "lags": [
+        2,
+        2
+      ],
+      "conditions": [
+        "from SS condition: plus FF+2",
+        "from SS condition: +FF2"
+      ]
+    },
+    {
+      "from": "Ceiling Grid or Hard Lid Installation & Prime",
+      "to": "Fire Alarm Trim",
+      "type": "SS",
+      "lag": 1,
+      "seats": 2,
+      "lags": [
+        1,
+        2
+      ],
+      "conditions": [
+        "same for Fire Suppression Trim",
+        "always"
+      ]
+    },
+    {
+      "from": "Install Door Hardware & Accessories",
+      "to": "Terminate & Integrate Access Control & Building Controls",
+      "type": "SS",
+      "lag": 1,
+      "seats": 2,
+      "lags": [
+        1,
+        1
+      ],
+      "conditions": [
+        "access_control",
+        "+FF1"
+      ]
+    },
+    {
+      "from": "Install Wall Base",
+      "to": "GC PM / Super Pre-Punch",
+      "type": "SS",
+      "lag": 0,
+      "seats": 2,
+      "lags": [
+        0,
+        1
+      ],
+      "conditions": [
+        "by area; doors, millwork FF 0",
+        "by area"
+      ]
+    },
+    {
+      "from": "GC Generated Punch List Sent to Architect / Owner",
+      "to": "Perform Punch Corrections",
+      "type": "SS",
+      "lag": 1,
+      "seats": 2,
+      "lags": [
+        1,
+        1
+      ],
+      "conditions": [
+        "always",
+        "absorbs Complete Punch Items"
+      ]
+    }
+  ],
+  "single": [
+    {
+      "from": "Notice to Proceed (NTP)",
+      "to": "Submittal Register Approval",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Notice to Proceed (NTP)",
+      "to": "Preconstruction Meeting",
+      "type": "SS",
+      "lag": 5,
+      "seats": 1,
+      "lags": [
+        5
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Preconstruction Meeting",
+      "to": "Kickoff Meeting",
+      "type": "SS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Submittal Processing Time",
+      "to": "Confirm Job Start Approval (Gate)",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard gate"
+      ]
+    },
+    {
+      "from": "Badging Meeting & Processing Time",
+      "to": "Confirm Job Start Approval (Gate)",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard gate"
+      ]
+    },
+    {
+      "from": "Make Safe",
+      "to": "Salvage Owner Items (Retain/Reuse/Turnover)",
+      "type": "SS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Selective & Interior Trench Demo",
+      "to": "Selective Demo (Core Drilling Wall & Floor Penetrations)",
+      "type": "SS",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "by zone"
+      ]
+    },
+    {
+      "from": "Selective Demo (Core Drilling Wall & Floor Penetrations)",
+      "to": "Interior Underground Plumbing",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "by zone, heavy/full gut"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Fire Suppression Main Lines & Branch Pipe Rough",
+      "type": "SS",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "module:fire_suppression"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Cover-Up Inspections",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "inspect by area"
+      ]
+    },
+    {
+      "from": "Drywall & Taping",
+      "to": "Fire Sealing — Wall & Floor Penetrations",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Prime Coat Walls",
+      "to": "Prep Floor — Level or Grind",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "by area, after Clear Floors"
+      ]
+    },
+    {
+      "from": "Install Millwork / Cabinetry / Casework",
+      "to": "Install Restroom Accessories & Partitions",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Install Millwork / Cabinetry / Casework",
+      "to": "Install Wall Protection & Corner Guards",
+      "type": "SS",
+      "lag": 3,
+      "seats": 1,
+      "lags": [
+        3
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Ceiling Tile Installation",
+      "to": "Fire Alarm Trim",
+      "type": "SS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "module:fire_alarm"
+      ]
+    },
+    {
+      "from": "Ceiling Tile Installation",
+      "to": "Fire Suppression Trim",
+      "type": "SS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "module:fire_suppression"
+      ]
+    },
+    {
+      "from": "Trim Out & Test Low Voltage",
+      "to": "Terminate & Integrate Access Control & Building Controls",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Install Flooring — All Types",
+      "to": "GC PM / Super Pre-Punch",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "by area"
+      ]
+    },
+    {
+      "from": "Perform Punch Corrections",
+      "to": "Complete Punch Items",
+      "type": "SS",
+      "lag": 5,
+      "seats": 1,
+      "lags": [
+        5
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Begin Closeout Documentation",
+      "to": "Verify Acceptance of Closeout Docs",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Final Walk",
+      "to": "TDLR RAS Inspection (within 1 year of SC)",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "off critical path; use a window"
+      ]
+    },
+    {
+      "from": "Submittal Register Approval",
+      "to": "All Subcontracts Signed — Confirmed",
+      "type": "SS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Make Safe",
+      "to": "Selective & Interior Trench Demo",
+      "type": "SS",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "salvage runs SS 0 with demo"
+      ]
+    },
+    {
+      "from": "Interior Underground HVAC",
+      "to": "Underground MEP Inspections",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard gate, 5-WD notice"
+      ]
+    },
+    {
+      "from": "Selective & Interior Trench Demo",
+      "to": "Structural Metals / Masonry / Framing",
+      "type": "SS",
+      "lag": 3,
+      "seats": 1,
+      "lags": [
+        3
+      ],
+      "conditions": [
+        "heavy/full gut"
+      ]
+    },
+    {
+      "from": "Pourback — Interior Trenches",
+      "to": "NLB Framing",
+      "type": "FF",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "trench areas framed last"
+      ]
+    },
+    {
+      "from": "NLB Framing",
+      "to": "Overhead MEP Rough",
+      "type": "SS",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "ceilings open from demo"
+      ]
+    },
+    {
+      "from": "Overhead MEP Rough",
+      "to": "Fire Alarm & Low Voltage Prewiring",
+      "type": "SS",
+      "lag": 3,
+      "seats": 1,
+      "lags": [
+        3
+      ],
+      "conditions": [
+        "fire_alarm/low_voltage"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Cover-Up Inspections",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard gate; blocking, frames, firestop FF 0"
+      ]
+    },
+    {
+      "from": "MEP Equipment Installation (Panels / HVAC Units)",
+      "to": "T-Bar Above-Ceiling MEP Inspection",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard gate, powered and lit"
+      ]
+    },
+    {
+      "from": "Prime Coat Walls",
+      "to": "Finish Paint (new)",
+      "type": "SS",
+      "lag": 3,
+      "seats": 1,
+      "lags": [
+        3
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Finish Paint (new)",
+      "to": "Prep Floor — Level or Grind",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Finish Paint (new)",
+      "to": "Install Flooring — All Types",
+      "type": "SS",
+      "lag": 4,
+      "seats": 1,
+      "lags": [
+        4
+      ],
+      "conditions": [
+        "painted areas only"
+      ]
+    },
+    {
+      "from": "Finish Paint (new)",
+      "to": "Install Millwork / Cabinetry / Casework",
+      "type": "SS",
+      "lag": 4,
+      "seats": 1,
+      "lags": [
+        4
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Finish Paint (new)",
+      "to": "Install Doors",
+      "type": "SS",
+      "lag": 5,
+      "seats": 1,
+      "lags": [
+        5
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Start Up Control Systems & Test",
+      "to": "TAB (new)",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard gate"
+      ]
+    },
+    {
+      "from": "GC PM / Super Pre-Punch",
+      "to": "Final Clean",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Architect Approved Punch List Received",
+      "to": "Perform Punch Corrections",
+      "type": "FF",
+      "lag": 5,
+      "seats": 1,
+      "lags": [
+        5
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Perform Punch Corrections",
+      "to": "Final Walk",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard gate"
+      ]
+    },
+    {
+      "from": "Salvage Owner Items (Retain/Reuse/Turnover)",
+      "to": "Selective & Interior Trench Demo",
+      "type": "SS",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Selective & Interior Trench Demo",
+      "to": "Interior Underground Plumbing",
+      "type": "FF",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "from SS condition: released area; +FF2"
+      ]
+    },
+    {
+      "from": "Selective & Interior Trench Demo",
+      "to": "NLB Framing",
+      "type": "SS",
+      "lag": 3,
+      "seats": 1,
+      "lags": [
+        3
+      ],
+      "conditions": [
+        "walls not on trenches; +FF2"
+      ]
+    },
+    {
+      "from": "Selective & Interior Trench Demo",
+      "to": "NLB Framing",
+      "type": "FF",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "from SS condition: walls not on trenches; +FF2"
+      ]
+    },
+    {
+      "from": "Pourback — Interior Trenches",
+      "to": "NLB Framing",
+      "type": "FS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "walls on trenches"
+      ]
+    },
+    {
+      "from": "Structural Metals / Masonry / Framing",
+      "to": "NLB Framing",
+      "type": "FF",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "from SS condition: during CMU cure; +FF2"
+      ]
+    },
+    {
+      "from": "NLB Framing",
+      "to": "Wood Blocking (Millwork, Windows, Wall-Mounted Items)",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "from SS condition: +FF1"
+      ]
+    },
+    {
+      "from": "NLB Framing",
+      "to": "Install Door Frames",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "from SS condition: +FF1"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Overhead MEP Rough",
+      "type": "FF",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "from SS condition: +FF2"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Fire Alarm & Low Voltage Prewiring",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "from SS condition: +FF1"
+      ]
+    },
+    {
+      "from": "Wall MEP Rough",
+      "to": "Fire Sealing — Wall & Floor Penetrations",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "from SS condition: +FF1"
+      ]
+    },
+    {
+      "from": "Fire Sealing — Wall & Floor Penetrations",
+      "to": "Cover-Up Inspections",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard, per area"
+      ]
+    },
+    {
+      "from": "Cover-Up Inspections",
+      "to": "Drywall & Taping",
+      "type": "FS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "hard, per area; next area SS3"
+      ]
+    },
+    {
+      "from": "Ceiling Grid or Hard Lid Installation & Prime",
+      "to": "Fire Suppression Trim",
+      "type": "SS",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "always"
+      ]
+    },
+    {
+      "from": "Prime Coat Walls",
+      "to": "Install Flooring — All Types",
+      "type": "SS",
+      "lag": 3,
+      "seats": 1,
+      "lags": [
+        3
+      ],
+      "conditions": [
+        "by area; +FF2"
+      ]
+    },
+    {
+      "from": "Prime Coat Walls",
+      "to": "Install Flooring — All Types",
+      "type": "FF",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "from SS condition: by area; +FF2"
+      ]
+    },
+    {
+      "from": "Install Flooring — All Types",
+      "to": "Install Wall Base",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "from SS condition: +FF1"
+      ]
+    },
+    {
+      "from": "Prime Coat Walls",
+      "to": "Install Millwork / Cabinetry / Casework",
+      "type": "FF",
+      "lag": 2,
+      "seats": 1,
+      "lags": [
+        2
+      ],
+      "conditions": [
+        "from SS condition: +FF2"
+      ]
+    },
+    {
+      "from": "Install Doors",
+      "to": "Install Door Hardware & Accessories",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "from SS condition: +FF1"
+      ]
+    },
+    {
+      "from": "Install Door Hardware & Accessories",
+      "to": "Terminate & Integrate Access Control & Building Controls",
+      "type": "FF",
+      "lag": 1,
+      "seats": 1,
+      "lags": [
+        1
+      ],
+      "conditions": [
+        "from SS condition: +FF1"
+      ]
+    },
+    {
+      "from": "Install Flooring — All Types",
+      "to": "Begin Closeout Documentation",
+      "type": "SS",
+      "lag": 0,
+      "seats": 1,
+      "lags": [
+        0
+      ],
+      "conditions": [
+        "always"
+      ]
+    }
+  ]
+}

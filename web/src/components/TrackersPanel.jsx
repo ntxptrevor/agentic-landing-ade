@@ -40,7 +40,7 @@ export default function TrackersPanel({ project, meta }) {
           <thead>
             <tr>
               <th>ID</th><th>Item</th>
-              {tab === 'submittals' && <><th>Stage</th><th>Lead</th><th>Need by</th><th>Projected</th></>}
+              {tab === 'submittals' && <><th>Stage</th><th>Lead</th><th>Order by</th><th>Need by</th><th>Projected</th></>}
               {tab === 'subInvoices' && <><th>Vendor</th><th>Accept?</th></>}
               <th>Rating</th><th>Issues</th>
             </tr>
@@ -52,7 +52,7 @@ export default function TrackersPanel({ project, meta }) {
                 <td>{x.title || x.subject || x.number || x.vendor}</td>
                 {tab === 'submittals' && <>
                   <td><div className="stage-track">{SUBMITTAL_STAGES.map(s => <span key={s} className={x[`${s}Date`] ? 'on' : ''} title={s} />)}</div><small>{x.stage}</small></td>
-                  <td>{x.leadDays}d</td><td>{x.needBy || '—'}</td><td>{x.projected || '—'}</td>
+                  <td>{x.leadDays}d</td><td style={x.releaseAtRisk ? { color: 'var(--critical)', fontWeight: 700 } : undefined}>{x.orderBy || '—'}</td><td>{x.needBy || '—'}</td><td>{x.projected || '—'}</td>
                 </>}
                 {tab === 'subInvoices' && <><td>{x.vendor}</td><td>{x.acceptable ? 'Yes' : 'No'}</td></>}
                 <td><Pill r={x.rating} /></td>
