@@ -34,6 +34,19 @@ claude plugin list
 
 You should see `landing-ade` in the output.
 
+## Other plugins in this marketplace
+
+This marketplace also ships:
+
+- **`bidforge-schedules`** — interactive construction WBS schedule generator
+  (Gantt / list / calendar views, CPM scheduling, multi-format export).
+- **`mygmc-smartcar`** — an MCP server that integrates a GMC / GM electric
+  vehicle (e.g. a **2026 GMC Sierra EV**) through the
+  [Smartcar API](https://smartcar.com/docs): battery, charging, location,
+  odometer, tire pressure, and lock/unlock & start/stop-charge commands. See
+  [`plugins/mygmc-smartcar/README.md`](plugins/mygmc-smartcar/README.md) for
+  setup and OAuth instructions.
+
 ## Prerequisites
 
 Before using the plugin, make sure you have:

@@ -5,10 +5,10 @@ Guidance for AI assistants (Claude Code and others) working in this repository.
 ## What this repository is
 
 This is a **Claude Code plugin marketplace** named `agentic-landing-ade`. It ships
-two skills plus a standalone React web app. It is *not* a single application — it
-is a distribution package for Claude Code extensions.
+two skills, a standalone React web app, and an MCP server. It is *not* a single
+application — it is a distribution package for Claude Code extensions.
 
-The repository contains three distinct deliverables:
+The repository contains four distinct deliverables:
 
 1. **`landing-ade` skill** — an interactive document-extraction wizard wrapping
    LandingAI's Agentic Document Extraction (ADE) REST API (parse / extract / split / async parse jobs).
@@ -18,6 +18,12 @@ The repository contains three distinct deliverables:
 3. **`web/` BidForge Schedules app** — a React + Vite single-page app that
    implements the BidForge wizard as a GUI. Its production build is checked in
    under `docs/` for static deployment.
+4. **`plugins/mygmc-smartcar` MCP server** — a Node.js (stdio) MCP server that
+   integrates a GMC / GM electric vehicle (e.g. a 2026 GMC Sierra EV) through the
+   Smartcar API: OAuth connect flow, EV battery/charge/location/odometer/tire
+   reads, and lock/unlock & start/stop-charge commands. Unlike the skills, this
+   is a separate npm package (`plugins/mygmc-smartcar/package.json`) with its own
+   `.claude-plugin/plugin.json` registering the MCP server.
 
 ## Starting new work: create a new repo by default
 
@@ -56,6 +62,13 @@ repo from accumulating unrelated code.
 ├── docs/                    # Checked-in production build (Hostinger Git deploy)
 │   ├── index.html
 │   └── assets/              # Hashed JS/CSS bundles
+├── plugins/
+│   └── mygmc-smartcar/      # Smartcar MCP server plugin (own npm package)
+│       ├── .claude-plugin/plugin.json  # registers the MCP server (mcpServers)
+│       ├── src/index.js     # MCP server: tool definitions + stdio transport
+│       ├── src/smartcar.js  # OAuth + token store + Smartcar REST wrapper
+│       ├── package.json     # deps: @modelcontextprotocol/sdk, zod
+│       └── README.md        # setup + OAuth instructions
 ├── README.md                # End-user install + usage docs for the plugins
 └── LICENSE                  # MIT
 ```
@@ -71,7 +84,13 @@ When you add, rename, or re-version a skill, update **both** manifest files:
   Paths point at `skills/<name>/SKILL.md`.
 
 Skill descriptions in the manifests should match the intent of the skill's
-own frontmatter `description`. Versions are currently `1.0.0` for both plugins.
+own frontmatter `description`. Versions are currently `1.0.0` for all plugins.
+
+The `mygmc-smartcar` plugin is registered in `marketplace.json` with
+`source: "./plugins/mygmc-smartcar"` and carries its **own**
+`plugins/mygmc-smartcar/.claude-plugin/plugin.json` (which declares an
+`mcpServers` entry, not skills). The root `.claude-plugin/plugin.json` is only
+for the two skills — do not add the MCP server there.
 
 ## Skills: conventions to follow
 
