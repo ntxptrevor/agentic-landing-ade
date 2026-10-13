@@ -5,6 +5,16 @@ Format and vote rules: ../references/self-improvement.md. Newest first.
 
 ## 2026-10-13
 
+### LL-2026-10-13-22…25 — Inspection holds, mockup gates, finish rows, specialty overlap (user decisions — canon)
+Status: applied   Scope: jevTree, constructionPhases, jevOverlap, preflight, audit
+- 22 AHJ / state inspections (underground, cover-up, above-ceiling, fire marshal, TDLR, HHSC, jail standards, city/building final) get a "Request … (5 WD notice)" milestone. It starts SS with the inspected work and must precede the inspection by 5 WD. Each inspection also carries a 2 WD re-inspection contingency. Owner, Infection Prevention and third-party checks are excluded.
+- 23 Healthcare mockup gates (medical_specific / medical_specialties / imaging): Rough-in Mockup (5 WD, SS+2 after framing) holds Wall MEP Rough; Finish Mockup (5 WD, SS+3 after tape/float) holds Prime Coat Walls. Both are hard gates.
+- 24 "Drywall & Taping" splits into Drywall Hang (5 WD) and Drywall Tape, Float & Finish (7 WD, SS+2 / FF+2, per Parkland). A new Finish Paint row (4 WD, SS+3 / FF+2 after prime) sits after ceiling tile so it gates flooring (council rule 7). Module anchors re-merged to the finish row; the light tier patch now overrides Drywall Hang and drops tape/float.
+- 25 Specialties overlap (wall base → wall protection → restroom accessories → life-safety items, SS+1 each) and Ceiling Tile → Rough Clean SS+1, applied to all tiers.
+Engine fixes found while building it: split areas of one activity stay in order; module submittal rows never hold a site gate (the procurement tracker gates their install).
+Result: all five reference scenarios pass (A 34, B 66, C 108 incl. 10 WD of user mockup holds, D 35, E 68 WD).
+Remove by: delete the rows/links tagged LL-22…25 and the INSPECTION_RULES block.
+
 ### LL-2026-10-13-21 — Phases and zones as complete, sequential work groups
 Status: applied (user decision — canon)   Scope: jevTree expandZones, ModuleSelection phasing editor, preflight/audit aggregation, envelope
 Rule: each phase is a complete work group; each zone is a complete sub-group with only its chosen trade groups; each group finishes before the next begins. Each phase ends with clean, punch walk, corrections and owner turnover (plus change-over days).
@@ -28,10 +38,7 @@ Remove by: delete the entries in web/src/data/jevOverlap.js, or pass no scope to
 Status: **awaiting-user**
 1. ~~Merge Complete Punch Items~~ — answered yes by the user → LL-2026-10-13-20.
 2. ~~Area repetition for phased work~~ — answered by the user (complete, sequential phase/zone groups) → LL-2026-10-13-21.
-3. Inspection notice lead of 5 WD plus a 2-day re-inspection contingency (2/3).
-4. Healthcare mockup gates before rough-in and before finishes (1/3, supported by the Parkland HW comment).
-5. A Finish Paint row; split Drywall into Hang + Tape/Float (1/3 each).
-6. To close the remaining 2 WD on light refresh: overlap the specialties rows and Ceiling Tile → Rough Clean SS1 (1/3 each).
+3–6. ~~Inspection notice/contingency, mockup gates, Finish Paint + drywall split, specialty overlaps~~ — all answered yes by the user → LL-2026-10-13-22…25.
 7. Crew diminishing returns (rejected or deferred by all seats). Not built.
 
 ### LL-2026-10-13-08 — Project Coda backup to JobTread "Notes" on every sync

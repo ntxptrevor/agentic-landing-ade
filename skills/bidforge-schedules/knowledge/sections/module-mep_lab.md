@@ -1,8 +1,8 @@
 ---
 id: module-mep_lab
-version: 1
+version: 2
 updated: 2026-10-13
-hash: b38b27c56918
+hash: 255e8c0da049
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -19,14 +19,15 @@ Detection keywords: laboratory, lab casework, fume hood, biosafety, eyewash, eme
 | Submittals: Lab Casework, Epoxy Tops & Fume Hoods | 7 | Millwork | standard_renovation | Y 84d | construction | Site Work | Y | 3 |  |
 | Submittals: Lab Gases, Acid Waste & Emergency Fixtures | 7 | Plumbing | standard_renovation | Y 42d | construction | Site Work | Y | 3 |  |
 | Acid-Resistant Waste Piping & Neutralization Tank | 3 | Plumbing | standard_renovation | N | construction | Wall MEP Rough |  | 2 |  |
-| Lab Gas, Vacuum & DI/RO Water Piping Rough-In | 2 | Plumbing | standard_renovation | Y 21d | construction | Drywall & Taping |  | 2 |  |
-| Fume Hood Exhaust Ductwork & Exhaust Fans | 4 | HVAC | standard_renovation | N | construction | Drywall & Taping |  | 2 |  |
-| Lab Gas Pressure Test & Purity Verification | 1 | Plumbing | inspection | N | construction | Drywall & Taping |  | 2 |  |
+| Lab Gas, Vacuum & DI/RO Water Piping Rough-In | 2 | Plumbing | standard_renovation | Y 21d | construction | Drywall Hang |  | 2 |  |
+| Fume Hood Exhaust Ductwork & Exhaust Fans | 4 | HVAC | standard_renovation | N | construction | Drywall Hang |  | 2 |  |
+| Lab Gas Pressure Test & Purity Verification | 1 | Plumbing | inspection | N | construction | Drywall Hang |  | 2 |  |
 | Lab gas piping rough-in (natural gas, specialty gases) | 4 | Plumbing | standard_renovation | Y 0d | construction | Ceiling Grid or Hard Lid Installation & Prime |  | 2 |  |
 | Lab Casework, Epoxy Tops & Fume Hood Set | 5 | Millwork | standard_renovation | Y 70d | construction | Install Millwork / Cabinetry / Casework |  | 3 |  |
 | Fume hoods set and connected | 2 | HVAC | inspection | N | construction | Install Doors |  | 2 |  |
 | Emergency Eyewash/Shower Install & Flow Test | 1 | Plumbing | standard_renovation | N | construction | Install Doors |  | 2 |  |
-| Fume Hood Certification (ASHRAE 110) | 1 | HVAC | inspection | N | construction | Start Up Control Systems & Test |  | 2 |  |
+| Fume Hood Certification (ASHRAE 110) | 1 | HVAC | inspection | N | construction | Test, Adjust & Balance (TAB) |  | 2 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash 255e8c0da049)
 - v1 2026-10-13 — regenerated (hash b38b27c56918)

@@ -19,7 +19,7 @@ export const parametricWd = (sf, k = 1) => Math.round(2.13 * Math.pow(sf, 0.379)
 const DEFAULT_SCENARIOS = [
   { id: 'A', label: 'ISD light refresh — paint, ceilings, flooring, 3,000 SF, summer', scope: { tier: 'light', sf: 3000, sector: 'isd', constraints: [] }, modules: ['isd_college'], target: { cons: [20, 35], cd: [65, 125], conc: 60 } },
   { id: 'B', label: 'Standard interior renovation — 10,000 SF office/classroom', scope: { tier: 'standard', sf: 10000, sector: 'isd', constraints: [] }, modules: ['selective_demo', 'fire_alarm', 'fire_suppression', 'low_voltage'], target: { cons: [60, 85], cd: [140, 195], conc: 70 } },
-  { id: 'C', label: 'Occupied clinic renovation with ICRA — 6,000 SF', scope: { tier: 'standard', sf: 6000, sector: 'healthcare', constraints: ['occupied', 'icra', 'phased'] }, modules: ['selective_demo', 'abatement', 'icra', 'occupied_phasing', 'medical_specific', 'medical_specialties', 'fire_alarm', 'fire_suppression', 'low_voltage'], target: { cons: [75, 100], cd: [175, 235], conc: 70 } },
+  { id: 'C', label: 'Occupied clinic renovation with ICRA — 6,000 SF', scope: { tier: 'standard', sf: 6000, sector: 'healthcare', constraints: ['occupied', 'icra', 'phased'] }, modules: ['selective_demo', 'abatement', 'icra', 'occupied_phasing', 'medical_specific', 'medical_specialties', 'fire_alarm', 'fire_suppression', 'low_voltage'], target: { cons: [75, 100], cd: [175, 235], conc: 70 }, userAdjustWd: 10, userAdjustReason: 'two 5 WD healthcare mockup gates added by user decision LL-2026-10-13-23 after the council set this band' },
   { id: 'D', label: 'ISD summer RTU replacement — 4 units', scope: { tier: 'equipment', sf: 2000, sector: 'isd', constraints: [], units: 4 }, modules: ['hvac_replacement', 'isd_college'], target: { cons: [15, 36], cd: [95, 200], conc: 50 } },
   { id: 'E', label: 'County jail holding-area renovation — 4,000 SF', scope: { tier: 'standard', sf: 4000, sector: 'secured', constraints: ['secure'] }, modules: ['selective_demo', 'secured_building', 'access_control', 'fire_alarm'], target: { cons: [55, 80], cd: [140, 210], conc: 70 } },
 ];
@@ -46,8 +46,8 @@ function audit(sc) {
   const tgt = sc.target;
   const over10 = all.filter(t => t.duration > 10 && !/submittal|review|approv|processing/i.test(t.name));
   const checks = tgt ? {
-    construction: consWd >= tgt.cons[0] && consWd <= tgt.cons[1],
-    calendar: p.calendarDuration >= tgt.cd[0] && p.calendarDuration <= tgt.cd[1],
+    construction: consWd >= tgt.cons[0] && consWd <= tgt.cons[1] + (sc.userAdjustWd || 0),
+    calendar: p.calendarDuration >= tgt.cd[0] && p.calendarDuration <= tgt.cd[1] + Math.round((sc.userAdjustWd || 0) * 1.4),
     concurrency: conc >= tgt.conc,
     critical: crit <= 50,
     tenDayCap: over10.length === 0,
@@ -59,7 +59,7 @@ function audit(sc) {
     benchmarkConstructionWd: bench, ratioToBenchmark: Math.round((consWd / bench) * 100) / 100,
     pctConcurrentConstruction: conc,
     criticalPct: crit,
-    target: tgt || null, checks, pass: checks ? Object.values(checks).every(Boolean) : null,
+    target: tgt || null, userAdjust: sc.userAdjustWd ? { wd: sc.userAdjustWd, reason: sc.userAdjustReason } : null, checks, pass: checks ? Object.values(checks).every(Boolean) : null,
     maxActivityWd: Math.max(...all.map(t => t.duration)),
     over10Wd: all.filter(t => t.duration > 10).map(t => `${t.name} (${t.duration}d)`),
     linkTypes: [...new Set(dependencies.map(x => x.type))],

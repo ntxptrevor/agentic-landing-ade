@@ -10,7 +10,7 @@ description: >-
   "save this to memory" or "from now on" about scheduling.
 metadata:
   author: NTXP LLC
-  version: "2.3.0"
+  version: "2.4.0"
   canonical_schema: bidforge.canonical.v1
   sync_schema: bidforge.sync.v1
 ---

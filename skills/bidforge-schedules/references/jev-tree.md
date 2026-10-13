@@ -63,6 +63,12 @@ Parkland (owner objected to Phase 1 punch overlapping Phase 2), Ralls (restroom 
 demo, rough-in, tile/finish and fixtures). Days gate for zoned work: sum of each zone's envelope plus
 phase turnovers and change-over days.
 
+## Inspection holds and mockup gates (user rules)
+
+- AHJ and state inspections (underground, cover-up, above-ceiling, fire marshal, TDLR, HHSC, jail standards, city/building final) carry a 5 WD request notice and a 2 WD re-inspection contingency. The request milestone starts SS with the inspected work and links FS+5 to the inspection, so it only delays inspections of short work.
+- Healthcare (medical_specific / medical_specialties / imaging): the rough-in mockup must be accepted before wall rough-in, and the finish (complete-stage) mockup before prime coat. Both are hard gates.
+- Drywall is two rows (Hang, then Tape, Float & Finish at SS+2 / FF+2). Finish Paint follows prime at SS+3 / FF+2 and must finish before the flooring moisture gate.
+
 ## Overlap model
 
 - `OVERLAP_LINKS`: 51 SS/FF/FS links with lags. A link is adopted when at least 2 of 3 council

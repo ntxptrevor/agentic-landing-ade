@@ -1,8 +1,8 @@
 ---
 id: module-occupied_phasing
-version: 1
+version: 2
 updated: 2026-10-13
-hash: c0bebf8650f0
+hash: d227668afa31
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -21,8 +21,9 @@ Detection keywords: occupied, phasing plan, phased, after hours, night work, wee
 | Phasing Plan & Owner Occupancy Schedule | 3 | GC | project_management | N | preconstruction | Submittal Register Approval |  | 3 |  |
 | Noise/Odor Work Window Notices (Recurring) | 1 | GC | project_management | N | construction | Mobilization | Y | 3 |  |
 | Temporary partitions and relocations per phase | 2 | AHJ | permit | N | construction | Install ADA Room Signage |  | 2 |  |
-| Phase Turnover & Owner Relocation (Per Phase) | 2 | Owner | project_management | N | construction | Start Up Control Systems & Test |  | 3 |  |
+| Phase Turnover & Owner Relocation (Per Phase) | 2 | Owner | project_management | N | construction | Test, Adjust & Balance (TAB) |  | 3 |  |
 | Next Phase Re-Mobilization & Protection | 2 | GC | standard_renovation | N | construction | Owner Punch Walk / Substantial Completion |  | 3 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash d227668afa31)
 - v1 2026-10-13 — regenerated (hash c0bebf8650f0)

@@ -1,8 +1,8 @@
 ---
 id: module-complex_owner
-version: 1
+version: 2
 updated: 2026-10-13
-hash: aa9625909099
+hash: bf7808899e08
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -21,8 +21,9 @@ Detection keywords: mockup, mock-up, sample panel, field verify location, cutout
 | Owner Finish Selections & Color Board Approval | 7 | Architect | oac | Y 0d | preconstruction | Confirm Job Start Approval (Gate) |  | 2 |  |
 | Renderings / Cutsheet Packages for Owner Approval | 10 | Architect | design | Y 0d | construction | Site Work |  | 2 |  |
 | In-place mockup reviewed and approved by Owner | 2 | GC | standard_renovation | N | construction | Wood Blocking (Millwork, Windows, Wall-Mounted Items) |  | 2 |  |
-| Mockup Room / Sample Panel Construction | 5 | GC | standard_renovation | Y 14d | construction | Ceiling Grid or Hard Lid Installation & Prime |  | 3 |  |
-| Mockup Review & Owner Sign-Off | 2 | Owner | oac | N | construction | Ceiling Grid or Hard Lid Installation & Prime |  | 2 |  |
+| Mockup Room / Sample Panel Construction | 5 | GC | standard_renovation | Y 14d | construction | Drywall Tape, Float & Finish |  | 3 |  |
+| Mockup Review & Owner Sign-Off | 2 | Owner | oac | N | construction | Drywall Tape, Float & Finish |  | 2 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash bf7808899e08)
 - v1 2026-10-13 — regenerated (hash aa9625909099)

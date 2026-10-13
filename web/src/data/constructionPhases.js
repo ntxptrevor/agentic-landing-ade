@@ -71,6 +71,7 @@ export const CONSTRUCTION_PHASES = [
       // Structural & Framing
       { name: 'Structural Metals / Masonry / Framing', duration: 10, trade: 'Structural', category: 'activity', critical: true, sub: 'Structural & Framing' },
       { name: 'NLB Framing', duration: 5, trade: 'Framing', category: 'activity', critical: true, sub: 'Structural & Framing' },
+      { name: 'Rough-in Mockup — Build & Owner Acceptance', duration: 5, trade: 'Owner', category: 'deliverable', cls: 'design', module: ['medical_specific', 'medical_specialties', 'imaging'], sub: 'Structural & Framing', lesson: 'LL-2026-10-13-23' },
       { name: 'Install Door Frames', duration: 3, trade: 'Carpentry', category: 'activity', sub: 'Structural & Framing' },
       { name: 'Wood Blocking (Millwork, Windows, Wall-Mounted Items)', duration: 3, trade: 'Carpentry', category: 'activity', sub: 'Structural & Framing' },
 
@@ -83,7 +84,9 @@ export const CONSTRUCTION_PHASES = [
       { name: 'Fire Suppression Main Lines & Branch Pipe Rough', duration: 5, trade: 'Fire Protection', category: 'activity', sub: 'Wall Rough-In', module: ['fire_suppression'] },
 
       // Drywall & Ceiling
-      { name: 'Drywall & Taping', duration: 10, trade: 'Drywall', category: 'activity', critical: true, sub: 'Drywall & Ceiling' },
+      { name: 'Drywall Hang', duration: 5, trade: 'Drywall', category: 'activity', critical: true, sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-24' },
+      { name: 'Drywall Tape, Float & Finish', duration: 7, trade: 'Drywall', category: 'activity', critical: true, sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-24' },
+      { name: 'Finish Mockup (Complete Stage) — Owner Acceptance', duration: 5, trade: 'Owner', category: 'deliverable', cls: 'design', module: ['medical_specific', 'medical_specialties', 'imaging'], sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-23' },
       { name: 'Fire Sealing — Wall & Floor Penetrations', duration: 3, trade: 'Firestop', category: 'activity', sub: 'Drywall & Ceiling' },
       { name: 'Prime Coat Walls', duration: 3, trade: 'Painting', category: 'activity', critical: true, sub: 'Drywall & Ceiling' },
       { name: 'T-Bar Above-Ceiling MEP Inspection', duration: 2, trade: 'General', category: 'deliverable', sub: 'Drywall & Ceiling' },
@@ -91,6 +94,7 @@ export const CONSTRUCTION_PHASES = [
       { name: 'Fire Alarm Trim', duration: 3, trade: 'Fire Alarm', category: 'activity', sub: 'Drywall & Ceiling', module: ['fire_alarm'] },
       { name: 'Fire Suppression Trim', duration: 3, trade: 'Fire Protection', category: 'activity', sub: 'Drywall & Ceiling', module: ['fire_suppression'] },
       { name: 'Ceiling Tile Installation', duration: 3, trade: 'Ceilings', category: 'activity', sub: 'Drywall & Ceiling' },
+      { name: 'Finish Paint', duration: 4, trade: 'Painting', category: 'activity', sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-24' },
 
       // Finishes
       { name: 'Rough Clean', duration: 2, trade: 'General', category: 'activity', sub: 'Finishes' },

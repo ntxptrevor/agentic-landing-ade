@@ -48,7 +48,7 @@ Base library: 128 consensus line items; 90 single-seat candidates.
 - abatement: "Waste Manifests & Abatement Closeout Report" after Make Safe -> Begin Closeout Documentation
 - fire_alarm: "Fire Alarm Permit Approved" after Ceiling Grid or Hard Lid Installation & Prime -> Confirm Job Start Approval (Gate)
 - fire_suppression: "Sprinkler Main & Branch Line Relocation" after Ceiling Grid or Hard Lid Installation & Prime -> Overhead MEP Rough
-- fire_suppression: "Sprinkler Hydrostatic Test (200 psi / 2 hr)" after Drywall & Taping -> Overhead MEP Rough
+- fire_suppression: "Sprinkler Hydrostatic Test (200 psi / 2 hr)" after Drywall Hang -> Overhead MEP Rough
 - access_control: "Access Control Conduit & Back Box Rough-In" after Ceiling Grid or Hard Lid Installation & Prime -> Wall MEP Rough
 - access_control: "Reader, REX, Door Contact & Camera Cabling" after Install Doors -> Overhead MEP Rough
 - opci: "OPCI equipment and furnishings installed" after Submittal Register Approval -> Furniture, Wall Hangings & Owner Item Installation
@@ -62,7 +62,7 @@ Base library: 128 consensus line items; 90 single-seat candidates.
 - exterior_improvements: "Air/Water Barrier & Opening Flashing" after Wall MEP Rough -> Exterior Containment
 - exterior_improvements: "Exterior Storefront & Window Installation (Dry-In)" after Confirm Job Start Approval (Gate) -> Exterior Containment
 - exterior_improvements: "Window Field Water Test (AAMA 501.2)" after Wall MEP Rough -> Exterior Containment
-- exterior_improvements: "Exterior Cladding, Masonry & EIFS Repairs" after Drywall & Taping -> Exterior Containment
+- exterior_improvements: "Exterior Cladding, Masonry & EIFS Repairs" after Drywall Hang -> Exterior Containment
 - exterior_improvements: "Canopy & Exterior Lighting Installation" after Ceiling Grid or Hard Lid Installation & Prime -> Exterior Containment
 - exterior_improvements: "Exterior Sealants & Joint Replacement" after Install Doors -> Exterior Containment
 - exterior_improvements: "Exterior Painting & Coatings" after Install Doors -> Exterior Containment
@@ -72,11 +72,11 @@ Base library: 128 consensus line items; 90 single-seat candidates.
 - roofing: "Deck Repair & Fastening Inspection" after Site Work -> Exterior Containment
 - roofing: "Roof Insulation, Tapered System & Cover Board" after Interior Underground Plumbing -> Exterior Containment
 - roofing: "Roof Membrane Installation" after Site Work -> Exterior Containment
-- roofing: "Curbs, Penetrations & RTU Flashing" after Drywall & Taping -> Exterior Containment
-- roofing: "Sheet Metal Copings, Edge Metal & Gutters" after Drywall & Taping -> Exterior Containment
+- roofing: "Curbs, Penetrations & RTU Flashing" after Drywall Hang -> Exterior Containment
+- roofing: "Sheet Metal Copings, Edge Metal & Gutters" after Drywall Hang -> Exterior Containment
 - roofing: "Roof drains, gutters and downspouts" after Install Millwork / Cabinetry / Casework -> Exterior Containment
-- low_voltage: "Paging/Intercom & Clock Speaker Rough-In" after Drywall & Taping -> Wall MEP Rough
-- low_voltage: "Cable Tray & J-Hook Pathway Installation" after Ceiling Grid or Hard Lid Installation & Prime -> Overhead MEP Rough
+- low_voltage: "Paging/Intercom & Clock Speaker Rough-In" after Drywall Hang -> Wall MEP Rough
+- low_voltage: "Cable Tray & J-Hook Pathway Installation" after T-Bar Above-Ceiling MEP Inspection -> Overhead MEP Rough
 - low_voltage: "Telecom Room Backboard, Grounding & Racks" after Ceiling Grid or Hard Lid Installation & Prime -> Prime Coat Walls
 - imaging: "Submittals: Lead-Lined Drywall, Doors & Leaded Glass" after Confirm Job Start Approval (Gate) -> Cover-Up Inspections
 - imaging: "Physicist Lead Shielding Inspection (Pre-Cover)" after Wood Blocking (Millwork, Windows, Wall-Mounted Items) -> Cover-Up Inspections

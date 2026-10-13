@@ -1,6 +1,6 @@
 {
   "engine": "bidforge jevTree + scheduler",
-  "at": "2026-10-13T12:47:23.648Z",
+  "at": "2026-10-13T21:24:21.899Z",
   "results": [
     {
       "id": "A",
@@ -9,15 +9,15 @@
         "isd_college"
       ],
       "activities": 60,
-      "totalWd": 78,
-      "totalCd": 107,
+      "totalWd": 74,
+      "totalCd": 101,
       "precWd": 25,
-      "constructionWd": 37,
-      "closeoutWd": 17,
+      "constructionWd": 34,
+      "closeoutWd": 16,
       "benchmarkConstructionWd": 27,
-      "ratioToBenchmark": 1.37,
-      "pctConcurrentConstruction": 68,
-      "criticalPct": 53,
+      "ratioToBenchmark": 1.26,
+      "pctConcurrentConstruction": 69,
+      "criticalPct": 50,
       "target": {
         "cons": [
           20,
@@ -29,55 +29,7 @@
         ],
         "conc": 60
       },
-      "checks": {
-        "construction": false,
-        "calendar": true,
-        "concurrency": true,
-        "critical": false,
-        "tenDayCap": true
-      },
-      "pass": false,
-      "maxActivityWd": 15,
-      "over10Wd": [
-        "Submittal Processing Time (15d)"
-      ],
-      "linkTypes": [
-        "FS",
-        "SS",
-        "FF"
-      ],
-      "sumOfDurationsConstruction": 63
-    },
-    {
-      "id": "B",
-      "label": "Standard interior renovation — 10,000 SF office/classroom",
-      "modules": [
-        "selective_demo",
-        "fire_alarm",
-        "fire_suppression",
-        "low_voltage"
-      ],
-      "activities": 113,
-      "totalWd": 121,
-      "totalCd": 168,
-      "precWd": 35,
-      "constructionWd": 65,
-      "closeoutWd": 22,
-      "benchmarkConstructionWd": 70,
-      "ratioToBenchmark": 0.93,
-      "pctConcurrentConstruction": 96,
-      "criticalPct": 35,
-      "target": {
-        "cons": [
-          60,
-          85
-        ],
-        "cd": [
-          140,
-          195
-        ],
-        "conc": 70
-      },
+      "userAdjust": null,
       "checks": {
         "construction": true,
         "calendar": true,
@@ -95,7 +47,57 @@
         "SS",
         "FF"
       ],
-      "sumOfDurationsConstruction": 271
+      "sumOfDurationsConstruction": 66
+    },
+    {
+      "id": "B",
+      "label": "Standard interior renovation — 10,000 SF office/classroom",
+      "modules": [
+        "selective_demo",
+        "fire_alarm",
+        "fire_suppression",
+        "low_voltage"
+      ],
+      "activities": 116,
+      "totalWd": 122,
+      "totalCd": 169,
+      "precWd": 35,
+      "constructionWd": 66,
+      "closeoutWd": 22,
+      "benchmarkConstructionWd": 70,
+      "ratioToBenchmark": 0.94,
+      "pctConcurrentConstruction": 93,
+      "criticalPct": 33,
+      "target": {
+        "cons": [
+          60,
+          85
+        ],
+        "cd": [
+          140,
+          195
+        ],
+        "conc": 70
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": true,
+        "calendar": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": true,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 284
     },
     {
       "id": "C",
@@ -111,16 +113,16 @@
         "fire_suppression",
         "low_voltage"
       ],
-      "activities": 150,
-      "totalWd": 159,
-      "totalCd": 220,
+      "activities": 157,
+      "totalWd": 177,
+      "totalCd": 246,
       "precWd": 42,
-      "constructionWd": 93,
+      "constructionWd": 108,
       "closeoutWd": 27,
       "benchmarkConstructionWd": 86,
-      "ratioToBenchmark": 1.08,
-      "pctConcurrentConstruction": 93,
-      "criticalPct": 31,
+      "ratioToBenchmark": 1.26,
+      "pctConcurrentConstruction": 91,
+      "criticalPct": 35,
       "target": {
         "cons": [
           75,
@@ -131,6 +133,10 @@
           235
         ],
         "conc": 70
+      },
+      "userAdjust": {
+        "wd": 10,
+        "reason": "two 5 WD healthcare mockup gates added by user decision LL-2026-10-13-23 after the council set this band"
       },
       "checks": {
         "construction": true,
@@ -150,7 +156,7 @@
         "SS",
         "FF"
       ],
-      "sumOfDurationsConstruction": 381
+      "sumOfDurationsConstruction": 408
     },
     {
       "id": "D",
@@ -160,15 +166,15 @@
         "isd_college"
       ],
       "activities": 56,
-      "totalWd": 82,
-      "totalCd": 113,
+      "totalWd": 81,
+      "totalCd": 112,
       "precWd": 32,
-      "constructionWd": 33,
-      "closeoutWd": 18,
+      "constructionWd": 35,
+      "closeoutWd": 15,
       "benchmarkConstructionWd": 19,
-      "ratioToBenchmark": 1.74,
+      "ratioToBenchmark": 1.84,
       "pctConcurrentConstruction": 61,
-      "criticalPct": 50,
+      "criticalPct": 48,
       "target": {
         "cons": [
           15,
@@ -180,6 +186,7 @@
         ],
         "conc": 50
       },
+      "userAdjust": null,
       "checks": {
         "construction": true,
         "calendar": true,
@@ -196,7 +203,7 @@
         "FS",
         "SS"
       ],
-      "sumOfDurationsConstruction": 46
+      "sumOfDurationsConstruction": 48
     },
     {
       "id": "E",
@@ -207,15 +214,15 @@
         "access_control",
         "fire_alarm"
       ],
-      "activities": 113,
-      "totalWd": 117,
-      "totalCd": 162,
+      "activities": 117,
+      "totalWd": 125,
+      "totalCd": 172,
       "precWd": 38,
-      "constructionWd": 60,
+      "constructionWd": 68,
       "closeoutWd": 19,
       "benchmarkConstructionWd": 64,
-      "ratioToBenchmark": 0.94,
-      "pctConcurrentConstruction": 93,
+      "ratioToBenchmark": 1.06,
+      "pctConcurrentConstruction": 91,
       "criticalPct": 41,
       "target": {
         "cons": [
@@ -228,6 +235,7 @@
         ],
         "conc": 70
       },
+      "userAdjust": null,
       "checks": {
         "construction": true,
         "calendar": true,
@@ -245,7 +253,7 @@
         "SS",
         "FF"
       ],
-      "sumOfDurationsConstruction": 236
+      "sumOfDurationsConstruction": 252
     }
   ]
 }

@@ -64,7 +64,7 @@ const ALIAS = [
   [/layout|stud|framing/i, 'NLB Framing'], [/door frame|hollow metal frame/i, 'Install Door Frames'], [/blocking|backing/i, 'Wood Blocking (Millwork, Windows, Wall-Mounted Items)'],
   [/in-?wall|wall rough|rough-?in/i, 'Wall MEP Rough'], [/cover|pre-?cover|close-?in insp/i, 'Cover-Up Inspections'],
   [/overhead|above.?ceiling rough/i, 'Overhead MEP Rough'], [/above.?ceiling insp/i, 'T-Bar Above-Ceiling MEP Inspection'],
-  [/drywall|hang|tape|finish gyp/i, 'Drywall & Taping'], [/prime|first coat|paint/i, 'Prime Coat Walls'], [/ceiling grid|grid/i, 'Ceiling Grid or Hard Lid Installation & Prime'],
+  [/drywall|hang|tape|finish gyp/i, 'Drywall Tape, Float & Finish'], [/prime|first coat|paint/i, 'Prime Coat Walls'], [/ceiling grid|grid/i, 'Ceiling Grid or Hard Lid Installation & Prime'],
   [/ceiling tile|lay-?in/i, 'Ceiling Tile Installation'], [/floor/i, 'Install Flooring — All Types'], [/millwork|casework|cabinet/i, 'Install Millwork / Cabinetry / Casework'],
   [/door hardware|hardware/i, 'Install Door Hardware & Accessories'], [/\bdoors?\b/i, 'Install Doors'], [/specialt|accessor|toilet partition/i, 'Install Restroom Accessories & Partitions'],
   [/signage/i, 'Install ADA Room Signage'], [/trim|device/i, 'Fire Alarm Trim'], [/start-?up|commission|tab\b|test.*balanc/i, 'Start Up Control Systems & Test'],

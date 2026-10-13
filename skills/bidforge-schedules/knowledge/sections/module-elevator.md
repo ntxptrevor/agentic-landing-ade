@@ -1,8 +1,8 @@
 ---
 id: module-elevator
-version: 1
+version: 2
 updated: 2026-10-13
-hash: 78c968e1c143
+hash: 762caf0f4f6e
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -18,11 +18,12 @@ Detection keywords: elevator, division 14, wheelchair lift, conveying, tdlr elev
 |---|---|---|---|---|---|---|---|---|---|
 | Submittals: Elevator Modernization Equipment | 10 | Elevator | standard_renovation | Y 112d | preconstruction | All Subcontracts Signed — Confirmed | Y | 2 |  |
 | TDLR Elevator Alteration Permit | 7 | Elevator | design | N | construction | Site Work | Y | 3 |  |
-| Hoistway & Pit Prep (Lighting, Ladder, Sump) | 7 | Concrete | standard_renovation | N | construction | Drywall & Taping |  | 3 |  |
-| Machine Room Dedicated Power, HVAC & Disconnects | 3 | Electrical | standard_renovation | N | construction | Drywall & Taping |  | 2 |  |
-| Elevator Equipment Install (Controller, Machine, Fixtures) | 15 | Elevator | standard_renovation | Y 112d | construction | Ceiling Grid or Hard Lid Installation & Prime |  | 3 |  |
-| Fire Recall & Shunt Trip Interface Test | 1 | Electrical | life_safety | N | construction | Start Up Control Systems & Test |  | 3 |  |
-| TDLR Elevator Inspection & Certificate of Compliance | 1 | AHJ | inspection | N | construction | Start Up Control Systems & Test |  | 2 |  |
+| Hoistway & Pit Prep (Lighting, Ladder, Sump) | 7 | Concrete | standard_renovation | N | construction | Drywall Hang |  | 3 |  |
+| Machine Room Dedicated Power, HVAC & Disconnects | 3 | Electrical | standard_renovation | N | construction | Drywall Hang |  | 2 |  |
+| Elevator Equipment Install (Controller, Machine, Fixtures) | 15 | Elevator | standard_renovation | Y 112d | construction | Drywall Tape, Float & Finish |  | 3 |  |
+| Fire Recall & Shunt Trip Interface Test | 1 | Electrical | life_safety | N | construction | Test, Adjust & Balance (TAB) |  | 3 |  |
+| TDLR Elevator Inspection & Certificate of Compliance | 1 | AHJ | inspection | N | construction | Test, Adjust & Balance (TAB) |  | 2 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash 762caf0f4f6e)
 - v1 2026-10-13 — regenerated (hash 78c968e1c143)

@@ -60,7 +60,32 @@ export function composeSequence(confirmedIds, tier) {
       placedAfter.set(key, offset + 1);
     }
   }
+  addInspectionNotices(phases);
   return { phases, unplaced };
+}
+
+// User decision 2026-10-13 (LL-22): AHJ / state / owner inspections carry a 5 WD request notice
+// and a 2 WD re-inspection contingency (Parkland: 5-WD notice, "2 d re-inspection contingency").
+// AHJ / state inspections only (council: "FS+5 notice lead to AHJ inspections"); owner,
+// Infection Prevention and third-party checks keep their own durations.
+const INSPECTION_RE = /cover-?up inspection|above-?ceiling|underground (mep )?inspection|exterior inspection|fire marshal|tdlr|hhsc|jail standards|city inspection|building final/i;
+const NOT_INSPECTION_RE = /pre-?punch|moisture|request|notice|daily|monitoring|log\b|within 1 year|permit|infection prevention|third-party/i;
+export const INSPECTION_RULES = { noticeWd: 5, contingencyWd: 2 };
+function addInspectionNotices(phases) {
+  for (const p of phases) {
+    if (p.id === 'preconstruction') continue;
+    const out = [];
+    for (const r of p.rows) {
+      const name = r.baseName || r.name;
+      if (INSPECTION_RE.test(name) && !NOT_INSPECTION_RE.test(name) && r.duration > 0 && !r.noGate) {
+        out.push({ name: `Request: ${r.name} (${INSPECTION_RULES.noticeWd} WD notice)`, baseName: `Notice: ${name}`, noticeFor: name, duration: 0, milestone: true, parallel: true, trade: 'GC', category: 'deliverable', cls: 'inspection', sub: r.sub, source: 'notice' });
+        out.push({ ...r, duration: r.duration + INSPECTION_RULES.contingencyWd, reinspectionWd: INSPECTION_RULES.contingencyWd });
+        continue;
+      }
+      out.push(r);
+    }
+    p.rows = out;
+  }
 }
 
 // Duration factor from the scope profile (affected SF, sector, damped constraints).
@@ -195,6 +220,8 @@ export function buildWbs(confirmedIds, scope = null) {
           protected: !!t.critical, parallel: !!t.parallel, noGate: !!t.noGate, lesson: t.lesson || null, predOffset: t.predOffset,
           source: t.source, predecessors: [], successors: [], isCritical: false, notes: '', children: [],
           baseName: t.baseName || t.splitOf || t.name, splitIndex: t.splitIndex || null, splitCount: t.splitCount || null,
+          noticeFor: t.noticeFor || null,
+          ...(t.reinspectionWd ? { notes: `Includes ${t.reinspectionWd} WD re-inspection contingency` } : {}),
           windowDays: /state|tdlr|hhsc|fire marshal|\baru\b|jail standards|ras inspection/i.test(t.name) ? 5 : null,
         };
       }),
@@ -208,6 +235,9 @@ export function buildWbs(confirmedIds, scope = null) {
     if (phase.phaseKey === 'preconstruction') continue;
     for (const t of phase.children) {
       if (t.source?.startsWith('module:') && !t.isMilestone) { t.parallel = true; t.moduleFlow = true; }
+      // Submittal rows gate their material's install through the procurement tracker
+      // (order-by / need-by), not the site sequence, so they never hold a site gate.
+      if (t.source?.startsWith('module:') && /^submittals?:/i.test(t.name)) t.noGate = true;
     }
   }
 
@@ -221,7 +251,7 @@ export function buildWbs(confirmedIds, scope = null) {
   for (const phase of wbs) {
     let lastSeq = null;
     phase.children.forEach((task, i) => {
-      const prev = phase.children[i - 1];
+      const prev = phase.children.slice(0, i).reverse().find(x => !x.noticeFor);
       if (i === 0) {
         if (lastOfPrevPhase) link(task, lastOfPrevPhase);
       } else if (task.predOffset === null) {
@@ -250,12 +280,13 @@ export function buildWbs(confirmedIds, scope = null) {
     lastOfPrevPhase = lastSeq || lastOfPrevPhase;
   }
   applyOverlap(wbs, deps);
+  wireNotices(wbs, deps);
 
   // Parallel rows feed the next protected gate/milestone in their phase, so a late
   // permit or submittal pushes the schedule instead of dead-ending with false float.
   for (const phase of wbs) {
     phase.children.forEach((task, i) => {
-      if (!task.parallel || task.noGate || task.moduleFlow) return;
+      if (!task.parallel || task.noGate || task.moduleFlow || task.noticeFor) return;
       const gate = phase.children.slice(i + 1).find(t => t.protected && t.isMilestone && !t.isReference)
         || phase.children.slice(i + 1).reverse().find(t => !t.parallel && !t.isReference);
       if (gate && !gate.predecessors.includes(task.id)) {
@@ -294,7 +325,9 @@ function applyOverlapGroup(all, deps) {
   }
   for (const [toId, links] of incoming) {
     const task = all.find(t => t.id === toId);
-    const keep = task.predecessors.filter(p => links.some(l => l.from === p));
+    // Area k of a split activity is the same crew moving on: it always follows area k-1.
+    const prevArea = task.splitIndex > 1 ? all.find(t => t.baseName === task.baseName && t.splitIndex === task.splitIndex - 1) : null;
+    const keep = task.predecessors.filter(p => links.some(l => l.from === p) || p === prevArea?.id);
     for (let i = deps.length - 1; i >= 0; i--) {
       if (deps[i].to === toId && !keep.includes(deps[i].from)) deps.splice(i, 1);
       else if (deps[i].to === toId && links.some(l => l.from === deps[i].from)) deps.splice(i, 1);
@@ -302,6 +335,25 @@ function applyOverlapGroup(all, deps) {
     task.predecessors = [...new Set([...keep, ...links.map(l => l.from)])];
     deps.push(...links);
     task.overlapped = true;
+  }
+}
+
+// A request goes out when the inspected work starts (SS) and must precede the inspection by
+// the notice period (FS + notice lag), so it only delays inspections of very short work.
+function wireNotices(wbs, deps) {
+  for (const group of wbs) {
+    group.children.forEach((n, i) => {
+      if (!n.noticeFor) return;
+      const insp = group.children.slice(i + 1).find(t => t.baseName === n.noticeFor);
+      if (!insp) return;
+      const work = deps.filter(d => d.to === insp.id && d.from !== n.id).map(d => d.from);
+      for (let k = deps.length - 1; k >= 0; k--) if (deps[k].to === n.id) deps.splice(k, 1);
+      n.predecessors = [...new Set(work)];
+      for (const from of n.predecessors) deps.push({ from, to: n.id, type: 'SS', lag: 0, lagUnit: 'days', source: 'notice' });
+      if (!n.predecessors.length && i > 0) { n.predecessors = [group.children[i - 1].id]; deps.push({ from: n.predecessors[0], to: n.id, type: 'SS', lag: 0, lagUnit: 'days', source: 'notice' }); }
+      insp.predecessors.push(n.id);
+      deps.push({ from: n.id, to: insp.id, type: 'FS', lag: INSPECTION_RULES.noticeWd, lagUnit: 'days', source: 'notice' });
+    });
   }
 }
 

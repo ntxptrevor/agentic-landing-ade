@@ -179,7 +179,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -308,33 +308,13 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Ceiling Grid or Hard Lid Installation & Prime",
+      "after": "Drywall Tape, Float & Finish",
       "parallel": false,
       "council": {
         "seats": 2,
         "names": [
           "Access control panels and power supplies installed",
           "Access Control Panels & Power Supplies Install"
-        ]
-      }
-    },
-    {
-      "name": "Egress Release Test with Fire Alarm Interface",
-      "duration": 1,
-      "trade": "Fire Alarm",
-      "cls": "life_safety",
-      "csi": "28",
-      "hasSubmittal": false,
-      "leadDays": 0,
-      "phase": "construction",
-      "milestone": false,
-      "after": "Start Up Control Systems & Test",
-      "parallel": false,
-      "council": {
-        "seats": 2,
-        "names": [
-          "Fire alarm interface for fail-safe release tested",
-          "Egress Release Test with Fire Alarm Interface"
         ]
       }
     },
@@ -356,6 +336,26 @@ export const MODULE_TASKS = {
           "Access control acceptance test with owner security",
           "Programming, credentials and Owner acceptance test",
           "Access Control Programming & Owner Database Setup"
+        ]
+      }
+    },
+    {
+      "name": "Egress Release Test with Fire Alarm Interface",
+      "duration": 1,
+      "trade": "Fire Alarm",
+      "cls": "life_safety",
+      "csi": "28",
+      "hasSubmittal": false,
+      "leadDays": 0,
+      "phase": "construction",
+      "milestone": false,
+      "after": "Test, Adjust & Balance (TAB)",
+      "parallel": false,
+      "council": {
+        "seats": 2,
+        "names": [
+          "Fire alarm interface for fail-safe release tested",
+          "Egress Release Test with Fire Alarm Interface"
         ]
       }
     }
@@ -518,7 +518,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": true,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -728,7 +728,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -1107,7 +1107,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -1916,7 +1916,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": true,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -1936,7 +1936,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -2083,7 +2083,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -2103,7 +2103,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -2164,7 +2164,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": true,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -2333,7 +2333,7 @@ export const MODULE_TASKS = {
       "leadDays": 21,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -2353,7 +2353,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -2373,7 +2373,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -2474,7 +2474,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -2597,7 +2597,7 @@ export const MODULE_TASKS = {
       "leadDays": 14,
       "phase": "construction",
       "milestone": false,
-      "after": "Ceiling Grid or Hard Lid Installation & Prime",
+      "after": "Drywall Tape, Float & Finish",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -2618,7 +2618,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Ceiling Grid or Hard Lid Installation & Prime",
+      "after": "Drywall Tape, Float & Finish",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -3029,7 +3029,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": true,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -3283,7 +3283,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": true,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -3367,7 +3367,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -3388,7 +3388,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -3408,7 +3408,7 @@ export const MODULE_TASKS = {
       "leadDays": 112,
       "phase": "construction",
       "milestone": false,
-      "after": "Ceiling Grid or Hard Lid Installation & Prime",
+      "after": "Drywall Tape, Float & Finish",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -3429,7 +3429,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 3,
@@ -3450,7 +3450,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": true,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -3553,7 +3553,7 @@ export const MODULE_TASKS = {
       "leadDays": 70,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -3573,7 +3573,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -3655,7 +3655,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Start Up Control Systems & Test",
+      "after": "Test, Adjust & Balance (TAB)",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -3984,7 +3984,7 @@ export const MODULE_TASKS = {
       "leadDays": 21,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,
@@ -4086,7 +4086,7 @@ export const MODULE_TASKS = {
       "leadDays": 0,
       "phase": "construction",
       "milestone": false,
-      "after": "Drywall & Taping",
+      "after": "Drywall Hang",
       "parallel": false,
       "council": {
         "seats": 2,

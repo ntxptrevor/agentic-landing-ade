@@ -14,8 +14,8 @@ export const OVERLAP_LINKS = [
   { from: 'NLB Framing', to: 'Wood Blocking (Millwork, Windows, Wall-Mounted Items)', type: 'SS', lag: 1, seats: 3 },
   { from: 'NLB Framing', to: 'Wall MEP Rough', type: 'SS', lag: 2, seats: 3 },
   { from: 'NLB Framing', to: 'Wall MEP Rough', type: 'FF', lag: 2, seats: 3 },
-  { from: 'Drywall & Taping', to: 'Ceiling Grid or Hard Lid Installation & Prime', type: 'SS', lag: 3, seats: 3 },
-  { from: 'Drywall & Taping', to: 'Prime Coat Walls', type: 'SS', lag: 5, seats: 3 },
+  { from: 'Drywall Hang', to: 'Ceiling Grid or Hard Lid Installation & Prime', type: 'SS', lag: 3, seats: 3 },
+  { from: 'Drywall Tape, Float & Finish', to: 'Prime Coat Walls', type: 'SS', lag: 4, seats: 3 },
   { from: 'T-Bar Above-Ceiling MEP Inspection', to: 'Ceiling Tile Installation', type: 'FS', lag: 0, seats: 3 },
   { from: 'Slab Moisture / pH Testing (Resilient Flooring)', to: 'Install Flooring — All Types', type: 'FS', lag: 0, seats: 3 },
   { from: 'Install Doors', to: 'Install Door Hardware & Accessories', type: 'SS', lag: 1, seats: 3 },
@@ -31,7 +31,7 @@ export const OVERLAP_LINKS = [
   { from: 'Wall MEP Rough', to: 'Overhead MEP Rough', type: 'SS', lag: 0, seats: 2 },
   { from: 'Wall MEP Rough', to: 'Fire Alarm & Low Voltage Prewiring', type: 'SS', lag: 3, seats: 2 },
   // Seats A + C: the first inspected area is a hard FS (A: 'first area is hard FS'; C: FS per area).
-  { from: 'Cover-Up Inspections', to: 'Drywall & Taping', type: 'FS', lag: 0, seats: 2 },
+  { from: 'Cover-Up Inspections', to: 'Drywall Hang', type: 'FS', lag: 0, seats: 2 },
   { from: 'Overhead MEP Rough', to: 'T-Bar Above-Ceiling MEP Inspection', type: 'FS', lag: 0, seats: 2 },
   { from: 'Prime Coat Walls', to: 'Install Millwork / Cabinetry / Casework', type: 'SS', lag: 4, seats: 2 },
   { from: 'Prime Coat Walls', to: 'Install Doors', type: 'SS', lag: 5, seats: 2 },
@@ -42,7 +42,7 @@ export const OVERLAP_LINKS = [
   { from: 'Overhead MEP Rough', to: 'Fire Suppression Main Lines & Branch Pipe Rough', type: 'SS', lag: 0, seats: 2 },
   { from: 'Overhead MEP Rough', to: 'MEP Equipment Installation (Panels / HVAC Units)', type: 'SS', lag: 3, seats: 2 },
   { from: 'Wall MEP Rough', to: 'Fire Sealing — Wall & Floor Penetrations', type: 'SS', lag: 3, seats: 2 },
-  { from: 'Drywall & Taping', to: 'Prime Coat Walls', type: 'FF', lag: 2, seats: 2 },
+  { from: 'Drywall Tape, Float & Finish', to: 'Prime Coat Walls', type: 'FF', lag: 2, seats: 2 },
   { from: 'Ceiling Grid or Hard Lid Installation & Prime', to: 'Fire Alarm Trim', type: 'SS', lag: 1, seats: 2 },
   { from: 'Install Door Hardware & Accessories', to: 'Terminate & Integrate Access Control & Building Controls', type: 'SS', lag: 1, seats: 2 },
   { from: 'Install Wall Base', to: 'GC PM / Super Pre-Punch', type: 'SS', lag: 0, seats: 2 },
@@ -57,6 +57,19 @@ export const OVERLAP_LINKS = [
   { from: 'Install ADA Room Signage', to: 'Furniture, Wall Hangings & Owner Item Installation', type: 'SS', lag: 1, seats: 2, round: 2 },
   { from: 'Furniture, Wall Hangings & Owner Item Installation', to: 'Final Clean', type: 'FF', lag: 1, seats: 2, round: 2 },
   { from: 'GC Generated Punch List Sent to Architect / Owner', to: 'Perform Punch Corrections', type: 'SS', lag: 2, seats: 2, round: 2 },
+  // User decisions 2026-10-13 (LL-22…25), Parkland durations/lags where available.
+  { from: 'Drywall Hang', to: 'Drywall Tape, Float & Finish', type: 'SS', lag: 2, source: 'user' },
+  { from: 'Drywall Hang', to: 'Drywall Tape, Float & Finish', type: 'FF', lag: 2, source: 'user' },
+  { from: 'Prime Coat Walls', to: 'Finish Paint', type: 'SS', lag: 3, source: 'user' },
+  { from: 'Prime Coat Walls', to: 'Finish Paint', type: 'FF', lag: 2, source: 'user' },
+  { from: 'NLB Framing', to: 'Rough-in Mockup — Build & Owner Acceptance', type: 'SS', lag: 2, source: 'user' },
+  { from: 'Rough-in Mockup — Build & Owner Acceptance', to: 'Wall MEP Rough', type: 'FS', lag: 0, source: 'user' },
+  { from: 'Drywall Tape, Float & Finish', to: 'Finish Mockup (Complete Stage) — Owner Acceptance', type: 'SS', lag: 3, source: 'user' },
+  { from: 'Finish Mockup (Complete Stage) — Owner Acceptance', to: 'Prime Coat Walls', type: 'FS', lag: 0, source: 'user' },
+  { from: 'Install Wall Base', to: 'Install Wall Protection & Corner Guards', type: 'SS', lag: 1, source: 'user' },
+  { from: 'Install Wall Protection & Corner Guards', to: 'Install Restroom Accessories & Partitions', type: 'SS', lag: 1, source: 'user' },
+  { from: 'Install Restroom Accessories & Partitions', to: 'Install Life Safety Items (FE Boxes, etc.)', type: 'SS', lag: 1, source: 'user' },
+  { from: 'Ceiling Tile Installation', to: 'Rough Clean', type: 'SS', lag: 1, source: 'user' },
 ];
 
 // Hard gates are never overlapped: their successors wait for them to finish (FS), and any
@@ -66,6 +79,7 @@ export const HARD_GATES = [
   'Make Safe', 'Underground MEP Inspections', 'Cover-Up Inspections', 'T-Bar Above-Ceiling MEP Inspection',
   'Slab Moisture / pH Testing (Resilient Flooring)', 'Final Clean', 'Owner Punch Walk / Substantial Completion',
   'Final Walk', 'Turnover (Project Complete)', 'Zone Complete', 'Phase Turnover',
+  'Rough-in Mockup — Build & Owner Acceptance', 'Finish Mockup (Complete Stage) — Owner Acceptance',
 ];
 
 // Scope tiers (rows dropped by >= 2 of 3 seats). Chosen by the user at the scope step, so a
@@ -81,10 +95,11 @@ export const SCOPE_TIERS = {
       'Wall MEP Rough', 'Cover-Up Inspections', 'Overhead MEP Rough', 'MEP Equipment Installation (Panels / HVAC Units)',
       'Fire Sealing — Wall & Floor Penetrations', 'Install Millwork / Cabinetry / Casework', 'Install Doors',
       'Install Door Hardware & Accessories', 'Terminate & Integrate Access Control & Building Controls',
+      'Drywall Tape, Float & Finish',
       // Seats A + C: keep only if ceiling MEP is disturbed — that job belongs in the standard tier.
       'T-Bar Above-Ceiling MEP Inspection',
     ],
-    override: { 'Drywall & Taping': { duration: 2, name: 'Drywall Patch & Repair' } },
+    override: { 'Drywall Hang': { duration: 2, name: 'Drywall Patch & Repair' } },
   },
   standard: {
     label: 'Standard renovation (new walls, MEP rough-in, finishes)',
