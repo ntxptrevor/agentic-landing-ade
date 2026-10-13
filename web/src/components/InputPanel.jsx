@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { WORKFLOWS, classifyInput, extractActions, jevDecisionTree } from '../utils/jevEngine.js';
+import { extractMemoryDirectives } from '../utils/canonical.js';
 import { processFileText, parseMeetingTranscript, parseEmail, parseSubQuote, parseScopeDescription, parseDailyReport, parseChangeOrder, parseGeneral } from '../utils/inputProcessors.js';
 
 const PROCESSORS = {
@@ -18,7 +19,7 @@ const PROCESSORS = {
   schedule_update: parseGeneral,
 };
 
-export default function InputPanel({ project, onApplyProposals }) {
+export default function InputPanel({ project, onApplyProposals, onMemory }) {
   const [textInput, setTextInput] = useState('');
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);
   const [dragActive, setDragActive] = useState(false);
@@ -28,6 +29,8 @@ export default function InputPanel({ project, onApplyProposals }) {
   const [processLog, setProcessLog] = useState([]);
   const [fileName, setFileName] = useState('');
   const fileRef = useRef(null);
+  const [lastInput, setLastInput] = useState(null);
+  const [directives, setDirectives] = useState([]);
 
   const addLog = (msg) => setProcessLog(prev => [...prev, { time: new Date().toLocaleTimeString(), msg }]);
 
@@ -41,6 +44,10 @@ export default function InputPanel({ project, onApplyProposals }) {
 
     const resolvedType = inputType || classifyInput(text);
     addLog(`Input type: ${resolvedType}`);
+    setLastInput({ type: resolvedType, name: fileName || 'Text input', text });
+    const mem = extractMemoryDirectives(text);
+    setDirectives(mem);
+    if (mem.length) addLog(`*** ${mem.length} memory directive(s) found — confirm below to save`);
 
     const processor = PROCESSORS[resolvedType] || parseGeneral;
     const { lines, metadata } = processor(text);
@@ -61,7 +68,7 @@ export default function InputPanel({ project, onApplyProposals }) {
 
     setProposals(props);
     setProcessing(false);
-  }, [project.wbs]);
+  }, [project.wbs, fileName]);
 
   const handleTextSubmit = () => {
     if (!textInput.trim()) return;
@@ -96,7 +103,7 @@ export default function InputPanel({ project, onApplyProposals }) {
 
   const applyAccepted = () => {
     const toApply = proposals.filter((_, i) => accepted.has(i));
-    onApplyProposals(toApply);
+    onApplyProposals(toApply, lastInput);
     addLog(`Applied ${toApply.length} changes to schedule`);
     setProposals([]);
     setAccepted(new Set());
@@ -198,6 +205,18 @@ export default function InputPanel({ project, onApplyProposals }) {
                 <span className="log-msg">{entry.msg}</span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {directives.length > 0 && (
+        <div className="input-section">
+          <h3>Memory Directives</h3>
+          <p className="input-hint">Saved to the canonical schedule memory, then written by the agent to the project knowledge base or the skill's versioned sections ("from now on" applies to every future schedule once the council or you approve it).</p>
+          {directives.map((d, i) => <div key={i} className="proposal-card" style={{ cursor: 'default' }}>{d}</div>)}
+          <div className="btn-group">
+            <button className="btn btn-primary btn-sm" onClick={() => { onMemory(directives); addLog(`Saved ${directives.length} memory directive(s)`); setDirectives([]); }}>Save to memory</button>
+            <button className="btn btn-secondary btn-sm" onClick={() => setDirectives([])}>Dismiss</button>
           </div>
         </div>
       )}

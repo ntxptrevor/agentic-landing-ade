@@ -26,21 +26,21 @@ export function calculateSchedule(project) {
         let candidateStart;
 
         if (type === 'FS') {
-          candidateStart = addWorkingDays(predEnd, lag, workingDays, holidays);
+          candidateStart = addWorkingDays(predEnd, 1 + lag, workingDays, holidays);
         } else if (type === 'SS') {
           candidateStart = addWorkingDays(parseDate(pred.startDate), lag, workingDays, holidays);
         } else if (type === 'FF') {
           const predEndWithLag = addWorkingDays(predEnd, lag, workingDays, holidays);
-          candidateStart = subtractWorkingDays(predEndWithLag, task.duration, workingDays, holidays);
+          candidateStart = subtractWorkingDays(predEndWithLag, Math.max(task.duration - 1, 0), workingDays, holidays);
         } else if (type === 'SF') {
           candidateStart = subtractWorkingDays(
             addWorkingDays(parseDate(pred.startDate), lag, workingDays, holidays),
-            task.duration,
+            Math.max(task.duration - 1, 0),
             workingDays,
             holidays
           );
         } else {
-          candidateStart = addWorkingDays(predEnd, lag, workingDays, holidays);
+          candidateStart = addWorkingDays(predEnd, 1 + lag, workingDays, holidays);
         }
 
         if (candidateStart > earlyStart) {
@@ -49,13 +49,27 @@ export function calculateSchedule(project) {
       }
     }
 
+    // Start-no-earlier-than from a confirmed date (JobTread edit, approved milestone move)
+    if (task.constraintStart) {
+      const c = parseDate(task.constraintStart);
+      if (c > earlyStart) earlyStart = c;
+    }
+
     // Make sure earlyStart lands on a working day
     while (!isWorkingDay(earlyStart, workingDays, holidays)) {
       earlyStart.setDate(earlyStart.getDate() + 1);
     }
 
+    // Recorded actuals always win over computed dates
+    if (task.actualStart) earlyStart = parseDate(task.actualStart);
+
     task.startDate = formatDate(earlyStart);
-    task.endDate = formatDate(addWorkingDays(earlyStart, task.duration - 1, workingDays, holidays));
+    task.endDate = task.actualFinish
+      ? task.actualFinish
+      : formatDate(task.duration > 0 ? addWorkingDays(earlyStart, task.duration - 1, workingDays, holidays) : earlyStart);
+    if (task.contractDate) {
+      task.milestoneVariance = calendarDaysBetween(parseDate(task.contractDate), parseDate(task.endDate));
+    }
   }
 
   // Update phase dates
@@ -100,7 +114,7 @@ export function calculateSchedule(project) {
         } else if (type === 'FF') {
           candidateFinish = shift(succ._lateFinish, -lag);
         } else if (type === 'SF') {
-          candidateFinish = shift(succ._lateFinish, 1 - lag + task.duration - 1);
+          candidateFinish = shift(succ._lateFinish, task.duration - 1 - lag);
         } else {
           // FS: succ starts the working day after pred finishes, plus lag
           candidateFinish = shift(succ._lateStart, -(1 + lag));

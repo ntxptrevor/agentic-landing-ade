@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { exportJSON, exportCSV, exportMSProjectXML, downloadFile } from '../utils/exporters.js';
 import { buildSourceRef } from '../utils/procurementAudit.js';
+import { exportMSPDI } from '../utils/mspdi.js';
+import { buildCanonicalDocument } from '../utils/canonical.js';
+import CanonicalSchedule, { exportCanonicalHTML } from './CanonicalSchedule.jsx';
 
 const PAGE_SIZES = [
   { label: 'Letter (8.5 x 11 in)', value: 'letter', css: '8.5in 11in portrait' },
   { label: 'Legal (8.5 x 14 in)', value: 'legal', css: '8.5in 14in portrait' },
-  { label: 'Tabloid (11 x 17 in)', value: 'tabloid', css: '11in 17in landscape' },
+  { label: 'Tabloid (11 x 17 in)', value: 'tabloid', css: '17in 11in' },
   { label: 'A4 (210 x 297 mm)', value: 'a4', css: '210mm 297mm portrait' },
 ];
 
-export default function ExportPanel({ project }) {
+export default function ExportPanel({ project, meta, preflight }) {
   const [pageSize, setPageSize] = useState('letter');
   const slug = project.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -35,7 +38,43 @@ export default function ExportPanel({ project }) {
     if (printView) printView.style.display = 'none';
   };
 
+  const canonicalHtml = async () => exportCanonicalHTML(project, meta);
+  const printTabloid = async () => {
+    const html = await canonicalHtml();
+    if (!html) return;
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => { try { w.focus(); w.print(); } catch { /* window closed */ } }, 600);
+  };
+  const base = `${slug}-schedule-v${meta.version}`;
+
   const exports = [
+    {
+      format: 'Canonical 11x17 PDF',
+      desc: 'NTXP Project Schedule, 11x17 landscape (print → Save as PDF)',
+      icon: 'PDF',
+      action: printTabloid,
+    },
+    {
+      format: 'Canonical HTML',
+      desc: 'Standalone NTXP schedule page for Drive, JobTread or hosting',
+      icon: 'HTML',
+      action: async () => { const h = await canonicalHtml(); if (h) downloadFile(h, `${base}.html`, 'text/html'); },
+    },
+    {
+      format: 'Canonical JSON',
+      desc: 'Source of truth: schedule, inputs, trackers, changelog, optimization chain',
+      icon: 'SRC',
+      action: () => downloadFile(JSON.stringify(buildCanonicalDocument(project, meta), null, 2), 'canonical.json', 'application/json'),
+    },
+    {
+      format: 'MS Project (.mpp) XML',
+      desc: 'MSPDI with outline, calendar, float, critical flags — open in Project, save as .mpp',
+      icon: 'MPP',
+      action: () => downloadFile(exportMSPDI(project, meta), `${base}.xml`, 'application/xml'),
+    },
     {
       format: 'Print / PDF',
       desc: 'Print or save as editable PDF with vector elements',
@@ -55,8 +94,8 @@ export default function ExportPanel({ project }) {
       action: () => downloadFile(exportCSV(project), `${slug}-schedule.csv`, 'text/csv'),
     },
     {
-      format: 'MS Project XML',
-      desc: 'Import into Microsoft Project',
+      format: 'Legacy MS Project XML',
+      desc: 'Previous flat XML export',
       icon: 'XML',
       action: () => downloadFile(exportMSProjectXML(project), `${slug}-schedule.xml`, 'application/xml'),
     },
@@ -74,6 +113,12 @@ export default function ExportPanel({ project }) {
   return (
     <div>
       <h3 style={{ marginBottom: 16 }}>Export Schedule</h3>
+      {preflight && !preflight.pass && (
+        <div className="gate-banner warn">Pre-flight has {preflight.failures.length} failing check(s). Exports are allowed for review, but the agent will not publish to hosting, Drive or JobTread until they pass.</div>
+      )}
+      <div aria-hidden="true" style={{ position: 'absolute', left: -100000, top: 0, width: '16.3in' }}>
+        <CanonicalSchedule project={project} meta={meta} />
+      </div>
 
       <div className="card" style={{ marginBottom: 16 }}>
         <h3>Document Size</h3>
