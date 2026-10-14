@@ -1,0 +1,56 @@
+# BidForge Schedules — schedule.ntxpllc.com (Apache / LiteSpeed)
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  # HSTS: enable once HTTPS is confirmed working for schedule.ntxpllc.com.
+  # Browsers cache this for max-age; do not add includeSubDomains/preload unless
+  # every ntxpllc.com subdomain is HTTPS-only.
+  # Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
+
+# Config / private files are never served (they normally live outside the web root anyway).
+<FilesMatch "^(bidforge-config\.php|config\.sample\.php|_.*\.php|.*\.(ini|log|sh|sql|bak|lock|dist|jsonl))$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Pass the Authorization header through to PHP (publish/changes bearer token).
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  # Force HTTPS (skips when already HTTPS or behind a TLS-terminating proxy).
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # Deny dotfiles/dot-directories (except .well-known for ACME).
+  RewriteRule (^|/)\.(?!well-known/) - [F,L]
+  # Deny data dirs, JSON/JSONL/markdown and private files under api/ and anything named bidforge-data/-config.
+  RewriteRule ^api/(data|dev)(/|$) - [F,L]
+  RewriteRule ^api/.+\.(json|jsonl|md|lock|log)$ - [F,L]
+  RewriteRule ^api/(_[^/]*|config[^/]*)\.php$ - [F,L]
+  RewriteRule (^|/)bidforge-(data|config) - [F,L]
+
+  # Never send /api/ or /auth/ to the SPA (unknown endpoints should 404).
+  RewriteRule ^(api|auth)(/|$) - [L]
+
+  # SPA fallback.
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

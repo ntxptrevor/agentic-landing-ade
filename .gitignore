@@ -1,0 +1,6 @@
+
+# BidForge server: never commit real config or runtime data
+bidforge-config.php
+bidforge-data/
+web/public/api/data/*
+!web/public/api/data/.htaccess
