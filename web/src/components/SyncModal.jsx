@@ -54,7 +54,9 @@ export default function SyncModal({ project, meta, onApply, onClose }) {
     }));
     // Unapproved milestone effects stay tracked as variance notes, never applied.
     const tracked = items.filter(i => i.type === 'milestone_move' && !selected[i.id]).map(i => ({ ...i, type: 'note', summary: `Tracked (not applied): ${i.summary}` }));
-    onApply([...chosen, ...tracked], bundle);
+    // Unselected items rated 4+ are held as pending; the OAC gate waits for them.
+    const held = items.filter(i => !selected[i.id] && (i.jevRating || 1) >= 4 && i.type !== 'milestone_move');
+    onApply([...chosen, ...tracked], bundle, held);
   };
 
   return (

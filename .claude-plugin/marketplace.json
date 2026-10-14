@@ -32,7 +32,8 @@
         "project-management",
         "wbs"
       ],
-      "homepage": "https://github.com/jaewon42/agentic-landing-ade"
+      "homepage": "https://github.com/jaewon42/agentic-landing-ade",
+      "hooks": "./skills/bidforge-schedules/hooks/hooks.json"
     },
     {
       "name": "jobtread-integration",

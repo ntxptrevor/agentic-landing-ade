@@ -14,7 +14,8 @@ export function emptyMeta() {
   return {
     schema: CANONICAL_SCHEMA,
     version: 0,
-    links: { jobtreadJobId: '', driveFolderId: '', driveFolderName: '', quickbooksProjectId: '', kbPath: '', hostUrl: '' },
+    status: 'bid',
+    links: { jobtreadJobId: '', jobNumber: '', driveFolderId: '', driveFolderName: '', quickbooksProjectId: '', lightfieldId: '', kbPath: '', hostUrl: '', liveUrl: '' },
     requirements: { status: 'pending', documents: [], specText: '', acknowledgement: null },
     modules: [],
     scope: null,
@@ -72,6 +73,35 @@ export function logChange(meta, entry) {
   return { ...meta, version: meta.version + 1, changelog: [...meta.changelog, e] };
 }
 
+// Every changelog entry carries its context sources: [{type, title, url, date}]. A source
+// without a link still names where the change came from and when.
+export function sourceRef(type, title, url = '', date = new Date().toISOString().slice(0, 10)) {
+  return { type, title, url, date };
+}
+
+// The project KB activity stream (NTXP Plans-Atlas activity-stream schema): one entry per
+// changelog entry, newest first, with provenance links.
+export function toActivityEntries(meta, slug = '') {
+  return [...meta.changelog].reverse().map(e => ({
+    ts: e.at,
+    source: 'schedule',
+    kind: 'event',
+    text: `${e.id} ${e.type}${e.target ? ` · ${e.target}` : ''}: ${e.reason || ''}`.slice(0, 400),
+    link: (e.sources || []).find(s => s.url)?.url || (slug ? `/?project=${slug}` : ''),
+    rating: e.jevRating || 1,
+    critical: (e.jevRating || 1) >= 3,
+    sources: e.sources || [],
+  }));
+}
+
+// Folder routing (ntxp-folder-system): a pursuit saves under its bid folder, an awarded job
+// under its project folder. Versions are immutable v<NNN>-<date> files in that folder.
+export function routeFolder(name, status = 'bid') {
+  return status === 'bid'
+    ? { kind: 'bid', path: `Bids/${name}/Schedules` }
+    : { kind: 'project', path: `Projects/${name}/06 - Schedule` };
+}
+
 export function recordInput(meta, input) {
   return { ...meta, inputs: [...meta.inputs, { at: now(), ...input, excerpt: String(input.text || '').slice(0, 500) }] };
 }
@@ -103,6 +133,8 @@ export function buildCanonicalDocument(project, meta) {
     schema: CANONICAL_SCHEMA,
     generatedAt: now(),
     version: meta.version,
+    status: meta.status || 'bid',
+    folder: routeFolder(project.name, meta.status),
     project: {
       name: project.name,
       slug: slugify(project.name),
@@ -125,6 +157,7 @@ export function buildCanonicalDocument(project, meta) {
     memory: meta.memory,
     coda: meta.coda,
     sync: meta.sync,
+    activity: toActivityEntries(meta, slugify(project.name)).slice(0, 200),
   };
 }
 
@@ -151,6 +184,7 @@ export function fromCanonicalDocument(doc) {
     if (doc[k]) meta[k] = doc[k];
   }
   meta.version = doc.version || 0;
+  if (doc.status) meta.status = doc.status;
   const { name, startDate, endDate, workingDays, holidays, hoursPerDay, ...links } = doc.project || {};
   for (const k of Object.keys(meta.links)) if (links[k]) meta.links[k] = links[k];
   const project = { name, startDate, endDate, workingDays, holidays: holidays || [], hoursPerDay: hoursPerDay || 8, wbs: doc.wbs || [], dependencies: doc.dependencies || [], milestones: [] };
@@ -242,8 +276,26 @@ export function applySyncItems(project, meta, items) {
       target: it.taskId || it.tracker || it.name, before,
       after: it.type === 'milestone_move' ? it.newDate : (it.record || it.duration || it.actualFinish || it.actualStart || it.name),
       reason: it.summary, jevRating: it.jevRating || 1, priority: it.priority,
+      sources: it.sources || (it.url ? [sourceRef(it.source || 'sync', it.summary || it.type, it.url, (it.date || '').slice(0, 10) || undefined)] : []),
     });
   }
   // Every sync event backs the Coda up to JobTread; the agent performs the write.
-  return { project: { ...project, wbs, dependencies: deps }, meta: markCodaBackupPending({ ...m, trackers, sync: { ...m.sync, lastSyncAt: now() } }) };
+  // Items the user has not acknowledged yet (rating >= 4 held back by the popup) stay pending;
+  // the OAC gate refuses to run while any remain.
+  const t = now();
+  const applied = new Set(items.map(i => i.id).filter(Boolean));
+  const pending = (m.sync?.pending || []).filter(p => !applied.has(p.id));
+  return { project: { ...project, wbs, dependencies: deps }, meta: markCodaBackupPending({ ...m, trackers, sync: { ...m.sync, lastSyncAt: t, lastFullSyncAt: t, pending } }) };
+}
+
+// Held-back sync items (rating >= 4 waiting for acknowledgement).
+export function holdSyncItems(meta, items) {
+  const pending = [...(meta.sync?.pending || [])];
+  for (const it of items) if (!pending.some(p => p.id === it.id)) pending.push({ id: it.id, type: it.type, summary: it.summary, jevRating: it.jevRating, acknowledged: false, heldAt: now() });
+  return { ...meta, sync: { ...meta.sync, pending } };
+}
+
+// A version saved to the hosted site / knowledge base is the published version the OAC gate compares.
+export function markPublished(meta, target = 'schedule.ntxpllc.com') {
+  return { ...meta, sync: { ...meta.sync, publishedVersion: meta.version, lastPublish: { version: meta.version, at: now(), target } } };
 }

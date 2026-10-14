@@ -25,6 +25,11 @@ export default function ChangelogPanel({ meta }) {
                     {e.before && <div>before: {fmt(e.before).slice(0, 160)}</div>}
                     {e.after && <div>after: {fmt(e.after).slice(0, 160)}</div>}
                     {e.reason && <div style={{ color: 'var(--text-dim)' }}>{e.reason}</div>}
+                    {(e.sources || []).length > 0 && (
+                      <div className="log-sources">Sources: {e.sources.map((src, i) => (
+                        <span key={i}>{i > 0 && ' · '}{src.url ? <a href={src.url} target="_blank" rel="noreferrer">{src.title}</a> : src.title} <span style={{ color: 'var(--text-dim)' }}>({src.type}{src.date ? `, ${src.date}` : ''})</span></span>
+                      ))}</div>
+                    )}
                   </td>
                 </tr>
               ))}

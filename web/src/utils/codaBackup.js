@@ -10,6 +10,7 @@ export const CODA_FIELD_NAME = 'Notes';
 export const CODA_MAX_CHARS = 1800;
 
 export const CODA_FIELDS = [
+  ['liveSchedule', 'Live schedule (HTML)'],
   ['canonicalSchedule', 'Canonical schedule'],
   ['kb', 'Knowledge base'],
   ['drive', 'Drive folder'],
@@ -20,16 +21,20 @@ export const CODA_FIELDS = [
   ['models', 'Default models'],
   ['syncCadence', 'Sync cadence'],
   ['council', 'Council'],
+  ['instructions', 'Instructions'],
 ];
 
 export function emptyCoda() {
   return {
     version: 0, updatedAt: null,
+    liveSchedule: '',
     canonicalSchedule: '', kb: '', drive: '', jobtread: '', quickbooks: '', hosted: '',
     meetingSources: 'Plaud / Gemini Meetings folder / Google Calendar',
     models: 'orchestrator per mini-JEV router; logistics low tier; judgment frontier',
     syncCadence: 'daily JobTread pull 6:47 CT Mon-Sat; full sync on SYNC',
     council: '',
+    // Persistent instructions, rewritten on every sync so the Coda always points at the live schedule.
+    instructions: 'Open the Live schedule link for the current version. Change dates only through /bidforge-schedules (sync, input, or the live page then SYNC). Ask schedule questions with schedule_query.mjs. Never edit Drive or JobTread copies.',
   };
 }
 
@@ -131,5 +136,6 @@ export function codaFromLinks(links = {}, projectName = '') {
     jobtread: [projectName, links.jobtreadJobId].filter(Boolean).join(' '),
     quickbooks: links.quickbooksProjectId || '',
     hosted: links.hostUrl || '',
+    liveSchedule: links.liveUrl || (links.slug ? `https://schedule.ntxpllc.com/?project=${links.slug}` : ''),
   };
 }

@@ -61,7 +61,9 @@ $result = bf_with_lock($dir . '/canonical.json', static function () use ($slug, 
     foreach (bf_versions_list($slug) as $v) {
         $max = max($max, (int)$v['version']);
     }
-    $version = $max + 1;
+    // The canonical counts one version per logged change, so an incoming version that is
+    // already ahead (several edits since the last save) is kept; it never goes backwards.
+    $version = max($max + 1, (int)(bf_canonical_version($canonical) ?? 0));
     bf_canonical_set_version($canonical, $version);
     if (!isset($canonical->meta) || !is_object($canonical->meta)) {
         $canonical->meta = new stdClass();

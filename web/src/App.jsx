@@ -5,13 +5,19 @@ import ModuleSelection from './components/ModuleSelection.jsx';
 import TaskEditor from './components/TaskEditor.jsx';
 import ReviewGenerate from './components/ReviewGenerate.jsx';
 import ScheduleViewer from './components/ScheduleViewer.jsx';
+import LoginGate from './components/LoginGate.jsx';
+import ProjectBar from './components/ProjectBar.jsx';
+import ContextPanel from './components/ContextPanel.jsx';
+import InstantSchedule from './components/InstantSchedule.jsx';
+import { getSession, logout, listProjects, loadProject, saveProject, uploadFiles, liveUrl } from './utils/api.js';
+import { moveTaskAfter } from './utils/reorder.js';
 import { calculateSchedule } from './utils/scheduler.js';
 import { getUSFederalHolidays, getNtxpNonWorkDays } from './utils/dateUtils.js';
 import { buildWbs, seedSubmittals } from './utils/jevTree.js';
 import { MODULE_BY_ID } from './data/jevTaxonomy.js';
 import {
-  emptyMeta, logChange, recordInput, addMemory, addOptimizationEntry, applySyncItems, updateCoda, recordCodaBackup,
-  saveLocal, loadLocal, fromCanonicalDocument,
+  emptyMeta, logChange, recordInput, addMemory, addOptimizationEntry, applySyncItems, updateCoda, recordCodaBackup, holdSyncItems, markPublished,
+  saveLocal, loadLocal, fromCanonicalDocument, buildCanonicalDocument, slugify, sourceRef,
 } from './utils/canonical.js';
 
 const STEPS = [
@@ -43,9 +49,55 @@ export default function App() {
   const [computed, setComputed] = useState(null);
   const [resumable, setResumable] = useState(null);
   const [hosted, setHosted] = useState(false);
+  // Cloud mode (schedule.ntxpllc.com): login, KB project list, server versions.
+  const [server, setServer] = useState({ checked: false, available: false, authenticated: false });
+  const [projects, setProjects] = useState([]);
+  const [slug, setSlug] = useState('');
+  const [serverVersion, setServerVersion] = useState(null);
+  const [serverHash, setServerHash] = useState(null);
+  const [activity, setActivity] = useState(null);
+  const [showContext, setShowContext] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState(null);
+  const [savedAt, setSavedAt] = useState(null);
 
-  // Hosted mode: canonical.json next to the page (projecttitle.ntxpllc.com/schedule)
+  const openProject = useCallback(async (s) => {
+    setSlug(s);
+    history.replaceState(null, '', s ? `?project=${encodeURIComponent(s)}` : location.pathname);
+    if (!s) return;
+    const data = await loadProject(s);
+    if (!data) { setNotice({ kind: 'bad', text: `Could not load ${s}.` }); return; }
+    setActivity(data.activity || null);
+    setServerVersion(data.canonical ? (data.version ?? data.canonical.version ?? null) : null);
+    setServerHash(data.hash || null);
+    setSavedAt(data.canonical?.generatedAt || null);
+    if (data.canonical?.schema === 'bidforge.canonical.v1') {
+      const { project: p, meta: m } = fromCanonicalDocument(data.canonical);
+      const c = recalc(p);
+      setProject(c); setMeta(m); setComputed(c); setHosted(false); setStep('view'); setNotice(null);
+    } else {
+      const entry = projects.find(x => x.slug === s);
+      setProject({ ...buildInitialProject(), name: entry?.name || s });
+      setMeta(emptyMeta()); setComputed(null); setStep('instant');
+      setNotice({ kind: 'warn', text: 'No canonical schedule yet for this project — build one from its files.' });
+    }
+  }, [projects]);
+
+  // Server check first; without a server the app runs as before (hosted file or local storage).
   useEffect(() => {
+    getSession().then(async sess => {
+      setServer({ checked: true, ...sess });
+      if (sess.available && sess.authenticated) {
+        const list = await listProjects();
+        setProjects(list);
+        const q = new URLSearchParams(location.search).get('project');
+        if (q) openProject(q);
+      }
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!server.checked || server.available) return;
     fetch(`./canonical.json?t=${Date.now()}`)
       .then(r => (r.ok ? r.json() : null))
       .then(doc => {
@@ -58,7 +110,7 @@ export default function App() {
         }
       })
       .catch(() => setResumable(loadLocal()));
-  }, []);
+  }, [server.checked, server.available]);
 
   useEffect(() => { if (computed && !hosted) saveLocal(computed, meta); }, [computed, meta, hosted]);
 
@@ -210,8 +262,9 @@ export default function App() {
 
   const handleMemory = (texts) => setMeta(m => texts.reduce((acc, t) => addMemory(acc, t), m));
 
-  const handleApplySync = (items, bundle) => {
-    const { project: p, meta: m } = applySyncItems(computed, meta, items);
+  const handleApplySync = (items, bundle, held = []) => {
+    const { project: p, meta: applied } = applySyncItems(computed, meta, items);
+    const m = held.length ? holdSyncItems(applied, held) : applied;
     const c = recalc(p);
     setComputed(c);
     const withBackup = bundle.codaBackup ? recordCodaBackup(m, bundle.codaBackup) : m;
@@ -222,6 +275,98 @@ export default function App() {
   const handleCoda = (coda) => setMeta(m => updateCoda(m, coda));
   const handleLinks = (links) => setMeta(m => logChange({ ...m, links }, { type: 'links_updated', source: 'environment', after: links, reason: 'Canonical sync targets updated' }));
 
+  // Drag a row to a new position: re-sequence it after the drop target and recompute dates.
+  const handleReorder = (taskId, targetId) => {
+    const r = moveTaskAfter(computed, taskId, targetId);
+    if (!r) return;
+    if (r.error) { setNotice({ kind: 'bad', text: r.error }); return; }
+    if (r.task.protected && !window.confirm(`"${r.task.name}" is a protected NTXP backbone row. Move it after "${r.target.name}"?`)) return;
+    const c = recalc(r.project);
+    const moved = c.wbs.flatMap(p => p.children).find(t => t.id === taskId);
+    setComputed(c);
+    setMeta(m => logChange(m, {
+      type: 'task_resequenced', source: 'live canonical schedule (row drag)', actor: server.user?.email || 'user',
+      target: `${taskId} ${r.task.name}`, before: { start: r.before.start, finish: r.before.end, after: r.before.preds },
+      after: { start: moved?.startDate, finish: moved?.endDate, after: targetId },
+      reason: `Moved after ${targetId} ${r.target.name}: ${r.before.start} → ${moved?.startDate}`,
+      jevRating: r.task.isMilestone || r.task.protected ? 4 : r.task.isCritical ? 3 : 2,
+      sources: [sourceRef('live-edit', 'Row drag on the live canonical schedule', slug ? liveUrl(slug) : '')],
+    }));
+  };
+
+  // Instant schedule from uploaded files (skill logic in the browser).
+  const handleInstantBuild = async ({ name, number, status, startDate, modules, scope, imported, analysis, items, ackNone }) => {
+    const s = slug || slugify(name);
+    // A new project has no server version yet; never carry over the last opened project's base.
+    if (!slug) { setServerVersion(null); setServerHash(null); setSavedAt(null); setActivity(null); }
+    const startYear = new Date(startDate).getFullYear();
+    const holidays = Array.from({ length: 10 }, (_, k) => getNtxpNonWorkDays(startYear + k)).flat();
+    let wbs; let dependencies;
+    if (imported) ({ wbs, dependencies } = imported);
+    else ({ wbs, dependencies } = buildWbs(modules, { ...scope, startDate }));
+    const base = { ...buildInitialProject(), name, startDate, holidays, holidayPreset: 'ntxp', wbs, dependencies };
+    const c = recalc(base);
+    // Files go to the project's server folder first so the changelog can link each source.
+    let stored = [];
+    if (server.available && server.authenticated) {
+      for (const kind of [...new Set(items.map(i => i.kind))]) {
+        stored = stored.concat(await uploadFiles(s, kind, items.filter(i => i.kind === kind).map(i => i.file)));
+      }
+    }
+    const linkFor = n => stored.find(f => f.name === n)?.url || '';
+    const today = new Date().toISOString().slice(0, 10);
+    const sources = items.map(i => sourceRef(i.kind, i.name, linkFor(i.name), today));
+    let m = { ...emptyMeta(), status, scope, links: { ...emptyMeta().links, jobNumber: number, liveUrl: server.available ? liveUrl(s) : '' } };
+    m.requirements = ackNone
+      ? { status: 'acknowledged_none', documents: [], specText: '', acknowledgement: { text: 'No project-specific schedule requirements exist', by: server.user?.email || 'user', at: new Date().toISOString() }, detected: analysis.modules }
+      : { status: 'uploaded', documents: analysis.requirementsDocs.map(n => ({ name: n, type: 'project_manual', url: linkFor(n) })), specText: analysis.specText, detected: analysis.modules };
+    m.modules = analysis.modules.map(x => ({ id: x.id, status: modules.includes(x.id) ? 'confirmed' : 'declined', evidence: `documents: ${x.hits.map(h => h.keyword).join(', ')}`, confirmedBy: 'user', at: new Date().toISOString() }))
+      .concat(modules.filter(id => !analysis.modules.some(x => x.id === id)).map(id => ({ id, status: 'confirmed', evidence: 'user', confirmedBy: 'user', at: new Date().toISOString() })));
+    m = logChange(m, { type: 'project_setup', source: 'instant schedule', reason: `Project initialized (${status === 'bid' ? 'pursuit' : 'awarded'})`, after: { name, number, startDate }, sources });
+    m = logChange(m, { type: ackNone ? 'requirements_acknowledged_none' : 'requirements_uploaded', source: 'instant schedule', jevRating: 3, reason: ackNone ? 'User confirmed no project-specific requirements exist' : `${analysis.requirementsDocs.length} requirement document(s)`, sources: sources.filter(x => x.type === 'spec') });
+    for (const i of items) if (i.text) m = recordInput(m, { type: i.kind, name: i.name, text: i.text.slice(0, 20000), url: linkFor(i.name) });
+    if (analysis.leadItems.length) m = logChange(m, { type: 'lead_times_found', source: 'quotes', jevRating: 2, after: analysis.leadItems, reason: `${analysis.leadItems.length} lead time(s) read from quotes — tracked in procurement`, sources: sources.filter(x => x.type === 'quote') });
+    m = logChange(m, {
+      type: 'schedule_generated', source: imported ? `imported schedule ${imported.file}` : 'instant schedule (JEV builder + CPM)', jevRating: 2,
+      after: { end: c.endDate, workingDays: c.workingDuration, modules }, reason: imported ? `Canonical started from uploaded schedule (${imported.taskCount} tasks)` : 'Original canonical schedule from uploaded files', sources,
+    });
+    m = { ...m, trackers: { ...m.trackers, submittals: seedSubmittals(c.wbs).map(sb => { const l = analysis.leadItems.find(x => sb.title.toLowerCase().includes(x.item.toLowerCase().split(' ')[0])); return l ? { ...sb, leadDays: l.days } : sb; }) } };
+    setSlug(s);
+    setProject(c); setMeta(m); setComputed(c); setHosted(false); setStep('view');
+    setNotice({ kind: 'ok', text: server.available ? 'Instant schedule built — review it, then Save version to store it in the project folder.' : 'Instant schedule built (offline — saved in this browser).' });
+  };
+
+  // Save a version to the server. The server refuses it if someone saved a newer version
+  // since this one was loaded (no forks): reload and reconcile instead of overwriting.
+  const handleSave = async () => {
+    if (!computed) return;
+    setSaving(true);
+    const s = slug || slugify(computed.name);
+    const metaOut = markPublished({ ...meta, links: { ...meta.links, liveUrl: liveUrl(s) } });
+    const doc = buildCanonicalDocument(computed, metaOut);
+    const since = meta.changelog.filter(e => !savedAt || e.at > savedAt);
+    const r = await saveProject({
+      slug: s, name: computed.name, status: meta.status || 'bid', canonical: doc,
+      baseVersion: serverVersion, baseHash: serverHash,
+      reason: meta.changelog[meta.changelog.length - 1]?.reason || 'Saved from schedule.ntxpllc.com',
+      sources: since.flatMap(e => e.sources || []).slice(-40),
+    });
+    setSaving(false);
+    if (r.ok) {
+      setServerVersion(r.version ?? doc.version); setServerHash(r.hash || null); setSlug(s); setSavedAt(doc.generatedAt);
+      setMeta(metaOut);
+      history.replaceState(null, '', `?project=${encodeURIComponent(s)}`);
+      setProjects(await listProjects());
+      setNotice({ kind: 'ok', text: `Saved v${r.version ?? doc.version} to ${doc.folder.path} — the next sync carries it to the knowledge base, Drive and JobTread.` });
+    } else if (r.conflict) {
+      setNotice({ kind: 'bad', text: r.currentVersion == null ? `Not saved: the server state for ${s} changed — reload it before saving.` : `Not saved: v${r.currentVersion} was saved by someone else after you opened ${serverVersion == null ? 'a new schedule with this name' : `v${serverVersion}`}. Reload the latest version and re-apply your change — schedules never fork.`, action: { label: 'Load latest', run: () => openProject(s) } });
+    } else {
+      setNotice({ kind: 'bad', text: r.error });
+    }
+  };
+
+  const handleLogout = async () => { await logout(); location.href = location.pathname; };
+
   const handleNewProject = () => {
     setProject(buildInitialProject());
     setMeta(emptyMeta());
@@ -231,14 +376,29 @@ export default function App() {
   };
 
   const stepIndex = STEPS.findIndex(s => s.id === step);
+  const cloud = server.available && server.authenticated;
+  const dirty = cloud && computed && (serverVersion == null || meta.version !== serverVersion);
+
+  if (server.checked && server.available && !server.authenticated) {
+    return <LoginGate session={server} onAuthenticated={() => location.reload()} />;
+  }
 
   return (
     <>
       <header className="header">
         <h1><span>BidForge</span> Schedules</h1>
+        {cloud && (
+          <ProjectBar projects={projects} currentSlug={slug} onSelect={openProject}
+            onInstant={() => { setSlug(''); setStep('instant'); setNotice(null); history.replaceState(null, '', location.pathname); }}
+            onSave={computed ? handleSave : null} saving={saving} dirty={dirty} serverVersion={serverVersion}
+            user={server.user} onLogout={handleLogout} />
+        )}
         <div className="header-actions">
           {resumable && step === 'setup' && (
             <button className="btn btn-primary btn-sm" onClick={resume}>Resume {resumable.project?.name} (v{resumable.version})</button>
+          )}
+          {!cloud && step === 'setup' && (
+            <button className="btn btn-secondary btn-sm" onClick={() => setStep('instant')}>Instant schedule</button>
           )}
           {step !== 'setup' && !hosted && (
             <button className="btn btn-secondary btn-sm" onClick={handleNewProject}>New Project</button>
@@ -268,6 +428,14 @@ export default function App() {
           </aside>
         )}
         <main className="main">
+          {notice && (
+            <div className={`notice notice-${notice.kind}`} role="status">
+              {notice.text}
+              {notice.action && <button className="btn btn-sm btn-secondary" onClick={notice.action.run}>{notice.action.label}</button>}
+              <button className="btn btn-sm btn-secondary" onClick={() => setNotice(null)} aria-label="Dismiss">×</button>
+            </div>
+          )}
+          {step === 'instant' && <InstantSchedule initialName={project.name} onBuild={handleInstantBuild} onCancel={computed ? () => setStep('view') : null} />}
           {step === 'setup' && <ProjectSetup project={project} onDone={handleSetupDone} />}
           {step === 'requirements' && <RequirementsGate requirements={meta.requirements} onDone={handleRequirementsDone} onBack={handleBack} />}
           {step === 'modules' && (
@@ -287,9 +455,12 @@ export default function App() {
               onConfirmOptimization={handleConfirmOptimization}
               onLinks={handleLinks}
               onCoda={handleCoda}
+              onReorder={hosted ? null : handleReorder}
+              onOac={() => setMeta(m => logChange({ ...m, sync: { ...m.sync, lastOacAt: new Date().toISOString() } }, { type: 'oac_report', source: 'export', reason: `OAC schedule section generated from v${m.version}`, jevRating: 1 }))}
             />
           )}
         </main>
+        {cloud && step === 'view' && activity && showContext && <ContextPanel activity={activity} onClose={() => setShowContext(false)} />}
       </div>
     </>
   );

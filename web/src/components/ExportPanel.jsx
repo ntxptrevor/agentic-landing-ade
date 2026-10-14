@@ -12,8 +12,20 @@ const PAGE_SIZES = [
   { label: 'A4 (210 x 297 mm)', value: 'a4', css: '210mm 297mm portrait' },
 ];
 
-export default function ExportPanel({ project, meta, preflight }) {
-  const [pageSize, setPageSize] = useState('letter');
+// OAC reports always run on a freshly synced schedule (forced update): mirrors scripts/oac_gate.mjs.
+export function oacGate(meta, maxAgeHours = 24) {
+  const reasons = [];
+  const last = [meta.sync?.lastFullSyncAt, meta.sync?.lastSyncAt].filter(Boolean).sort().pop();
+  if (!last || Date.now() - new Date(last).getTime() > maxAgeHours * 3600000) reasons.push(last ? `Last sync ${last.slice(0, 16).replace('T', ' ')} is older than ${maxAgeHours} h` : 'Never synced');
+  const open = (meta.sync?.pending || []).filter(p => !p.acknowledged && (p.jevRating || 1) >= 4);
+  if (open.length) reasons.push(`${open.length} sync item(s) rated 4+ await acknowledgement`);
+  if (meta.sync?.publishedVersion !== meta.version) reasons.push(`Published v${meta.sync?.publishedVersion ?? '—'} ≠ canonical v${meta.version} — save/publish first`);
+  return { ok: !reasons.length, reasons };
+}
+
+export default function ExportPanel({ project, meta, preflight, onSync, onOac }) {
+  // NTXP outputs default to 11x17 landscape (Document Engine formatting).
+  const [pageSize, setPageSize] = useState('tabloid');
   const slug = project.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
   const handlePrintPDF = () => {
@@ -50,7 +62,37 @@ export default function ExportPanel({ project, meta, preflight }) {
   };
   const base = `${slug}-schedule-v${meta.version}`;
 
+  const oacSection = () => {
+    const gate = oacGate(meta);
+    if (!gate.ok) {
+      window.alert(`OAC report needs a schedule update first:\n- ${gate.reasons.join('\n- ')}\n\nOpening SYNC.`);
+      if (onSync) onSync();
+      return;
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const in3w = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 10);
+    const tasks = project.wbs.flatMap(p => p.children).filter(t => !t.isReference);
+    const look = tasks.filter(t => t.startDate && t.startDate <= in3w && t.endDate >= today);
+    const late = tasks.filter(t => t.endDate && t.endDate < today && (t.percentComplete || 0) < 100 && !t.actualFinish);
+    const sinceOac = meta.sync?.lastOacAt || '';
+    const changes = meta.changelog.filter(e => e.at > sinceOac).slice(-25);
+    const md = [`## Schedule — ${project.name} (v${meta.version}, data date ${today})`, '',
+      `Forecast finish ${project.endDate} · ${project.workingDuration} working days · ${tasks.filter(t => t.isCritical).length} critical activities`, '',
+      '### Three-week look-ahead', ...look.map(t => `- ${t.startDate} → ${t.endDate} · ${t.name}${t.isCritical ? ' **(critical)**' : ''}`), '',
+      '### Late activities', ...(late.length ? late.map(t => `- ${t.name} (planned finish ${t.endDate}, ${t.percentComplete || 0}%)`) : ['- None']), '',
+      `### Schedule changes since last OAC${sinceOac ? ` (${sinceOac.slice(0, 10)})` : ''}`,
+      ...changes.map(e => `- ${e.at.slice(0, 10)} ${e.id} ${e.type}: ${e.reason || ''}${(e.sources || []).map(x => (x.url ? ` [${x.title}](${x.url})` : ` (${x.title})`)).join('')}`)].join('\n');
+    downloadFile(md, `${slug}-oac-schedule-v${meta.version}.md`, 'text/markdown');
+    if (onOac) onOac();
+  };
+
   const exports = [
+    {
+      format: 'OAC schedule section',
+      desc: 'Forced update: runs only on a schedule synced in the last 24 h and published',
+      icon: 'OAC',
+      action: oacSection,
+    },
     {
       format: 'Canonical 11x17 PDF',
       desc: 'NTXP Project Schedule, 11x17 landscape (print → Save as PDF)',
