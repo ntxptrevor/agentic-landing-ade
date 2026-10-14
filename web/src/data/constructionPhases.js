@@ -71,6 +71,7 @@ export const CONSTRUCTION_PHASES = [
       // Structural & Framing
       { name: 'Structural Metals / Masonry / Framing', duration: 10, trade: 'Structural', category: 'activity', critical: true, sub: 'Structural & Framing' },
       { name: 'NLB Framing', duration: 5, trade: 'Framing', category: 'activity', critical: true, sub: 'Structural & Framing' },
+      { name: 'Rough-in Mockup — Build & Owner Acceptance', duration: 5, trade: 'Owner', category: 'deliverable', cls: 'design', module: ['medical_specific', 'medical_specialties', 'imaging'], sub: 'Structural & Framing', lesson: 'LL-2026-10-13-23' },
       { name: 'Install Door Frames', duration: 3, trade: 'Carpentry', category: 'activity', sub: 'Structural & Framing' },
       { name: 'Wood Blocking (Millwork, Windows, Wall-Mounted Items)', duration: 3, trade: 'Carpentry', category: 'activity', sub: 'Structural & Framing' },
 
@@ -83,7 +84,9 @@ export const CONSTRUCTION_PHASES = [
       { name: 'Fire Suppression Main Lines & Branch Pipe Rough', duration: 5, trade: 'Fire Protection', category: 'activity', sub: 'Wall Rough-In', module: ['fire_suppression'] },
 
       // Drywall & Ceiling
-      { name: 'Drywall & Taping', duration: 10, trade: 'Drywall', category: 'activity', critical: true, sub: 'Drywall & Ceiling' },
+      { name: 'Drywall Hang', duration: 5, trade: 'Drywall', category: 'activity', critical: true, sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-24' },
+      { name: 'Drywall Tape, Float & Finish', duration: 7, trade: 'Drywall', category: 'activity', critical: true, sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-24' },
+      { name: 'Finish Mockup (Complete Stage) — Owner Acceptance', duration: 5, trade: 'Owner', category: 'deliverable', cls: 'design', module: ['medical_specific', 'medical_specialties', 'imaging'], sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-23' },
       { name: 'Fire Sealing — Wall & Floor Penetrations', duration: 3, trade: 'Firestop', category: 'activity', sub: 'Drywall & Ceiling' },
       { name: 'Prime Coat Walls', duration: 3, trade: 'Painting', category: 'activity', critical: true, sub: 'Drywall & Ceiling' },
       { name: 'T-Bar Above-Ceiling MEP Inspection', duration: 2, trade: 'General', category: 'deliverable', sub: 'Drywall & Ceiling' },
@@ -91,6 +94,7 @@ export const CONSTRUCTION_PHASES = [
       { name: 'Fire Alarm Trim', duration: 3, trade: 'Fire Alarm', category: 'activity', sub: 'Drywall & Ceiling', module: ['fire_alarm'] },
       { name: 'Fire Suppression Trim', duration: 3, trade: 'Fire Protection', category: 'activity', sub: 'Drywall & Ceiling', module: ['fire_suppression'] },
       { name: 'Ceiling Tile Installation', duration: 3, trade: 'Ceilings', category: 'activity', sub: 'Drywall & Ceiling' },
+      { name: 'Finish Paint', duration: 4, trade: 'Painting', category: 'activity', sub: 'Drywall & Ceiling', lesson: 'LL-2026-10-13-24' },
 
       // Finishes
       { name: 'Rough Clean', duration: 2, trade: 'General', category: 'activity', sub: 'Finishes' },
@@ -118,6 +122,7 @@ export const CONSTRUCTION_PHASES = [
       { name: 'Start Up Control Systems & Test', duration: 3, trade: 'Controls', category: 'deliverable', sub: 'Low Voltage & Controls' },
 
       // Final
+      { name: 'Test, Adjust & Balance (TAB)', duration: 3, trade: 'HVAC', category: 'deliverable', cls: 'inspection', tiers: ['heavy', 'gut', 'equipment'], lesson: 'LL-2026-10-13-17', sub: 'Low Voltage & Controls' },
       { name: 'Final Clean', duration: 3, trade: 'General', category: 'activity', critical: true, sub: 'Final Clean & Substantial Completion' },
       { name: 'Owner Punch Walk / Substantial Completion', duration: 3, trade: 'Owner', category: 'deliverable', critical: true, sub: 'Final Clean & Substantial Completion' },
     ],
@@ -130,10 +135,9 @@ export const CONSTRUCTION_PHASES = [
     defaultTasks: [
       { name: 'GC Generated Punch List Sent to Architect / Owner', duration: 2, trade: 'PM', category: 'deliverable', critical: true, sub: 'Punch List' },
       { name: 'Architect Approved Punch List Received', duration: 5, trade: 'Architect', category: 'deliverable', critical: true, sub: 'Punch List' },
-      { name: 'Perform Punch Corrections', duration: 10, trade: 'General', category: 'activity', critical: true, sub: 'Punch List' },
+      { name: 'Perform Punch Corrections', duration: 10, trade: 'General', category: 'activity', critical: true, sub: 'Punch List', lesson: 'LL-2026-10-13-20' },
       { name: 'Submit 100% Pay App', duration: 2, trade: 'PM', category: 'deliverable', sub: 'Pay Application & Documentation' },
       { name: 'Begin Closeout Documentation', duration: 5, trade: 'PM', category: 'deliverable', sub: 'Pay Application & Documentation' },
-      { name: 'Complete Punch Items', duration: 5, trade: 'General', category: 'activity', critical: true, sub: 'Pay Application & Documentation' },
       { name: 'Verify Acceptance of Closeout Docs', duration: 3, trade: 'Owner', category: 'deliverable', sub: 'Pay Application & Documentation' },
       { name: 'Final Walk', duration: 1, trade: 'Owner', category: 'deliverable', critical: true, sub: 'Final Acceptance' },
       { name: 'TDLR RAS Inspection (within 1 year of SC)', duration: 1, trade: 'AHJ', category: 'deliverable', cls: 'inspection', parallel: true, noGate: true, lesson: 'LL-2026-10-13-03', sub: 'Final Acceptance' },

@@ -8,9 +8,16 @@ description: >-
   specifications or UGCs for scheduling; when they mention BidForge, MS Project / .mpp XML, the
   canonical schedule, or projecttitle.ntxpllc.com/schedule; and when they say "remember this",
   "save this to memory" or "from now on" about scheduling.
+license: MIT
+version: 2.5.0
+owner: trevor@ntxpllc.com
+requires:
+  skills: [ntxp-id, jobtread, ntxp-model-council, ntxp-model-router, hostinger-connector-v3]
+  tools: [node, curl]
+  connectors: [JobTread Pave (mcp__JobTread__query), Google Drive, Gmail, Google Calendar, Plaud (optional)]
+provides: [canonical-project-schedule, jev-schedule-tree, schedule-sync, schedule-trackers, mspdi-export, project-coda-backup]
 metadata:
   author: NTXP LLC
-  version: "2.0.0"
   canonical_schema: bidforge.canonical.v1
   sync_schema: bidforge.sync.v1
 ---
@@ -48,7 +55,11 @@ the model council, Hostinger).
    decides which seats exist; routing only picks among them.
 8. **Pre-flight before every publish.** Deterministic checks + council inspection + final
    Opus-level integrity audit (`references/preflight-and-publish.md`). Fail → fix loop, never ship.
-9. **Owner-facing words stay with Claude.** RFI/submittal responses, pay apps, CO language and
+9. **Back up the Project Coda on every sync event.** Every full sync, daily JobTread pull,
+   publish, Coda creation or correction, and Coda edit rewrites the Coda block in the JobTread
+   job custom field **"Notes"**. Read the field back to verify the write. The team's text outside
+   the block is never changed (`scripts/coda_backup.mjs`; canonical-and-offramp.md § 4b).
+10. **Owner-facing words stay with Claude.** RFI/submittal responses, pay apps, CO language and
    owner narratives are never routed to other providers (ntxp-model-router hard no-list).
 
 ## Entry points
@@ -77,27 +88,32 @@ work hours, phasing, milestones, liquidated damages, submittal/inspection/closeo
 module signals. Or capture the explicit "none exist" acknowledgement.
 
 ### 3 · Build with the JEV tree — `references/jev-tree.md`
-Backbone (NTXP 3-phase canon) + gated modules. Detection is deterministic (`detectModules`);
+Scope profile first (tier — including `exterior` for site-only work — affected SF, sector, constraints, units, optional contract value,
+inspection-notice profile, vault footprint/lifts/precast, and optional phases/zones that each complete before the next). The profile sets the
+size band (micro / standard / large) and the real-schedule calibration (audit #2: exterior flows join Final Clean, below-grade and
+rebuild modules, weather row, NTP-start reviews). Then the backbone (NTXP 3-phase
+canon) plus gated modules, wired with the council overlap model (SS/FF links; FS only at hard gates). Detection is deterministic (`detectModules`);
 **confirmation** comes from documents (strong evidence) or the user. Every line item gets
 class → trade → has-submittal/lead → phase → milestone. CPM is code (`web/src/utils/scheduler.js`).
 
 ### 4 · Pre-flight and publish — `references/preflight-and-publish.md`
 Deterministic checks, council inspection (rules, sequence, spec instructions, visual layout),
 final integrity audit of data sources and sync links, then host at
-`https://<project-slug>.ntxpllc.com/schedule` (hostinger-ntxp-skill ladder). If hosting fails:
+`https://<project-slug>.ntxpllc.com/schedule` (hostinger-connector-v3, or hostinger-ntxp-skill where installed). If hosting fails:
 export HTML + 11x17 PDF + MSPDI XML to Drive and JobTread before quitting.
 
 ### 5 · Off-ramp and canonical sync — `references/canonical-and-offramp.md`
 Identify the project, locate the bid/project folder, save to the knowledge base (original
 schedule, every input, dated changelog), write 11x17 PDF + MSPDI XML to Drive, push dates to
-JobTread through Pave. Install the daily one-way JobTread pull routine.
+JobTread through Pave, back up the Project Coda to the JobTread job "Notes" field. Install the
+daily one-way JobTread pull routine.
 
 ### 6 · Sync — `references/sync-workflow.md`
 SYNC button (top right of the canonical page) or `--sync`: scan JobTread (edits, daily reports,
 comments, photos), Plaud, Gemini notes in the Meetings folder, Calendar, Gmail and Drive since the
 last sync; write `sync-bundle.json`; the popup shows every source and its effect; apply by
 priority (P1 accurate-to-date, P2 necessary remaining changes, P3 milestone effects with
-permission).
+permission). Every sync ends by backing up the Project Coda to JobTread "Notes".
 
 ### 7 · Trackers — `references/trackers.md`
 RFIs, submittal lifecycle (approval → order → lead → ship → deliver → install), ASIs/COs, owner
@@ -127,6 +143,11 @@ canon). Every applied change is a removable, dated entry in `knowledge/lessons-l
 | `scripts/council_merge.mjs` | Seats → consensus data files + report |
 | `scripts/schedule_diff.mjs` | JobTread export vs canonical → `jobtread_manual_edit` items |
 | `scripts/validate_bundle.mjs` | Sync bundle / canonical validation |
+| `scripts/schedule_audit.mjs` | Days sanity audit of five reference scenarios vs council bands |
+| `scripts/council_lag_merge.mjs` | Merges council lag tables (≥2 seats, median lag) |
+| `web/src/data/jevOverlap.js` | Overlap links, hard gates, scope tiers, duration model, gate thresholds |
+| `scripts/coda_backup.mjs` | Project Coda → JobTread job "Notes" block (build, verify, restore) |
+| `web/src/utils/codaBackup.js` | Coda block format, merge that preserves the team's notes, parser, hash |
 | `scripts/export_sections.mjs` | Writes versioned knowledge sections from the data files |
 | `schemas/*.schema.json` | Canonical and sync-bundle contracts |
 | `knowledge/` | Versioned section DB, lessons learned, memory, council records, metrics |

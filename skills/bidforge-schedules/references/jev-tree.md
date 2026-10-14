@@ -30,6 +30,99 @@ Site Work, Underground Inspections, Pourback — Exterior). That is a user decis
 | 4 Phase | preconstruction, construction, closeout | anchor phase → library |
 | 5 Milestone | yes/no | explicit → rule (NTP, SC, turnover, gates, 0-day) |
 
+## Scope profile (required at the module step)
+
+Tier, affected SF, owner sector, constraints and, for equipment jobs, units. Rules live in
+`web/src/data/jevOverlap.js` (council schedule audit 2026-10-13):
+
+| Tier | Effect |
+|---|---|
+| light | Drops underground, structural, framing, rough-in, cover-up and above-ceiling inspections, MEP equipment, fire sealing, millwork, doors/hardware, controls; drywall becomes a 2-day patch |
+| standard | Drops underground MEP, pourback, structural and MEP equipment |
+| heavy | Drops structural only; adds TAB |
+| gut | Keeps every row; adds TAB |
+| equipment | Keeps only mobilization, containment, make safe, equipment set, above-ceiling inspection, controls, start-up, TAB, final clean, SC; unit-rate durations |
+
+Durations: trade rows scale by `(SF / 4500)^0.379 × sector × constraints^0.8` (capped at 1.6).
+Inspections, tests, reviews, meetings and admin rows never scale. A construction row over 10 WD is
+split by area (DISD 01 32 16). Sectors: ISD 1.0, college 1.05, municipal/TxDOT 1.0, healthcare
+1.15, secured 1.2. Constraints: occupied 1.10, ICRA 1.15, phased 1.10, secure 1.10, night 1.30.
+
+## Phases and zones (user rule, 2026-10-13)
+
+Each **phase** is a complete work group and each **zone or area** is a complete sub-group. A zone
+carries only the trade groups chosen for it (construction sub-phases: demo, underground MEP,
+framing, wall rough-in, drywall & ceiling, finishes, punch prep, low voltage & controls). The full
+overlap model runs inside the zone, and the zone must finish (`<Zone> complete — handover`) before
+the next zone starts. Each phase then closes with its own final clean, owner punch walk, punch
+corrections and `Turnover to Owner`, plus optional owner change-over days, before the next phase.
+The last phase's walk is the project's Substantial Completion.
+
+Precedents from past NTXP jobs: Rocksprings (punch walk and owner change-over between phases),
+Parkland (owner objected to Phase 1 punch overlapping Phase 2), Ralls (restroom zones carrying only
+demo, rough-in, tile/finish and fixtures). Days gate for zoned work: sum of each zone's envelope plus
+phase turnovers and change-over days.
+
+## Inspection holds and mockup gates (user rules)
+
+- AHJ and state inspections (underground, cover-up, above-ceiling, fire marshal, TDLR, HHSC, jail standards, city/building final) carry a 5 WD request notice and a 2 WD re-inspection contingency. The request milestone starts SS with the inspected work and links FS+5 to the inspection, so it only delays inspections of short work.
+- Healthcare (medical_specific / medical_specialties / imaging): the rough-in mockup must be accepted before wall rough-in, and the finish (complete-stage) mockup before prime coat. Both are hard gates.
+- Drywall is two rows (Hang, then Tape, Float & Finish at SS+2 / FF+2). Finish Paint follows prime at SS+3 / FF+2 and must finish before the flooring moisture gate.
+
+## Calibration from real UT System / UNT schedules (council audit #2, 2026-10-14)
+
+Source: `web/src/data/jevCalibration.js`. Evidence: `knowledge/council/2026-10-14-ut-system-audit/REPORT.md`. All values are provisional (n ≤ 3).
+
+- **Size band** (`sizeBand(scope)`):
+  - **Micro:** SF envelope ≤ 30 WD, or contract value ≤ $250k when SF is unknown.
+  - **Large:** envelope > 90 WD or value > $1M.
+  - The exterior and equipment tiers keep their own rules.
+- **Micro jobs:**
+  - AHJ inspection base is 1 WD.
+  - Submittal processing 8 WD (15 standard, 20 large). Punch corrections 4 WD (6 / 10). Punch list sent 1 WD.
+- **Owner notice profile** (`ownerProfile`):
+  - Default is 5 WD notice / 2 WD contingency (canon LL-22).
+  - The `unt` preset (72 h = 3 WD) and a per-project contingency override exist. Selecting either is a logged user decision; neither is ever applied automatically.
+- **Exterior work:**
+  - Tier `exterior` keeps only site and exterior rows, cleanup and SC. Envelope factor 0.5.
+  - Site and exterior backbone rows and exterior modules (site_work, exterior_improvements, roofing, below_grade_structural, structural_exterior_rebuild) run as one flow from Mobilization and join at **Final Clean**, never at Make Safe.
+- **Below-grade structure** (`below_grade_structural`):
+  - CIP lifts (1–3, `wallLifts`) with 3 WD cure lags; the lid needs 5 WD of cure before backfill.
+  - Waterproofing has a QC hold that gates backfill.
+  - Rows scale with `footprintSf`, not site area.
+  - `precast`: a leveling pad, then a crane set at FS+3.
+  - The as-built slip on C1 (+97% from redesign) is a risk note, not a duration.
+- **Exterior structural rebuild** (`structural_exterior_rebuild`): one ~25 WD building cycle, not SF-scaled. Repeat it per building via phases/zones; stagger mode awaits a user decision (LL-2026-10-14-02).
+- **Weather:** one visible row after the last exposed row and its inspection. Size = ceil(exposed WD × the average monthly rate over the exposed span), with rates 0.10 Oct–Jun and 0.05 Jul–Sep, capped at 20. `weatherDays` overrides it.
+- **Precon:**
+  - Design-document reviews start at NTP and feed the job-start gate.
+  - Sub shop drawings, permits and `Submittals:` rows start at subcontract signing, chain within their trade, and feed Ready to Mobilize.
+- **Post-SC and closeout:**
+  - Rows after SC move to closeout.
+  - Module AHJ tests (FA acceptance, hood trip test) are branches into Final Clean.
+  - Phase turnover and re-mobilization need more than one phase.
+  - Closeout is measured SC → Final Walk; billing rows run beside it.
+- **Contract-value envelope:** `valueEnvelopeWd` = 27.3·(V/$100k)^0.511 for interior tiers. V is escalated 4%/yr, net of owner equipment over 25% of value. It is a warn-only pre-flight check (0.6–1.6×), shown with the SF envelope and their geometric mean.
+- **Food service:**
+  - GPR scan and core before under-slab plumbing.
+  - "All MEP Below Slab Complete" releases millwork.
+  - MEP through millwork runs SS+1.
+- **Scope options:** `ownerStoredItems` adds an FF&E transport row.
+
+## Overlap model
+
+- `OVERLAP_LINKS`: 51 SS/FF/FS links with lags. A link is adopted when at least 2 of 3 council
+  seats proposed the identical pair; the lag is the median (scripts/council_lag_merge.mjs).
+  Examples: framing → wall rough-in SS+2 / FF+2, drywall → prime SS+5, prime → floor prep SS+2,
+  NTP → each preconstruction track SS+0–3.
+- A council link replaces the plain sequential link into a task. Hard gates (cover-up, above-ceiling,
+  moisture, underground inspection, make safe, final clean, SC, final walk, turnover) hold only the
+  work linked to them explicitly. An SS lag never exceeds the predecessor's duration.
+- Module rows in construction and closeout run as their own trade flow: the first row starts SS+1
+  after its anchor (FS if the anchor is a hard gate), and later rows follow in order.
+- Any task left without a successor feeds the next hard gate in its phase, so every activity has
+  a predecessor and a successor (DISD).
+
 ## Wiring rules (deterministic)
 
 - Sequential FS by default in backbone order; module rows insert right after their anchor in

@@ -50,6 +50,12 @@ export function rateSubmittal(sub, wbs, today, bufferDays = 5) {
     : sub.shipEta ? toDate(sub.shipEta)
       : base ? new Date(toDate(base).getTime() + (sub.leadDays || 0) * DAY) : null;
   const stage = SUBMITTAL_STAGES.filter(s => sub[`${s}Date`]).pop() || 'not_submitted';
+  // Procurement pull (council audit 2026-10-13): order-by = need-by − lead − architect review
+  // (14 CD default; contract value when set). Past order-by with no order = release at risk.
+  const reviewDays = sub.reviewDays ?? 14;
+  const orderBy = needBy ? new Date(needBy.getTime() - ((sub.leadDays || 0) + reviewDays) * DAY) : null;
+  const releaseAtRisk = !!(orderBy && !sub.orderedDate && toDate(today) > orderBy);
+  if (releaseAtRisk) { r = Math.max(r, task?.isCritical ? 5 : 4); issues.push(`Release at risk: order-by ${orderBy.toISOString().slice(0, 10)} passed with no order`); }
   if (stage === 'not_submitted' && task?.startDate && daysBetween(today, task.startDate) < (sub.leadDays || 0) + 20) { r = 4; issues.push('Not submitted; lead time no longer fits before install'); }
   if (sub.status === 'revise_resubmit') { r = Math.max(r, 3); issues.push('Architect requested revise & resubmit'); }
   if (stage === 'approved' && !sub.orderedDate && daysBetween(sub.approvedDate, today) > 3) { r = Math.max(r, 3); issues.push(`Approved ${daysBetween(sub.approvedDate, today)}d ago but no confirmed order`); }
@@ -60,7 +66,7 @@ export function rateSubmittal(sub, wbs, today, bufferDays = 5) {
     r = Math.max(r, slip > (task?.float || 0) ? (task?.isCritical ? 5 : 4) : 3);
     issues.push(`Projected on site ${projected.toISOString().slice(0, 10)} — ${slip}d after need-by`);
   }
-  return { rating: clamp(r), issues, stage, projected: projected?.toISOString().slice(0, 10) || null, needBy: needBy?.toISOString().slice(0, 10) || null, slip };
+  return { rating: clamp(r), issues, stage, projected: projected?.toISOString().slice(0, 10) || null, needBy: needBy?.toISOString().slice(0, 10) || null, orderBy: orderBy?.toISOString().slice(0, 10) || null, releaseAtRisk, slip };
 }
 
 export function rateASI(asi) {
@@ -82,6 +88,7 @@ export function ratePayApp(app, today, cycleDay = 25) {
   const due = new Date(t.getFullYear(), t.getMonth(), cycleDay);
   const daysToDue = Math.round((due - t) / DAY);
   if (app.status === 'not_started' && daysToDue <= 5 && daysToDue >= 0) { r = 4; issues.push(`Pay app due in ${daysToDue}d and not started`); }
+  if (app.status === 'not_started' && daysToDue < 0) { r = 4; issues.push(`Pay app ${-daysToDue}d past the cycle day and not started`); }
   if (app.status === 'submitted' && app.submittedDate && daysBetween(app.submittedDate, today) > 30 && !app.paidDate) { r = Math.max(r, 3); issues.push('Submitted >30 days, unpaid'); }
   if (app.percentBilled != null && app.percentComplete != null && app.percentBilled < app.percentComplete - 10) { r = Math.max(r, 3); issues.push(`Underbilled: ${app.percentBilled}% billed vs ${app.percentComplete}% complete`); }
   return { rating: clamp(r), issues };

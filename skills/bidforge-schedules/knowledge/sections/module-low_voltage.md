@@ -1,8 +1,8 @@
 ---
 id: module-low_voltage
-version: 1
+version: 2
 updated: 2026-10-13
-hash: 1b0ac9c0e654
+hash: d415a3d98b7a
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -24,7 +24,8 @@ Detection keywords: structured cabling, low voltage, cat6, cat 6, data drop, div
 | Wireless access points and security cameras mounted | 2 | Low Voltage | low_voltage | Y 0d | construction | Ceiling Tile Installation |  | 2 |  |
 | Patch Panel & Data Outlet Termination/Labeling | 3 | Low Voltage | low_voltage | N | construction | Install Millwork / Cabinetry / Casework |  | 2 |  |
 | Cable Certification Testing & Reports | 2 | Low Voltage | inspection | N | construction | Install Doors |  | 3 |  |
-| Owner IT Network Equipment Install (OFOI) | 2 | Owner | low_voltage | N | construction | Start Up Control Systems & Test |  | 3 |  |
+| Owner IT Network Equipment Install (OFOI) | 2 | Owner | low_voltage | N | construction | Test, Adjust & Balance (TAB) |  | 3 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash d415a3d98b7a)
 - v1 2026-10-13 — regenerated (hash 1b0ac9c0e654)

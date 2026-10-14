@@ -72,6 +72,53 @@ can tell NTXP pushes apart from manual edits.
 Safe-write model (jobtread-data-integrator): date pushes derived from an approved canonical version
 are allowed; deleting JobTread tasks, editing budgets or documents is never done by this skill.
 
+## 4b · Project Coda backup → JobTread job custom field "Notes" (every sync event)
+
+Runs on **every** sync event: full sync (SYNC / `--sync`), the daily JobTread pull routine,
+every publish / off-ramp push, initialization when the Coda is created or corrected, and any
+Coda edit. The KB holds the primary Coda; the JobTread "Notes" field is the backup.
+
+The job-level text custom field is **Notes** (org `22PEKtgSScq2`, field id `22PEPTyrwL4W`; in
+other orgs resolve it by name:
+`organization.customFields where targetType = job, name = "Notes"`). Teams already write scope
+and status notes there, so the backup is a delimited block appended to the end. Each run replaces
+only that block. Text outside the markers is never changed, and `coda_backup.mjs` refuses to
+produce a write that would change it.
+
+```
+=== NTXP PROJECT CODA (BidForge backup) v<coda version> · <UTC time>Z · sha:<hash> ===
+Canonical schedule / Knowledge base / Drive folder / JobTread job / QuickBooks / Hosted /
+Meeting sources / Default models / Sync cadence / Council   (one "Label: value" line each)
+Last sync: <UTC>Z (<event>) · schedule v<N> · <last CHG id>
+Regenerated on every BidForge sync — edit the Coda in the project KB, not here.
+=== END NTXP PROJECT CODA ===
+```
+
+Procedure (deterministic; the logistics tier runs it, no judgment needed):
+1. Read the current value:
+   `{ "job": { "$": { "id": "<jobId>" }, "customFieldValues": { "$": { "size": 50 }, "nodes": { "value": {}, "customField": { "name": {} } } } } }`
+   and save the "Notes" value to `notes.txt` (use `-` if it is empty).
+2. `node scripts/coda_backup.mjs build canonical.json notes.txt <event> > coda.json`.
+   The output carries `mutation`, `readBack` and `changed`. If it returns `derivedCoda` (the
+   canonical file had no Coda yet), save that as the canonical Coda first (`updateCoda`). The
+   backup is only accepted when its sha matches the current Coda; stale results count as a
+   mismatch.
+3. Send `coda.json.mutation` through `mcp__JobTread__query` (`updateJob` with
+   `customFieldValues: { "Notes": <merged value> }`). Write even when `changed` is false, so the
+   "Last sync" line stays current.
+4. Run `coda.json.readBack`, save it as `rb.json`, then run
+   `node scripts/coda_backup.mjs verify coda.json rb.json`. Its JSON result is the `codaBackup`
+   object.
+5. Put `codaBackup` into the sync bundle (the popup shows it) and log it in the canonical
+   changelog with `recordCodaBackup`. `written` or `unchanged` → rating 1. A failure or mismatch
+   → rating 3, retried on the next sync. Three failures in a row → rating 4, shown to the user.
+6. A read-back shorter than the value sent means a field length limit. Rebuild with the compact
+   form (values truncated; every label kept), write again, and note the limit in the KB Coda.
+
+Safe-write basis: the block is a generated backup of an approved record and the team's text is
+preserved byte-for-byte, so this falls under the jobtread-data-integrator safe historical writes.
+It never deletes or overwrites the team's notes.
+
 ## 5 · One-way JobTread → canonical pull (daily routine and every full sync)
 
 1. Read tasks (query above) and daily logs since `sync.lastJobtreadPullAt`.
@@ -82,14 +129,16 @@ are allowed; deleting JobTread tasks, editing budgets or documents is never done
 3. Items join the sync bundle (rating ≥ 4 waits for acknowledgement; ≤ 3 auto-apply in the
    unattended routine and are listed in the next conversation).
 4. Set `sync.lastJobtreadPullAt`.
+5. Back up the Project Coda to JobTread "Notes" (§ 4b). Every pull counts as a sync event.
 
 Routine (create once per project when the user asks; `create_trigger`, fresh session per fire):
 ```
 name: BidForge daily JobTread pull — <project>
 cron: CRON_TZ=America/Chicago 47 6 * * 1-6
 prompt: Run /bidforge-schedules --pull-jobtread <project>. Load canonical from <KB path>, apply
-        rating ≤3 JobTread manual edits, queue ≥4 for the user, republish if changed, and post a
-        five-line summary to the project KB changelog.
+        rating ≤3 JobTread manual edits, queue ≥4 for the user, republish if changed, back up the
+        Project Coda to the JobTread job "Notes" field (canonical-and-offramp § 4b, verify by
+        read-back), and post a five-line summary to the project KB changelog.
 ```
 
 ## 6 · Version discipline

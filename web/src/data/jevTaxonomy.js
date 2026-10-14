@@ -1,4 +1,5 @@
 import { JEV_LIBRARY } from './jevLibrary.js';
+import { CALIBRATION_MODULES } from './jevCalibration.js';
 import { COUNCIL_GATE_KEYWORDS } from './jevModuleTasks.js';
 
 // JEV taxonomy — the deterministic classification spine.
@@ -51,6 +52,7 @@ export const JEV_MODULES = [
   { id: 'hvac_replacement', label: 'HVAC Equipment Replacement (Council-added)', cls: 'standard_renovation', keywords: ['rtu replacement', 'ahu replacement', 'chiller', 'crane pick', 'temporary cooling', 'rooftop unit', 'refrigerant recovery'], confirm: 'Is major HVAC equipment (RTU / AHU / chiller) being replaced?' },
   { id: 'emergency_power', label: 'Emergency Power / Generator (Council-added)', cls: 'life_safety', keywords: ['generator', 'automatic transfer switch', 'ats', 'nfpa 110', 'load bank', 'emergency power', 'life safety branch'], confirm: 'Does the scope include a generator, ATS or emergency power distribution?' },
   { id: 'joc_csp_admin', label: 'JOC / CSP Administration', cls: 'project_management', keywords: ['job order contract', 'joc', 'gordian', 'egordian', 'csp', 'competitive sealed proposal', 'rsmeans', 'adjustment factor', 'purchase order'], confirm: 'Is this a JOC or CSP procurement with its own admin steps?' },
+  ...CALIBRATION_MODULES,
 ];
 
 // Council gate keywords (>= 2 seats) extend each module's detection vocabulary.

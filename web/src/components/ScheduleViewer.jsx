@@ -24,7 +24,7 @@ const TABS = [
   { id: 'export', label: 'Export' },
 ];
 
-export default function ScheduleViewer({ project, meta, hosted, onProcurementImport, onApplyProposals, onMemory, onApplySync, onConfirmOptimization, onLinks }) {
+export default function ScheduleViewer({ project, meta, hosted, onProcurementImport, onApplyProposals, onMemory, onApplySync, onConfirmOptimization, onLinks, onCoda }) {
   const [activeTab, setActiveTab] = useState('canonical');
   const [syncOpen, setSyncOpen] = useState(false);
   const [preflight, setPreflight] = useState(null);
@@ -76,7 +76,7 @@ export default function ScheduleViewer({ project, meta, hosted, onProcurementImp
         {activeTab === 'procurement' && <ProcurementPanel project={project} onImport={onProcurementImport} />}
         {activeTab === 'input' && <InputPanel project={project} onApplyProposals={onApplyProposals} onMemory={onMemory} />}
         {activeTab === 'changelog' && <ChangelogPanel meta={meta} />}
-        {activeTab === 'environment' && <EnvironmentPanel meta={meta} onConfirm={onConfirmOptimization} onLinks={onLinks} />}
+        {activeTab === 'environment' && <EnvironmentPanel meta={meta} projectName={project.name} onConfirm={onConfirmOptimization} onLinks={onLinks} onCoda={onCoda} />}
         {activeTab === 'export' && <ExportPanel project={project} meta={meta} preflight={preflight} />}
       </div>
 

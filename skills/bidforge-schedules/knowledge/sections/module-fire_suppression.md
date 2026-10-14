@@ -1,8 +1,8 @@
 ---
 id: module-fire_suppression
-version: 1
+version: 2
 updated: 2026-10-13
-hash: e3d01de9d47f
+hash: 2869d3ebbc08
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -24,8 +24,9 @@ Detection keywords: fire sprinkler, sprinkler, fire suppression, division 21, 21
 | Sprinkler Hydrostatic Test (200 psi / 2 hr) | 1 | AHJ | inspection | N | construction | Overhead MEP Rough |  | 2 | Y |
 | Sprinkler Heads & Escutcheons Trim | 3 | Fire Sprinkler | life_safety | Y 14d | construction | Ceiling Grid or Hard Lid Installation & Prime |  | 3 |  |
 | Clean agent suppression for IT/records rooms installed | 3 | Fire Sprinkler | life_safety | Y 56d | construction | Install Doors |  | 2 |  |
-| Sprinkler Final, Main Drain & Flow Test | 1 | Fire Sprinkler | inspection | N | construction | Start Up Control Systems & Test |  | 3 |  |
+| Sprinkler Final, Main Drain & Flow Test | 1 | Fire Sprinkler | inspection | N | construction | Test, Adjust & Balance (TAB) |  | 3 |  |
 | Contractor's Material & Test Certificate (NFPA 13) | 1 | Fire Sprinkler | project_management | Y 0d | closeout | Turnover (Project Complete) |  | 2 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash 2869d3ebbc08)
 - v1 2026-10-13 — regenerated (hash e3d01de9d47f)

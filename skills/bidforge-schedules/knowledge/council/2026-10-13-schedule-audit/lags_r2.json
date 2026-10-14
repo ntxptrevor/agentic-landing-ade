@@ -1,0 +1,82 @@
+[
+ {
+  "from": "Prime Coat Walls",
+  "to": "Prep Floor — Level or Grind",
+  "type": "SS",
+  "lag": 2,
+  "seats": 3,
+  "round": 2
+ },
+ {
+  "from": "Prime Coat Walls",
+  "to": "Install Flooring — All Types",
+  "type": "SS",
+  "lag": 3,
+  "seats": 2,
+  "round": 2
+ },
+ {
+  "from": "Salvage Owner Items (Retain/Reuse/Turnover)",
+  "to": "Selective & Interior Trench Demo",
+  "type": "SS",
+  "lag": 1,
+  "seats": 3,
+  "round": 2
+ },
+ {
+  "from": "Selective & Interior Trench Demo",
+  "to": "GPR Scanning — Demo & Core Locations",
+  "type": "SS",
+  "lag": 1,
+  "seats": 3,
+  "round": 2
+ },
+ {
+  "from": "Selective & Interior Trench Demo",
+  "to": "NLB Framing",
+  "type": "SS",
+  "lag": 3,
+  "seats": 2,
+  "round": 2
+ },
+ {
+  "from": "Install Wall Base",
+  "to": "Install ADA Room Signage",
+  "type": "SS",
+  "lag": 1,
+  "seats": 2,
+  "round": 2
+ },
+ {
+  "from": "Install ADA Room Signage",
+  "to": "Furniture, Wall Hangings & Owner Item Installation",
+  "type": "SS",
+  "lag": 1,
+  "seats": 2,
+  "round": 2
+ },
+ {
+  "from": "Furniture, Wall Hangings & Owner Item Installation",
+  "to": "Final Clean",
+  "type": "FF",
+  "lag": 1,
+  "seats": 2,
+  "round": 2
+ },
+ {
+  "from": "Perform Punch Corrections",
+  "to": "Complete Punch Items",
+  "type": "SS",
+  "lag": 5,
+  "seats": 3,
+  "round": 2
+ },
+ {
+  "from": "GC Generated Punch List Sent to Architect / Owner",
+  "to": "Perform Punch Corrections",
+  "type": "SS",
+  "lag": 2,
+  "seats": 2,
+  "round": 2
+ }
+]

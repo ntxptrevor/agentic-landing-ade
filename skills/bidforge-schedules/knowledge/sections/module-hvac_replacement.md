@@ -1,8 +1,8 @@
 ---
 id: module-hvac_replacement
-version: 1
+version: 2
 updated: 2026-10-13
-hash: 5cb27f7c6d11
+hash: e704b580156f
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -22,9 +22,10 @@ Detection keywords: rtu replacement, ahu replacement, chiller, crane pick, tempo
 | Structural Review of Roof for New Unit Weights | 5 | Architect | design | Y 0d | construction | Site Work |  | 3 |  |
 | Existing Unit Disconnect & Refrigerant Recovery | 1 | HVAC | standard_renovation | N | construction | Make Safe |  | 2 |  |
 | New equipment set by crane | 1 | HVAC | standard_renovation | N | construction | Selective & Interior Trench Demo |  | 2 |  |
-| Curb Adapters & Roof Patching at Units | 2 | HVAC | standard_renovation | Y 21d | construction | Drywall & Taping |  | 2 |  |
+| Curb Adapters & Roof Patching at Units | 2 | HVAC | standard_renovation | Y 21d | construction | Drywall Hang |  | 2 |  |
 | Manufacturer Factory Startup & Warranty Registration | 1 | HVAC | standard_renovation | N | construction | Start Up Control Systems & Test | Y | 2 |  |
 | EPA Refrigerant Records & Old Unit Disposal Docs | 1 | HVAC | project_management | N | closeout | Turnover (Project Complete) |  | 2 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash e704b580156f)
 - v1 2026-10-13 — regenerated (hash 5cb27f7c6d11)

@@ -51,9 +51,16 @@ Ratings 1–5 per `references/trackers.md`. Items touching protected or critical
 Anything ≥4 gets a model-written one-line consequence and options; 5 also opens a council gate
 notification (email/text) per ntxp-model-council § 5.
 
-## 4 · Validate and publish the bundle
+## 4 · Back up the Project Coda (every sync, before publishing the bundle)
 
-`node scripts/validate_bundle.mjs sync-bundle.json` must pass. Publish it beside the hosted page
+Write the Coda block to the JobTread job's "Notes" custom field and verify it by read-back
+(canonical-and-offramp.md § 4b). Put the verify result into the bundle as `codaBackup`. A failed
+backup does not block the sync. It is rated 3 (4 after three failures in a row) and retried next
+time.
+
+## 4a · Validate and publish the bundle
+
+`node scripts/validate_bundle.mjs sync-bundle.json` must pass; it warns when `codaBackup` is missing. Publish it beside the hosted page
 (or hand it to the user to load). In conversation, also print a compact table: source, change,
 rating, priority.
 

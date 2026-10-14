@@ -1294,3 +1294,17 @@ input:focus, select:focus, textarea:focus {
 .sync-constraint { font-size: .74rem; color: var(--warning); margin-top: 2px; }
 .sync-ack { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-weight: 700; color: var(--critical); font-size: .78rem; }
 @media (max-width: 600px) { .preflight ul { columns: 1; } .module-grid { grid-template-columns: 1fr; } .modal { padding: 14px; } }
+.coda-status { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .78rem; margin-bottom: 12px; }
+.coda-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; font-family: var(--font); font-size: .72rem; white-space: pre-wrap; word-break: break-word; margin-top: 12px; }
+.scope-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; }
+.constraint-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.constraint-chip { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; padding: 4px 10px; border: 1px solid var(--border); border-radius: 14px; cursor: pointer; }
+.constraint-chip.on { border-color: var(--accent); color: var(--accent); }
+.constraint-chip input { display: none; }
+.phasing-editor { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+.phase-block { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; background: var(--surface); }
+.phase-head, .zone-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.phase-head input:first-child { font-weight: 700; width: 160px; }
+.phase-head label { display: flex; gap: 6px; align-items: center; font-size: .75rem; color: var(--text-dim); }
+.zone-block { border-left: 3px solid var(--accent); padding: 6px 0 6px 10px; margin-bottom: 8px; }
+.zone-head input:first-child { width: 160px; }

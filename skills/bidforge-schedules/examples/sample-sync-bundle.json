@@ -98,5 +98,13 @@
       "summary": "ASI-03 not sent to subs",
       "tag": "asi"
     }
-  ]
+  ],
+  "codaBackup": {
+    "status": "written",
+    "at": "2026-12-15T12:47:00Z",
+    "hash": "be57f447",
+    "chars": 906,
+    "event": "full_sync",
+    "error": null
+  }
 }

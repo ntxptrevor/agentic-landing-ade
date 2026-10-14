@@ -48,6 +48,7 @@ export const CANON_CSS = `
 .canon-bar .prog{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:rgba(0,0,0,.35)}
 .canon-ms{position:absolute;top:50%;width:10px;height:10px;margin-left:-5px;transform:translateY(-50%) rotate(45deg);background:var(--signal);border-radius:1px}
 .canon-contract{position:absolute;top:2px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #000;margin-left:-5px}
+.canon-window{position:absolute;top:50%;height:14px;transform:translateY(-50%);border:1.5px dashed #D0353C;border-radius:4px;background:rgba(208,53,60,.06)}
 .canon-today{position:absolute;top:0;bottom:0;border-left:1.5px dashed var(--signal)}
 .canon-flag{color:var(--signal);font-weight:700}
 .canon-foot{height:.5in;border-top:1px solid #000;display:flex;align-items:center;justify-content:space-between;padding:0 14px;
@@ -120,7 +121,7 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight }
       c = next;
     }
     const weeks = [];
-    const step = total > 400 ? 28 : total > 200 ? 14 : 7;
+    const step = total > 300 ? 28 : total > 110 ? 14 : 7;
     for (let d = 0; d < total; d += step) {
       const dt = new Date(startMonday.getTime() + d * DAY);
       weeks.push({ left: (d / total) * 100, label: `${dt.getMonth() + 1}/${dt.getDate()}` });
@@ -143,13 +144,20 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight }
     if (!t.startDate || !t.endDate) return null;
     const left = scale.pct(t.startDate);
     const width = Math.max(0.25, ((parseDate(t.endDate) - parseDate(t.startDate)) / DAY + 1) / scale.total * 100);
-    if (kind === 'task' && (t.isMilestone || t.duration === 0)) return <span className="canon-ms" style={{ left: `${left + width / 2}%` }} />;
+    // State / AHJ inspections are requested as a one-week window, not a fixed date.
+    const win = kind === 'task' && t.windowDays
+      ? <span className="canon-window" title="Requested inspection week" style={{ left: `${left}%`, width: `${Math.max(width, (7 / scale.total) * 100)}%` }} />
+      : null;
+    if (kind === 'task' && (t.isMilestone || t.duration === 0)) return <>{win}<span className="canon-ms" style={{ left: `${left + width / 2}%` }} /></>;
     if (kind !== 'task') return <span className="canon-bar sum" style={{ left: `${left}%`, width: `${width}%` }} />;
     const prog = t.actualFinish ? 100 : (t.percentComplete || 0);
     return (
-      <span className="canon-bar" style={{ left: `${left}%`, width: `${width}%`, background: barColor(t) }}>
-        {prog > 0 && <span className="prog" style={{ width: `${prog}%` }} />}
-      </span>
+      <>
+        {win}
+        <span className="canon-bar" style={{ left: `${left}%`, width: `${width}%`, background: barColor(t) }}>
+          {prog > 0 && <span className="prog" style={{ width: `${prog}%` }} />}
+        </span>
+      </>
     );
   };
 
@@ -181,6 +189,7 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight }
         <span><i style={{ background: '#2F6FD6' }} />Delivery / Submittal</span>
         <span><i style={{ background: '#0E9F6E' }} />Procurement</span>
         <span><i style={{ background: '#E07A5F' }} />Deliverable</span>
+        <span><i style={{ background: 'rgba(208,53,60,.06)', border: '1.5px dashed #D0353C' }} />Requested inspection week</span>
         {JEV_CLASSES.filter(c => tasks.some(t => t.cls === c.id && !t.isCritical)).map(c => (
           <span key={c.id}><i style={{ background: c.color }} />{c.label}</span>
         ))}

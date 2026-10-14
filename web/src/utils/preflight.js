@@ -1,3 +1,9 @@
+import { codaHash } from './codaBackup.js';
+import { isWorkingDay } from './dateUtils.js';
+import { envelopeWd, valueEnvelopeWd } from './jevTree.js';
+import { VALUE_ENVELOPE } from '../data/jevCalibration.js';
+import { DURATION_MODEL } from '../data/jevOverlap.js';
+
 // Deterministic pre-flight checks run before every canonical output. Their results
 // are the input to the model-council inspection and the final integrity audit.
 
@@ -12,7 +18,7 @@ const SEQUENCE_RULES = [
   { id: 'fa_accept_before_sc', before: /fire alarm 100% acceptance/i, after: /substantial completion/i, msg: 'Fire alarm acceptance before substantial completion' },
   { id: 'icra_clear_before_removal', before: /icra barrier inspection/i, after: /hepa terminal clean/i, msg: 'ICRA barrier inspection precedes terminal clean & removal' },
   { id: 'final_clean_before_sc', before: /final clean/i, after: /substantial completion/i, msg: 'Final clean before owner punch / substantial completion' },
-  { id: 'punch_before_turnover', before: /complete punch/i, after: /^turnover/i, msg: 'Punch complete before turnover' },
+  { id: 'punch_before_turnover', before: /perform punch corrections/i, after: /^turnover/i, msg: 'Punch complete before turnover' },
 ];
 
 export function sequenceChecks(project) {
@@ -41,6 +47,74 @@ export function dataChecks(project, meta) {
   const links = meta.links || {};
   const missing = ['jobtreadJobId', 'driveFolderId', 'kbPath'].filter(k => !links[k]);
   out.push({ id: 'sync_links', ok: missing.length === 0, warnOnly: true, msg: missing.length ? `Sync links missing: ${missing.join(', ')}` : 'JobTread, Drive and KB links set' });
+  const cb = meta.sync?.codaBackup || { status: 'never' };
+  const current = cb.lastHash && cb.lastHash === codaHash(meta.coda || {});
+  const verified = ['written', 'unchanged'].includes(cb.status) && current;
+  out.push({ id: 'coda_backup', ok: verified, warnOnly: cb.status !== 'failed' && cb.status !== 'mismatch', msg: `Project Coda → JobTread "Notes": ${cb.status}${cb.status !== 'never' && !current ? ' (not the current Coda)' : ''}${cb.failures ? ` (${cb.failures} failures)` : ''}` });
+  return out;
+}
+
+// Days sanity gate (council audit 2026-10-13): construction duration against the parametric
+// envelope, real overlap, a non-trivial critical share, the 10 WD rule and contract float.
+// Failing it blocks publishing; the engine never auto-compresses to pass.
+export function sanityChecks(project, meta) {
+  const g = DURATION_MODEL.gate;
+  const out = [];
+  // Count working days on the project's own calendar (work week + holidays/shutdowns).
+  const workingDays = project.workingDays || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  const holidays = project.holidays || [];
+  const wd = (a, b) => { let n = 0; for (let x = new Date(`${a}T00:00:00`); x <= new Date(`${b}T00:00:00`); x = new Date(x.getTime() + 86400000)) { if (isWorkingDay(x, workingDays, holidays)) n++; } return n; };
+  // Zoned schedules have one construction group per zone/turnover; measure them together.
+  const groups = k => project.wbs.filter(p => p.phaseKey === k);
+  const phase = k => {
+    const gs = groups(k).filter(g => g.startDate && g.endDate);
+    if (!gs.length) return null;
+    return { startDate: gs.map(g => g.startDate).sort()[0], endDate: gs.map(g => g.endDate).sort().pop(), children: gs.flatMap(g => g.children) };
+  };
+  const span = p => (p?.startDate && p?.endDate ? wd(p.startDate, p.endDate) : 0);
+  const cons = (phase('construction')?.children || []).filter(t => t.duration > 0);
+  const all = project.wbs.flatMap(p => p.children).filter(t => !t.isReference);
+  if (!cons.length) return out;
+  const consWd = span(phase('construction'));
+  const env = envelopeWd(meta.scope || {});
+  if (env) {
+    const r = consWd / env;
+    out.push({ id: 'days_envelope', ok: r >= g.ratio[0] && r <= g.ratio[1], msg: `Construction ${consWd} WD vs ${env} WD envelope (${r.toFixed(2)}×; pass ${g.ratio[0]}–${g.ratio[1]}×)` });
+  } else {
+    out.push({ id: 'days_envelope', ok: false, warnOnly: true, msg: 'No scope profile (tier / SF / sector) — days sanity check skipped' });
+  }
+  // Contract-value cross-check (council audit #2): interior tiers only, warn-only, provisional
+  // (n = 3). Shown beside the SF envelope with their geometric mean; a wide disagreement means
+  // the SF or the value is probably wrong.
+  const venv = valueEnvelopeWd(meta.scope || {});
+  if (venv) {
+    const vr = consWd / venv;
+    const blend = env ? Math.round(Math.sqrt(env * venv)) : null;
+    const mismatch = env && Math.max(env, venv) / Math.min(env, venv) > VALUE_ENVELOPE.mismatch;
+    out.push({ id: 'value_envelope', ok: vr >= VALUE_ENVELOPE.band[0] && vr <= VALUE_ENVELOPE.band[1] && !mismatch, warnOnly: true, msg: `Construction ${consWd} WD vs ${venv} WD contract-value envelope (${vr.toFixed(2)}×; warn outside ${VALUE_ENVELOPE.band[0]}–${VALUE_ENVELOPE.band[1]}×)${blend ? ` · SF ${env} / value ${venv} / blend ${blend} WD` : ''}${mismatch ? ' — SF and value disagree by more than 1.6×: check the SF or the contract value' : ''} · provisional (n = 3)` });
+  }
+  const conc = Math.round(cons.filter(t => cons.some(o => o !== t && o.startDate <= t.endDate && o.endDate >= t.startDate)).length / cons.length * 100);
+  out.push({ id: 'overlap', ok: conc >= g.minConcurrentPct, msg: `${conc}% of construction activities run concurrently (min ${g.minConcurrentPct}%; NTXP actuals 85–95%)` });
+  const crit = Math.round(all.filter(t => t.isCritical).length / all.length * 100);
+  out.push({ id: 'critical_share', ok: crit <= g.maxCriticalPct, msg: `${crit}% of activities critical (max ${g.maxCriticalPct}%)` });
+  const long = cons.filter(t => t.duration > 10);
+  out.push({ id: 'ten_day_rule', ok: long.length === 0, msg: long.length ? `Over 10 WD: ${long.slice(0, 3).map(t => t.name).join(', ')}` : 'No construction activity over 10 WD' });
+  const precon = span(phase('preconstruction'));
+  // Closeout runs SC → Final Walk; billing rows after the walk are administrative (audit #2).
+  const fw = all.find(t => t.name === 'Final Walk');
+  const scRow = all.find(t => /owner punch walk \/ substantial completion/i.test(t.name));
+  const closeout = fw?.endDate && scRow?.endDate ? wd(scRow.endDate, fw.endDate) - 1 : span(phase('closeout'));
+  out.push({ id: 'precon_span', ok: precon <= g.maxPreconWd, warnOnly: true, msg: `Preconstruction ${precon} WD (target ≤ ${g.maxPreconWd})` });
+  out.push({ id: 'closeout_span', ok: closeout <= g.maxCloseoutWd, warnOnly: true, msg: `Closeout ${closeout} WD (target ≤ ${g.maxCloseoutWd})` });
+  const sc = all.find(t => /owner punch walk \/ substantial completion/i.test(t.name));
+  const ref = project.wbs.flatMap(p => p.children).find(t => /substantial completion date per contract/i.test(t.name));
+  if (sc && ref?.contractDate) {
+    const total = wd(project.startDate, ref.contractDate);
+    const slack = wd(sc.endDate, ref.contractDate) - 1;
+    out.push({ id: 'contract_float', ok: slack >= Math.ceil(total * g.contractFloatPct / 100), msg: `${slack} WD between projected SC and contract SC (DISD minimum ${g.contractFloatPct}% = ${Math.ceil(total * g.contractFloatPct / 100)} WD)` });
+  } else {
+    out.push({ id: 'contract_float', ok: false, warnOnly: true, msg: 'Set the contract SC date to verify the 10% float rule' });
+  }
   return out;
 }
 
@@ -66,7 +140,7 @@ export function layoutChecks(root) {
 }
 
 export function runPreflight(project, meta, root) {
-  const all = [...sequenceChecks(project), ...dataChecks(project, meta), ...layoutChecks(root)];
+  const all = [...sequenceChecks(project), ...dataChecks(project, meta), ...sanityChecks(project, meta), ...layoutChecks(root)];
   const failures = all.filter(r => !r.ok && !r.warnOnly);
   return { results: all, pass: failures.length === 0, failures };
 }

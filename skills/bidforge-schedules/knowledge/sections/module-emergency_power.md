@@ -1,8 +1,8 @@
 ---
 id: module-emergency_power
-version: 1
+version: 2
 updated: 2026-10-13
-hash: 56fa09435686
+hash: 41257555be18
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -18,8 +18,9 @@ Detection keywords: generator, automatic transfer switch, ats, nfpa 110, load ba
 |---|---|---|---|---|---|---|---|---|---|
 | Submittals: Generator, ATS & Fuel System | 3 | Electrical | life_safety | N | construction | Site Work | Y | 2 |  |
 | Generator Pad & Fuel Tank Foundation | 3 | Concrete | standard_renovation | N | construction | Wall MEP Rough |  | 2 |  |
-| Emergency Branch Feeders & Distribution | 4 | Electrical | life_safety | N | construction | Drywall & Taping |  | 2 |  |
+| Emergency Branch Feeders & Distribution | 4 | Electrical | life_safety | N | construction | Drywall Hang |  | 2 |  |
 | Generator Load Bank Test (NFPA 110) | 1 | Electrical | inspection | N | construction | Start Up Control Systems & Test |  | 2 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash 41257555be18)
 - v1 2026-10-13 — regenerated (hash 56fa09435686)

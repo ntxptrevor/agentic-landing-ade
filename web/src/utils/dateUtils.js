@@ -107,3 +107,16 @@ function getLastWeekday(year, month, weekday) {
   }
   return null;
 }
+
+// NTXP non-work calendar (council audit 2026-10-13): federal holidays plus Thanksgiving week
+// and the Dec 22 – Jan 2 winter shutdown, when owners will not take punch or inspections.
+export function getNtxpNonWorkDays(year) {
+  const days = new Set(getUSFederalHolidays(year));
+  const nov1 = new Date(year, 10, 1);
+  const thanksgiving = new Date(year, 10, 1 + ((4 - nov1.getDay() + 7) % 7) + 21);
+  for (let k = -3; k <= 1; k++) days.add(formatDate(new Date(year, 10, thanksgiving.getDate() + k)));
+  for (let d = 22; d <= 31; d++) days.add(formatDate(new Date(year, 11, d)));
+  days.add(formatDate(new Date(year, 0, 1)));
+  days.add(formatDate(new Date(year, 0, 2)));
+  return [...days].sort();
+}

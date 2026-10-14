@@ -1,8 +1,8 @@
 ---
 id: module-roofing
-version: 1
+version: 2
 updated: 2026-10-13
-hash: e3353c754f26
+hash: 224be8415577
 source: council consensus (jevModuleTasks.js) + taxonomy
 ---
 
@@ -26,8 +26,9 @@ Detection keywords: roofing, roof replacement, membrane, tpo, modified bitumen, 
 | Sheet Metal Copings, Edge Metal & Gutters | 3 | Roofing | standard_renovation | N | construction | Exterior Containment |  | 2 | Y |
 | Roof drains, gutters and downspouts | 2 | Roofing | standard_renovation | Y 0d | construction | Exterior Containment |  | 2 | Y |
 | Roofing Manufacturer Pre-Installation Meeting | 1 | Roofing | oac | N | construction | Site Work | Y | 2 |  |
-| Roofing Manufacturer Final Inspection | 1 | Roofing | inspection | N | construction | Start Up Control Systems & Test |  | 3 |  |
+| Roofing Manufacturer Final Inspection | 1 | Roofing | inspection | N | construction | Test, Adjust & Balance (TAB) |  | 3 |  |
 | NDL Roof Warranty Issued | 2 | Roofing | project_management | Y 0d | closeout | Turnover (Project Complete) |  | 2 |  |
 
 ## Changelog
+- v2 2026-10-13 — regenerated (hash 224be8415577)
 - v1 2026-10-13 — regenerated (hash e3353c754f26)
