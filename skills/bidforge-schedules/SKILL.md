@@ -127,6 +127,13 @@ overwhelming majority applies, anything else is asked of the user next session (
 canon). Every applied change is a removable, dated entry in `knowledge/lessons-learned.md`.
 "Remember this / from now on" directives go to `knowledge/memory.md` (project or global scope).
 
+### 9 · Integration & hooks — `references/integration.md`
+Other tools read the schedule with `scripts/schedule_query.mjs` (summary, lookahead, milestones, critical,
+task, late, changes, activity, oac) and never re-derive it. The `hooks/schedule_router.mjs` UserPromptSubmit hook
+flags schedule conversations so every stated fact becomes a sourced canonical input (folder routing, no-fork
+`baseVersion` saves). **OAC rule:** every OAC report must pass `scripts/oac_gate.mjs` (fresh sync, no open
+JEV ≥ 4 items, published = canonical version) or run `--sync` first.
+
 ## Files
 
 | Path | Role |

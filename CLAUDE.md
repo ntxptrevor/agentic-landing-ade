@@ -210,3 +210,4 @@ currently unset (defaults to `/`).
 | Register a new skill / change versions | both files in `.claude-plugin/` |
 | Update the deployed site | `web/` build → `docs/` |
 | End-user install/usage instructions | `README.md` |
+| Query the canonical schedule from other tools / schedule hook / OAC gate | `skills/bidforge-schedules/references/integration.md` (`scripts/schedule_query.mjs`, `scripts/oac_gate.mjs`, `hooks/`) |
