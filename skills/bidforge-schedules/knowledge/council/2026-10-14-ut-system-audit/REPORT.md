@@ -135,8 +135,8 @@ All six open items were answered yes and applied:
 | UNT-01 | 22–34 | 30 | 38 | **34** | yes |
 | UTSW-02 Ash Vault | 14–26 | 17 | 36 | **31** | no |
 | UTSW-03 NB10 | 26–40 (+10 mockups) | 31 | 37 | **49** | yes |
-| UTSW-01 C1 Vault | 80–130 | 96 baseline | 77 | **77** | no (3 WD short) |
-| UTD-1 Balconies (4 buildings) | 45–65 | 53 | 33 (1 building) | **57** | yes |
+| UTSW-01 C1 Vault | 80–130 | 96 baseline | 77 | **80** | yes |
+| UTD-1 Balconies (4 buildings) | 45–65 | 53 | 33 (1 building) | **62** | yes |
 | UTD-2 WSTC | 50–75 | ~69 | 56 | **56** | yes |
 
 Reference scenarios: B, C and E pass. A and D pass with their accepted deviations.
@@ -147,3 +147,12 @@ Reference scenarios: B, C and E pass. A and D pass with their accepted deviation
 - The footprint-scaled excavation runs 7 WD; the real dig took about 4.
 
 The raw Drive extractions and seat reports are backed up in the private NTXP Forge repository.
+
+**Review fixes (Codex, PR #7 and Forge #49):**
+- The weather allowance now follows every exposed row that drives no other exposed row, including the last leapfrogged building.
+- The allowance is sized after duration scaling, from exposure: one building's cycle plus the stagger.
+- A typed weather value is never rescaled.
+- The SF envelope is informational for the exterior tier.
+- The 10 WD rule does not split the weather allowance.
+
+These changes moved C1 to 80 WD (pass) and the balconies to 62 WD.

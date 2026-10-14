@@ -52,7 +52,7 @@ function audit(sc) {
   const conc = Math.round((concurrent / Math.max(cons.length, 1)) * 100);
   const crit = Math.round((all.filter(t => t.isCritical).length / all.length) * 100);
   const tgt = sc.target;
-  const over10 = all.filter(t => t.duration > 10 && !/submittal|review|approv|processing/i.test(t.name));
+  const over10 = all.filter(t => t.duration > 10 && !t.weather && !/submittal|review|approv|processing/i.test(t.name));
   const precWd = span(phase('preconstruction'));
   // Closeout is measured SC → Final Walk (council audit #2); billing rows run beside it.
   const fw = p.wbs.flatMap(x => x.children).find(t => t.name === 'Final Walk');

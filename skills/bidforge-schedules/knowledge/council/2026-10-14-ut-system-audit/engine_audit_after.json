@@ -1,6 +1,6 @@
 {
   "engine": "bidforge jevTree + scheduler",
-  "at": "2026-10-14T10:15:39.234Z",
+  "at": "2026-10-14T10:33:52.047Z",
   "results": [
     {
       "id": "A",
@@ -489,11 +489,11 @@
         "occupied_phasing"
       ],
       "activities": 102,
-      "totalWd": 118,
-      "totalCd": 163,
+      "totalWd": 121,
+      "totalCd": 168,
       "sizeBand": "standard",
       "precWd": 33,
-      "constructionWd": 77,
+      "constructionWd": 80,
       "closeoutWd": 9,
       "real": {
         "cons": 96,
@@ -503,7 +503,7 @@
       "valueEnvelopeWd": null,
       "decisionPending": null,
       "benchmarkConstructionWd": 10,
-      "ratioToBenchmark": 7.7,
+      "ratioToBenchmark": 8,
       "pctConcurrentConstruction": 85,
       "criticalPct": 36,
       "accepted": null,
@@ -524,14 +524,14 @@
       },
       "userAdjust": null,
       "checks": {
-        "construction": false,
+        "construction": true,
         "precon": true,
         "closeout": true,
         "concurrency": true,
         "critical": true,
         "tenDayCap": true
       },
-      "pass": false,
+      "pass": true,
       "maxActivityWd": 15,
       "over10Wd": [
         "Submittal Processing Time (15d)"
@@ -540,7 +540,7 @@
         "FS",
         "SS"
       ],
-      "sumOfDurationsConstruction": 139
+      "sumOfDurationsConstruction": 142
     },
     {
       "id": "UTD-1",
@@ -551,12 +551,12 @@
         "occupied_phasing",
         "isd_college"
       ],
-      "activities": 82,
-      "totalWd": 93,
-      "totalCd": 128,
+      "activities": 81,
+      "totalWd": 98,
+      "totalCd": 135,
       "sizeBand": "standard",
       "precWd": 25,
-      "constructionWd": 57,
+      "constructionWd": 62,
       "closeoutWd": 9,
       "real": {
         "cons": 53,
@@ -566,9 +566,9 @@
       "valueEnvelopeWd": null,
       "decisionPending": null,
       "benchmarkConstructionWd": 30,
-      "ratioToBenchmark": 1.9,
-      "pctConcurrentConstruction": 95,
-      "criticalPct": 32,
+      "ratioToBenchmark": 2.07,
+      "pctConcurrentConstruction": 93,
+      "criticalPct": 33,
       "accepted": null,
       "target": {
         "cons": [
@@ -603,7 +603,7 @@
         "FS",
         "SS"
       ],
-      "sumOfDurationsConstruction": 182
+      "sumOfDurationsConstruction": 173
     },
     {
       "id": "UTD-2",

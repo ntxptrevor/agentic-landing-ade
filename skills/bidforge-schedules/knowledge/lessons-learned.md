@@ -13,7 +13,8 @@ Status: applied (user decision — canon)   Scope: jevCalibration, jevTree, Modu
 4. Small site-only jobs get a short fixed tail. On the exterior tier in the micro band (value ≤ $250k, or envelope ≤ 30 WD when no value is given), Mobilization, Final Clean and the SC walk are 1 WD each, and micro inspection rules apply.
 5. Reference scenario A (58% critical) and D (91 CD against a 95 CD floor) are accepted deviations (`accepted` in schedule_audit).
 6. Healthcare mockup gates (LL-23) also apply to research labs at academic medical centers (mep_lab in the healthcare sector).
-Result: UNT 34 (band 22–34) ✓, balconies 57 with 4 buildings (45–65) ✓, NB10 49 including the 10 WD mockups (26–40 +10) ✓, WSTC 56 ✓. Ash Vault 31 (14–26) ✗: the 5 WD AHJ notice overhang, a 3 WD pad cure and a 7 WD footprint-scaled excavation remain. C1 77 (80–130) ✗ is 3 WD short.
+Result (after the review fixes below): UNT 34 (band 22–34) ✓, balconies 62 with 4 buildings (45–65) ✓, NB10 49 including the 10 WD mockups (26–40 +10) ✓, WSTC 56 ✓, C1 80 (80–130) ✓. Ash Vault 31 (14–26) ✗: the 5 WD AHJ notice overhang, a 3 WD pad cure and a 7 WD footprint-scaled excavation remain.
+Review fixes: the weather row follows every terminal exposed row (the last building included); it is sized after scaling from exposure (one building plus the stagger); a typed weatherDays value is never rescaled; the SF envelope is warn-only on the exterior tier; the 10 WD rule skips the weather allowance.
 Remove by: delete the constants named above from jevCalibration.js and their uses in jevTree.js.
 
 ### LL-2026-10-14-01 — UT System / UNT schedule calibration (council audit #2)

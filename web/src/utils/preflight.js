@@ -79,7 +79,10 @@ export function sanityChecks(project, meta) {
   const env = envelopeWd(meta.scope || {});
   if (env) {
     const r = consWd / env;
-    out.push({ id: 'days_envelope', ok: r >= g.ratio[0] && r <= g.ratio[1], msg: `Construction ${consWd} WD vs ${env} WD envelope (${r.toFixed(2)}×; pass ${g.ratio[0]}–${g.ratio[1]}×)` });
+    // Site / exterior scopes are driven by structure, cure and weather, not floor area (audit #2):
+    // the SF envelope is shown but never blocks publishing for them.
+    const structural = meta.scope?.tier === 'exterior';
+    out.push({ id: 'days_envelope', ok: r >= g.ratio[0] && r <= g.ratio[1], ...(structural ? { warnOnly: true } : {}), msg: `Construction ${consWd} WD vs ${env} WD envelope (${r.toFixed(2)}×; pass ${g.ratio[0]}–${g.ratio[1]}×)${structural ? ' — site/exterior scope: informational only (structure-driven duration)' : ''}` });
   } else {
     out.push({ id: 'days_envelope', ok: false, warnOnly: true, msg: 'No scope profile (tier / SF / sector) — days sanity check skipped' });
   }
@@ -97,7 +100,8 @@ export function sanityChecks(project, meta) {
   out.push({ id: 'overlap', ok: conc >= g.minConcurrentPct, msg: `${conc}% of construction activities run concurrently (min ${g.minConcurrentPct}%; NTXP actuals 85–95%)` });
   const crit = Math.round(all.filter(t => t.isCritical).length / all.length * 100);
   out.push({ id: 'critical_share', ok: crit <= g.maxCriticalPct, msg: `${crit}% of activities critical (max ${g.maxCriticalPct}%)` });
-  const long = cons.filter(t => t.duration > 10);
+  // The weather allowance is a contingency, not an activity, so the 10 WD rule does not split it.
+  const long = cons.filter(t => t.duration > 10 && !t.weather);
   out.push({ id: 'ten_day_rule', ok: long.length === 0, msg: long.length ? `Over 10 WD: ${long.slice(0, 3).map(t => t.name).join(', ')}` : 'No construction activity over 10 WD' });
   const precon = span(phase('preconstruction'));
   // Closeout runs SC → Final Walk; billing rows after the walk are administrative (audit #2).

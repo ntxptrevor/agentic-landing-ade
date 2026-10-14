@@ -151,26 +151,17 @@ function calibrate(phases, confirmed, scope) {
     const tail = cons.rows.splice(sc + 1).map(r => ({ ...r, parallel: true, postSc: true, milestone: false }));
     close.rows.unshift(...tail);
   }
-  // Weather: one visible row per job with exposed work, sized from the exposed labor days.
+  // Weather: one visible row per job with exposed work. Inserted here, sized after duration
+  // scaling (sizeWeather) and never re-scaled; it follows every exposed row (wireWeather).
   const exposed = cons.rows.filter(r => r.exposed || (EXTERIOR_FLOW.includes(r.name) && !/inspection|containment/i.test(r.name)));
-  if (exposed.length) {
-    // Average the monthly rate over the months the exposed work spans (≈1.4 CD per WD).
-    const exposedWd = exposed.reduce((a, r) => a + (r.duration || 0), 0);
-    let rate = WEATHER.defaultRate;
-    if (scope.startDate) {
-      const m0 = new Date(`${scope.startDate}T00:00:00`).getMonth();
-      const months = Math.max(1, Math.ceil(exposedWd * 1.4 / 30));
-      rate = Array.from({ length: months }, (_, k) => WEATHER.rateByMonth[(m0 + k) % 12]).reduce((a, b) => a + b, 0) / months;
-    }
-    const wd = scope.weatherDays != null ? Number(scope.weatherDays) : Math.min(WEATHER.capWd, Math.ceil(exposed.reduce((a, r) => a + (r.duration || 0), 0) * rate));
-    if (wd > 0) {
-      // After the last exposed row and any inspection of it, so a request is never anchored to
-      // the weather allowance.
-      let last = cons.rows.lastIndexOf(exposed[exposed.length - 1]);
-      while (cons.rows[last + 1] && INSPECTION_RE.test(cons.rows[last + 1].name)) last++;
-      const mod = exposed[exposed.length - 1].module;
-      cons.rows.splice(last + 1, 0, { name: WEATHER.rowName, duration: wd, trade: 'GC', category: 'activity', cls: 'standard_renovation', sub: exposed[exposed.length - 1].sub, module: mod, source: exposed[exposed.length - 1].source, weather: true, notes: `${Math.round(rate * 100)}% of ${exposed.reduce((a, r) => a + (r.duration || 0), 0)} exposed WD — set to 0 in the scope profile to remove` });
-    }
+  for (const r of exposed) r.exposed = true;
+  if (exposed.length && !(scope.weatherDays != null && Number(scope.weatherDays) <= 0)) {
+    // After the last exposed row and any inspection of it, so a request is never anchored to
+    // the weather allowance.
+    let last = cons.rows.lastIndexOf(exposed[exposed.length - 1]);
+    while (cons.rows[last + 1] && INSPECTION_RE.test(cons.rows[last + 1].name)) last++;
+    const ref = exposed[exposed.length - 1];
+    cons.rows.splice(last + 1, 0, { name: WEATHER.rowName, duration: 1, trade: 'GC', category: 'activity', cls: 'standard_renovation', sub: ref.sub, module: ref.module, source: ref.source, weather: true, fixedDuration: true });
   }
 }
 
@@ -250,6 +241,31 @@ export function valueEnvelopeWd(scope = {}) {
   if (!v || ['exterior', 'equipment'].includes(scope.tier)) return null;
   const e = VALUE_ENVELOPE;
   return Math.round(e.coef * Math.pow(v / e.per, e.exp));
+}
+
+// Weather allowance from the scaled exposed durations: ceil(exposed WD × average monthly rate over
+// the exposed span), capped; a typed weatherDays value is used as is.
+function sizeWeather(phases, scope) {
+  for (const p of phases) {
+    const w = p.rows.find(r => r.weather);
+    if (!w) continue;
+    // Leapfrogged buildings overlap: exposure is one building's cycle plus the stagger, not the
+    // sum of every building's crew-days.
+    const ex = p.rows.filter(r => r.exposed);
+    const nB = Math.max(1, ...ex.map(r => r.bldg || 1));
+    const exposedWd = ex.filter(r => !r.bldg || r.bldg === 1).reduce((a, r) => a + (r.duration || 0), 0) + BUILDING_STAGGER.startLagWd * (nB - 1);
+    let rate = WEATHER.defaultRate;
+    if (scope.startDate) {
+      const m0 = new Date(`${scope.startDate}T00:00:00`).getMonth();
+      const months = Math.max(1, Math.ceil(exposedWd * 1.4 / 30));
+      rate = Array.from({ length: months }, (_, k) => WEATHER.rateByMonth[(m0 + k) % 12]).reduce((a, b) => a + b, 0) / months;
+    }
+    const typed = scope.weatherDays != null && scope.weatherDays !== '';
+    const wd = typed ? Number(scope.weatherDays) : Math.min(WEATHER.capWd, Math.ceil(exposedWd * rate));
+    if (wd <= 0) { p.rows = p.rows.filter(r => r !== w); continue; }
+    w.duration = wd;
+    w.notes = typed ? `${wd} WD set in the scope profile` : `${Math.round(rate * 100)}% of ${exposedWd} exposed WD — set to 0 in the scope profile to remove`;
+  }
 }
 
 function scaleRows(phases, scope) {
@@ -344,6 +360,7 @@ export function buildWbs(confirmedIds, scope = null) {
   const unplaced = composed.unplaced;
   const phases = isZoned(scope) ? expandZones(composed.phases, scope) : composed.phases;
   if (scope) scaleRows(phases, scope);
+  if (scope) sizeWeather(phases, scope);
   const deps = [];
   const wbs = phases.map((p, pi) => {
     const pid = `${pi + 1}`;
@@ -449,6 +466,7 @@ export function buildWbs(confirmedIds, scope = null) {
   applyOverlap(wbs, deps);
   wireNotices(wbs, deps);
   wireBuildings(wbs, deps);
+  wireWeather(wbs, deps);
   // Billing rows no longer carry the closeout chain, so punch corrections drive Final Walk directly.
   for (const g of wbs) {
     const punch = g.children.find(t => t.baseName === 'Perform Punch Corrections');
@@ -542,6 +560,23 @@ function wireBuildings(wbs, deps) {
         else add(at.get(`${t.bldgBase}|${t.bldg - 1}`), t, 'FS', 0);
       }
       t.predecessors = [...new Set(t.predecessors)];
+    }
+  }
+}
+
+// The weather allowance follows every exposed row that drives no other exposed row (the last
+// building of a leapfrog, the end of the site flow), so it pushes completion instead of running
+// beside the work it protects.
+function wireWeather(wbs, deps) {
+  for (const g of wbs) {
+    const w = g.children.find(t => t.weather);
+    if (!w) continue;
+    const exposed = g.children.filter(t => t.exposed && t !== w);
+    const ids = new Set(exposed.map(t => t.id));
+    for (const t of exposed) {
+      if (deps.some(d => d.from === t.id && ids.has(d.to)) || w.predecessors.includes(t.id)) continue;
+      w.predecessors.push(t.id);
+      deps.push({ from: t.id, to: w.id, type: 'FS', lag: 0, lagUnit: 'days', source: 'weather' });
     }
   }
 }
