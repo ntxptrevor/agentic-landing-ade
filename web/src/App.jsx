@@ -102,7 +102,7 @@ export default function App() {
     const { wbs, dependencies, unplaced } = buildWbs(confirmed, { ...scope, startDate: project.startDate });
     updateProject({ wbs, dependencies });
     setMeta(m => {
-      let next = logChange({ ...m, modules, scope }, { type: 'scope_profile', source: 'scope modules', jevRating: 3, after: scope, reason: `Tier ${scope.tier}, ${scope.sf} SF, ${scope.sector}${scope.constraints.length ? `, ${scope.constraints.join('/')}` : ''} — tier-dropped rows removed by user decision${scope.ownerProfile && scope.ownerProfile !== 'default' ? `; inspection notice profile "${scope.ownerProfile}" selected by user` : ''}${scope.contingencyWd != null ? `; re-inspection contingency set to ${scope.contingencyWd} WD by user` : ''}` });
+      let next = logChange({ ...m, modules, scope }, { type: 'scope_profile', source: 'scope modules', jevRating: 3, after: scope, reason: `Tier ${scope.tier}, ${scope.sf} SF, ${scope.sector}${scope.constraints.length ? `, ${scope.constraints.join('/')}` : ''} — tier-dropped rows removed by user decision${scope.ownerProfile && scope.ownerProfile !== 'default' ? `; inspection notice profile "${scope.ownerProfile}" (default for this owner, LL-2026-10-14-03)` : ''}${scope.contingencyWd != null ? `; re-inspection contingency set to ${scope.contingencyWd} WD by user` : ''}` });
       next = logChange(next, {
         type: 'modules_confirmed', source: 'scope modules', jevRating: 3,
         after: confirmed.map(id => MODULE_BY_ID[id]?.label || id),
@@ -271,7 +271,7 @@ export default function App() {
           {step === 'setup' && <ProjectSetup project={project} onDone={handleSetupDone} />}
           {step === 'requirements' && <RequirementsGate requirements={meta.requirements} onDone={handleRequirementsDone} onBack={handleBack} />}
           {step === 'modules' && (
-            <ModuleSelection detected={meta.requirements.detected || []} initial={meta.modules} initialScope={meta.scope} requirementsStatus={meta.requirements.status} onDone={handleModulesDone} onBack={handleBack} />
+            <ModuleSelection detected={meta.requirements.detected || []} initial={meta.modules} initialScope={meta.scope} requirementsStatus={meta.requirements.status} projectName={project.name} onDone={handleModulesDone} onBack={handleBack} />
           )}
           {step === 'tasks' && <TaskEditor wbs={project.wbs} dependencies={project.dependencies} onDone={handleTasksDone} onBack={handleBack} />}
           {step === 'review' && <ReviewGenerate project={project} onGenerate={handleGenerate} onBack={handleBack} />}

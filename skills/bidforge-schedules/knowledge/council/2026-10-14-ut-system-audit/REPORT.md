@@ -117,3 +117,33 @@ This file is a sanitized summary. Raw extractions and seat reports are kept outs
 4. **Site-only fixed tail.** Mobilization 3, Final Clean 3 and the SC walk 3, plus the AHJ exterior inspection (5 + 1 + 2), add about 14 WD of fixed time to a 17-WD job. Seat C proposed a 1 WD SC walk for all tiers; it got only one seat, so it was not adopted.
 5. **Scenario A critical share and scenario D calendar floor** after the precon change (above).
 6. **Healthcare mockup gates (LL-23) on research labs** at academic medical centers: NB10 had none.
+
+
+## User decisions — "yes to all" (2026-10-14, LL-2026-10-14-03)
+
+All six open items were answered yes and applied:
+
+1. 1 WD re-inspection contingency on micro jobs.
+2. UNT 72 h notice as the default for UNT jobs.
+3. Leapfrog stagger for repeated exterior units (SS+5, crew continuity).
+4. Short fixed tail on small site-only jobs (1 WD mobilization, clean and SC walk).
+5. Scenario A and D deviations accepted.
+6. Healthcare mockup gates on research labs.
+
+| Scenario | Band | Real | After audit #2 | After decisions | Pass |
+|---|---|---|---|---|---|
+| UNT-01 | 22–34 | 30 | 38 | **34** | yes |
+| UTSW-02 Ash Vault | 14–26 | 17 | 36 | **31** | no |
+| UTSW-03 NB10 | 26–40 (+10 mockups) | 31 | 37 | **49** | yes |
+| UTSW-01 C1 Vault | 80–130 | 96 baseline | 77 | **77** | no (3 WD short) |
+| UTD-1 Balconies (4 buildings) | 45–65 | 53 | 33 (1 building) | **57** | yes |
+| UTD-2 WSTC | 50–75 | ~69 | 56 | **56** | yes |
+
+Reference scenarios: B, C and E pass. A and D pass with their accepted deviations.
+
+**Remaining Ash Vault gap:** three things account for it:
+- The canon 5 WD AHJ notice overhangs the final exterior inspection.
+- The pad needs 3 WD of cure before the crane set.
+- The footprint-scaled excavation runs 7 WD; the real dig took about 4.
+
+The raw Drive extractions and seat reports are backed up in the private NTXP Forge repository.

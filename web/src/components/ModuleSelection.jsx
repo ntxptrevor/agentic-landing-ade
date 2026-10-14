@@ -3,7 +3,7 @@ import { JEV_MODULES, JEV_CLASSES } from '../data/jevTaxonomy.js';
 import { CONSTRUCTION_PHASES } from '../data/constructionPhases.js';
 import { MODULE_TASKS } from '../data/jevModuleTasks.js';
 import { SCOPE_TIERS, SECTORS, CONSTRAINTS } from '../data/jevOverlap.js';
-import { OWNER_PROFILES } from '../data/jevCalibration.js';
+import { OWNER_PROFILES, OWNER_DETECT } from '../data/jevCalibration.js';
 
 // Trade groups a zone can carry (construction sub-phases; final clean / SC belong to the phase).
 const TRADE_GROUPS = [...new Set(CONSTRUCTION_PHASES.find(p => p.id === 'construction').defaultTasks.map(t => t.sub))]
@@ -14,7 +14,7 @@ const newPhase = (n) => ({ name: `Phase ${n}`, changeoverDays: 0, zones: [newZon
 // Modules that remove NTXP backbone tasks when declined must be answered explicitly.
 const BACKBONE_MODULES = new Set(CONSTRUCTION_PHASES.flatMap(p => p.defaultTasks.flatMap(t => t.module || [])));
 
-export default function ModuleSelection({ detected = [], initial = [], initialScope = null, requirementsStatus, onDone, onBack }) {
+export default function ModuleSelection({ detected = [], initial = [], initialScope = null, requirementsStatus, projectName = '', onDone, onBack }) {
   const detMap = useMemo(() => Object.fromEntries(detected.map(d => [d.id, d])), [detected]);
   const [choice, setChoice] = useState(() => {
     const c = {};
@@ -32,6 +32,8 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
     tier: '', sf: '', units: '',
     sector: detMap.icra || detMap.medical_specific ? 'healthcare' : detMap.secured_building ? 'secured' : detMap.isd_college ? 'isd' : '',
     constraints: [detMap.occupied_phasing && 'occupied', detMap.icra && 'icra'].filter(Boolean),
+    // Owner notice profile applied by default when the owner is recognized (user decision LL-2026-10-14-03).
+    ownerProfile: OWNER_DETECT.find(o => o.re.test(projectName))?.profile || 'default',
   });
   const zoned = !!scope.phasing;
   const zones = zoned ? scope.phasing.phases.flatMap(ph => ph.zones) : [];
@@ -59,7 +61,7 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
       ownerEquipmentValue: Number(scope.ownerEquipmentValue) || null,
       ownerProfile: scope.ownerProfile || 'default',
       contingencyWd: scope.contingencyWd === '' || scope.contingencyWd == null ? null : Number(scope.contingencyWd),
-      ownerStoredItems: !!scope.ownerStoredItems, precast: !!scope.precast,
+      ownerStoredItems: !!scope.ownerStoredItems, precast: !!scope.precast, buildings: Number(scope.buildings) || null,
       wallLifts: Number(scope.wallLifts) || null, footprintSf: Number(scope.footprintSf) || null,
       weatherDays: scope.weatherDays === '' || scope.weatherDays == null ? null : Number(scope.weatherDays),
       phasing: zoned ? { phases: scope.phasing.phases.map(ph => ({ ...ph, changeoverDays: Number(ph.changeoverDays) || 0, zones: ph.zones.map(z => ({ ...z, sf: Number(z.sf) })) })) } : null,
@@ -153,6 +155,14 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
             <label className={`constraint-chip ${scope.precast ? 'on' : ''}`}>
               <input type="checkbox" checked={!!scope.precast} onChange={e => setScope(x => ({ ...x, precast: e.target.checked }))} /> Prefabricated / precast vault (crane set)
             </label>
+          </div>
+        )}
+        {choice.structural_exterior_rebuild === 'yes' && (
+          <div className="form-row">
+            <div className="form-group">
+              <label>Buildings (leapfrog, SS+5 between buildings)</label>
+              <input type="number" min="1" max="20" value={scope.buildings || ''} onChange={e => setScope(x => ({ ...x, buildings: e.target.value }))} placeholder="1" />
+            </div>
           </div>
         )}
         <label className={`constraint-chip ${scope.ownerStoredItems ? 'on' : ''}`} style={{ marginBottom: 8 }}>

@@ -22,12 +22,27 @@ export const BAND_DURATIONS = {
 // AHJ inspection base duration in the micro band (UNT: every hold was 1 day). The notice and
 // re-inspection contingency stay at the owner profile (user canon LL-22: 5 WD / 2 WD).
 export const MICRO_INSPECTION_WD = 1;
+// User decision LL-2026-10-14-03 (1): micro jobs carry a 1 WD re-inspection contingency
+// (UNT fireproofing failed once and re-passed within a day). A value typed in the scope profile wins.
+export const MICRO_CONTINGENCY_WD = 1;
+// User decision LL-2026-10-14-03 (4): small site-only jobs (exterior tier, micro band) carry a
+// short fixed tail — Ash Vault ran mobilization, clean-up and SC in about a day each.
+export const EXTERIOR_MICRO_DURATIONS = { 'Mobilization': 1, 'Final Clean': 1, 'Owner Punch Walk / Substantial Completion': 1 };
+// User decision LL-2026-10-14-03 (3): repeated exterior units (balcony / deck rebuild by building)
+// leapfrog — building k starts SS+5 after building k-1 and every trade follows its own crew from
+// the previous building. This is an exception to LL-21 for repeated exterior units only.
+export const BUILDING_STAGGER = { startLagWd: 5, modules: ['structural_exterior_rebuild'] };
+// User decision LL-2026-10-14-03 (2): owners whose profile is applied by default when detected.
+export const OWNER_DETECT = [{ profile: 'unt', re: /\bUNT\b|university of north texas|\bdenton\b.*university/i }];
+// User decision LL-2026-10-14-03 (6): healthcare mockup gates also apply to research labs at
+// academic medical centers (mep_lab in the healthcare sector).
+export const LAB_MOCKUP = { module: 'mep_lab', sector: 'healthcare' };
 
 // Owner notice profiles. Default is user canon (LL-22). Presets are offered, never applied
 // silently; selecting one is a user decision logged in the changelog.
 export const OWNER_PROFILES = {
   default: { label: 'Default (AHJ 5 WD notice, 2 WD re-inspection)', inspectionNoticeWd: 5, contingencyWd: 2, operationalImpactNoticeWd: 10 },
-  unt: { label: 'UNT System (72 h inspection notice) — user decision', inspectionNoticeWd: 3, contingencyWd: 2, operationalImpactNoticeWd: 10, evidence: 'UNT Starbucks Ph2: "UNT inspections 72-hr notice"' },
+  unt: { label: 'UNT System (72 h inspection notice) — default for UNT jobs', inspectionNoticeWd: 3, contingencyWd: 2, operationalImpactNoticeWd: 10, evidence: 'UNT Starbucks Ph2: "UNT inspections 72-hr notice"' },
 };
 
 // Phase-only rows: meaningful only when the job has more than one phase.

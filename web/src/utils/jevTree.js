@@ -8,6 +8,7 @@ import {
   SIZE_BANDS, BAND_DURATIONS, MICRO_INSPECTION_WD, OWNER_PROFILES, MULTI_PHASE_ONLY, EXTERIOR_FLOW, EXTERIOR_MODULES,
   WEATHER, NTP_REVIEW_RE, SHOP_DRAWING_RE, VALUE_ENVELOPE, CALIBRATION_MODULE_TASKS, CALIBRATION_LINKS,
   PRECAST_REPLACES, PRECAST_ROWS, KITCHEN_ROWS, KITCHEN_LINKS, OPTIONAL_ROWS, ENVELOPE_ROWS,
+  MICRO_CONTINGENCY_WD, EXTERIOR_MICRO_DURATIONS, BUILDING_STAGGER, LAB_MOCKUP,
 } from '../data/jevCalibration.js';
 
 const ALL_LINKS = [...OVERLAP_LINKS, ...CALIBRATION_LINKS, ...KITCHEN_LINKS];
@@ -15,7 +16,7 @@ const ALL_LINKS = [...OVERLAP_LINKS, ...CALIBRATION_LINKS, ...KITCHEN_LINKS];
 const PHASE_ORDER = ['preconstruction', 'construction', 'closeout'];
 const BACKBONE_ORDER = CONSTRUCTION_PHASES.flatMap(p => p.defaultTasks.map(t => t.name));
 
-function included(task, confirmed, tier, phaseId) {
+function included(task, confirmed, tier, phaseId, scope = {}) {
   if (task.tiers && !(tier && task.tiers.includes(tier))) return false;
   if (tier && SCOPE_TIERS[tier]) {
     const t = SCOPE_TIERS[tier];
@@ -24,6 +25,7 @@ function included(task, confirmed, tier, phaseId) {
   }
   if (!task.module) return true;
   const mods = Array.isArray(task.module) ? task.module : [task.module];
+  if (task.lesson === 'LL-2026-10-13-23' && confirmed.has(LAB_MOCKUP.module) && scope.sector === LAB_MOCKUP.sector) return true;
   return mods.some(m => confirmed.has(m));
 }
 
@@ -34,7 +36,7 @@ export function composeSequence(confirmedIds, tier, scope = {}) {
   const phases = CONSTRUCTION_PHASES.map(p => ({
     id: p.id,
     name: p.name,
-    rows: p.defaultTasks.filter(t => included(t, confirmed, tier, p.id)).map(t => ({ ...t, ...(overrides[t.name] || {}), baseName: t.name, source: 'backbone' })),
+    rows: p.defaultTasks.filter(t => included(t, confirmed, tier, p.id, scope)).map(t => ({ ...t, ...(overrides[t.name] || {}), baseName: t.name, source: 'backbone' })),
   }));
   const unplaced = [];
   const order = [...confirmedIds, ...(scope.ownerStoredItems ? ['_optional'] : [])];
@@ -89,6 +91,10 @@ function moduleRows(modId, confirmed, scope) {
       rows.splice(at, 0, ...PRECAST_ROWS);
     }
   }
+  if (BUILDING_STAGGER.modules.includes(modId) && Number(scope.buildings) > 1) {
+    const n = Math.min(20, Number(scope.buildings));
+    rows = Array.from({ length: n }, (_, k) => rows.map(r => ({ ...r, name: `${r.name} — Bldg ${k + 1}`, bldg: k + 1, bldgBase: r.name }))).flat();
+  }
   if (modId === 'kitchen_foodservice') {
     // Skip the GPR row when demo already scans before coring.
     const scans = confirmed.has('selective_demo');
@@ -104,9 +110,15 @@ function moduleRows(modId, confirmed, scope) {
 // Size band from the scope profile (council audit #2). Exterior and equipment tiers keep their
 // own rules.
 export function sizeBand(scope = {}) {
-  if (!scope || ['exterior', 'equipment'].includes(scope.tier)) return 'standard';
+  if (!scope || scope.tier === 'equipment') return 'standard';
   const env = scope.sf ? envelopeWd({ ...scope, phasing: null }) : null;
   const v = normalizedValue(scope);
+  // Site-only work: the contract value decides (site SF says little about the work); envelope only
+  // when no value is given (user decision LL-2026-10-14-03 (4)).
+  if (scope.tier === 'exterior') {
+    if (v != null) return v <= SIZE_BANDS.microValue ? 'micro' : v > SIZE_BANDS.largeValue ? 'large' : 'standard';
+    return env != null && env <= SIZE_BANDS.microEnvelopeWd ? 'micro' : 'standard';
+  }
   if (env != null ? env <= SIZE_BANDS.microEnvelopeWd : (v != null && v <= SIZE_BANDS.microValue)) return 'micro';
   if ((env != null && env > SIZE_BANDS.largeEnvelopeWd) || (v != null && v > SIZE_BANDS.largeValue)) return 'large';
   return 'standard';
@@ -116,7 +128,7 @@ export function ownerProfile(scope = {}) {
   const own = {};
   // A value the user typed in the scope profile wins over the preset (logged as a user decision).
   for (const k of ['inspectionNoticeWd', 'contingencyWd']) if (scope?.[k] != null && scope[k] !== '') own[k] = Number(scope[k]);
-  return { ...OWNER_PROFILES.default, ...(OWNER_PROFILES[scope?.ownerProfile] || {}), ...own };
+  return { ...OWNER_PROFILES.default, ...(OWNER_PROFILES[scope?.ownerProfile] || {}), ...own, userContingency: own.contingencyWd ?? null };
 }
 
 // Structural fixes from the UT System audit: phase-only rows need >1 phase, rows that happen
@@ -131,6 +143,7 @@ function calibrate(phases, confirmed, scope) {
     for (const r of p.rows) {
       const b = BAND_DURATIONS[r.name];
       if (b && b[band] != null) r.duration = b[band];
+      if (band === 'micro' && scope.tier === 'exterior' && EXTERIOR_MICRO_DURATIONS[r.name] != null) { r.duration = EXTERIOR_MICRO_DURATIONS[r.name]; r.fixedDuration = true; }
     }
   }
   const sc = cons.rows.findIndex(r => r.name === 'Owner Punch Walk / Substantial Completion');
@@ -179,7 +192,8 @@ function addInspectionNotices(phases, scope = {}) {
       if (INSPECTION_RE.test(name) && !NOT_INSPECTION_RE.test(name) && r.duration > 0 && !r.noGate) {
         out.push({ name: `Request: ${r.name} (${prof.inspectionNoticeWd} WD notice)`, baseName: `Notice: ${name}`, noticeFor: name, noticeWd: prof.inspectionNoticeWd, duration: 0, milestone: true, parallel: true, trade: 'GC', category: 'deliverable', cls: 'inspection', sub: r.sub, source: 'notice' });
         const base = micro ? MICRO_INSPECTION_WD : r.duration;
-        out.push({ ...r, duration: base + prof.contingencyWd, reinspectionWd: prof.contingencyWd });
+        const cont = micro && prof.userContingency == null ? MICRO_CONTINGENCY_WD : prof.contingencyWd;
+        out.push({ ...r, duration: base + cont, reinspectionWd: cont });
         continue;
       }
       out.push(r);
@@ -252,6 +266,8 @@ function scaleRows(phases, scope) {
         d = Math.max(DURATION_MODEL.equipment.minSet, Math.ceil(units * DURATION_MODEL.equipment.setDaysPerUnit));
       } else if (scope.tier === 'equipment' && /disconnect|recovery|curb adapter/i.test(r.name)) {
         d = Math.max(1, Math.ceil(units * DURATION_MODEL.equipment.setDaysPerUnit / 2));
+      } else if (r.fixedDuration) {
+        // set by a user decision (short site-only tail); never re-scaled
       } else if (labor && r.noScale) {
         // per-unit cycle rows (one building, crane set) keep their duration
       } else if (labor && r.sizeBase) {
@@ -345,7 +361,7 @@ export function buildWbs(confirmedIds, scope = null) {
           source: t.source, predecessors: [], successors: [], isCritical: false, notes: '', children: [],
           baseName: t.baseName || t.splitOf || t.name, splitIndex: t.splitIndex || null, splitCount: t.splitCount || null,
           noticeFor: t.noticeFor || null, noticeWd: t.noticeWd ?? null,
-          exposed: !!t.exposed, weather: !!t.weather, postSc: !!t.postSc,
+          exposed: !!t.exposed, weather: !!t.weather, postSc: !!t.postSc, bldg: t.bldg || null, bldgBase: t.bldgBase || null,
           ...(t.reinspectionWd ? { notes: `Includes ${t.reinspectionWd} WD re-inspection contingency` } : {}),
           ...(t.weather ? { notes: t.notes } : {}),
           windowDays: /state|tdlr|hhsc|fire marshal|\baru\b|jail standards|ras inspection/i.test(t.name) ? 5 : null,
@@ -432,6 +448,7 @@ export function buildWbs(confirmedIds, scope = null) {
   }
   applyOverlap(wbs, deps);
   wireNotices(wbs, deps);
+  wireBuildings(wbs, deps);
   // Billing rows no longer carry the closeout chain, so punch corrections drive Final Walk directly.
   for (const g of wbs) {
     const punch = g.children.find(t => t.baseName === 'Perform Punch Corrections');
@@ -496,6 +513,36 @@ function applyOverlapGroup(all, deps) {
     task.predecessors = [...new Set([...keep, ...links.map(l => l.from)])];
     deps.push(...links);
     task.overlapped = true;
+  }
+}
+
+// Repeated exterior units leapfrog (user decision LL-2026-10-14-03 (3)): building k starts SS+5
+// after building k-1, each trade follows its own crew from the previous building (FS), and the
+// module's own overlap links apply inside each building.
+function wireBuildings(wbs, deps) {
+  for (const g of wbs) {
+    const units = g.children.filter(t => t.bldg);
+    if (!units.length) continue;
+    const at = new Map(units.map(t => [`${t.bldgBase}|${t.bldg}`, t]));
+    const order = [...new Set(units.map(t => t.bldgBase))];
+    const add = (from, to, type, lag) => { if (!from) return; to.predecessors.push(from.id); deps.push({ from: from.id, to: to.id, type, lag, lagUnit: 'days', source: 'building-stagger' }); };
+    for (const t of units) {
+      const i = order.indexOf(t.bldgBase);
+      if (t.bldg === 1 && i === 0) continue; // keeps its module anchor
+      for (let k = deps.length - 1; k >= 0; k--) if (deps[k].to === t.id) deps.splice(k, 1);
+      t.predecessors = [];
+      const internal = CALIBRATION_LINKS.filter(l => l.to === t.bldgBase && at.has(`${l.from}|${t.bldg}`));
+      for (const l of internal) {
+        const from = at.get(`${l.from}|${t.bldg}`);
+        add(from, t, l.type, l.type === 'SS' ? Math.min(l.lag, Math.max((from.duration || 1) - 1, 0)) : l.lag);
+      }
+      if (!internal.length && i > 0) add(at.get(`${order[i - 1]}|${t.bldg}`), t, 'FS', 0);
+      if (t.bldg > 1) {
+        if (i === 0) add(at.get(`${t.bldgBase}|${t.bldg - 1}`), t, 'SS', BUILDING_STAGGER.startLagWd);
+        else add(at.get(`${t.bldgBase}|${t.bldg - 1}`), t, 'FS', 0);
+      }
+      t.predecessors = [...new Set(t.predecessors)];
+    }
   }
 }
 

@@ -108,6 +108,12 @@ Source: `web/src/data/jevCalibration.js`. Evidence: `knowledge/council/2026-10-1
   - "All MEP Below Slab Complete" releases millwork.
   - MEP through millwork runs SS+1.
 - **Scope options:** `ownerStoredItems` adds an FF&E transport row.
+- **User decisions, LL-2026-10-14-03 (canon):**
+  - Micro jobs carry a 1 WD re-inspection contingency (a value typed in the scope profile wins).
+  - The UNT 72 h profile is the default when the project name identifies UNT.
+  - `buildings` > 1 leapfrogs `structural_exterior_rebuild`: building k starts SS+5 after building k-1, and each trade follows its own crew from the previous building. This is an exception to LL-21.
+  - Small site-only jobs (exterior tier, micro band by contract value) take 1 WD each for Mobilization, Final Clean and the SC walk.
+  - Healthcare mockup gates apply to `mep_lab` in the healthcare sector.
 
 ## Overlap model
 

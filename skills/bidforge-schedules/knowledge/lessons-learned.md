@@ -5,6 +5,17 @@ Format and vote rules: ../references/self-improvement.md. Newest first.
 
 ## 2026-10-14
 
+### LL-2026-10-14-03 — Audit #2 decisions (user: "yes to all" — canon)
+Status: applied (user decision — canon)   Scope: jevCalibration, jevTree, ModuleSelection, App, schedule_audit
+1. Micro jobs carry a 1 WD re-inspection contingency (`MICRO_CONTINGENCY_WD`). A value typed in the scope profile wins; LL-22's 2 WD stays the default for standard and large jobs.
+2. The UNT 72 h (3 WD) notice profile is the default for UNT jobs (`OWNER_DETECT`, matched on the project name). It stays visible and changeable at the scope step, and the choice is logged.
+3. Repeated exterior units (`structural_exterior_rebuild`, scope `buildings` > 1) leapfrog. Building k starts SS+5 after building k-1, and each trade follows its own crew from the previous building. This is an exception to LL-21 for repeated exterior units only.
+4. Small site-only jobs get a short fixed tail. On the exterior tier in the micro band (value ≤ $250k, or envelope ≤ 30 WD when no value is given), Mobilization, Final Clean and the SC walk are 1 WD each, and micro inspection rules apply.
+5. Reference scenario A (58% critical) and D (91 CD against a 95 CD floor) are accepted deviations (`accepted` in schedule_audit).
+6. Healthcare mockup gates (LL-23) also apply to research labs at academic medical centers (mep_lab in the healthcare sector).
+Result: UNT 34 (band 22–34) ✓, balconies 57 with 4 buildings (45–65) ✓, NB10 49 including the 10 WD mockups (26–40 +10) ✓, WSTC 56 ✓. Ash Vault 31 (14–26) ✗: the 5 WD AHJ notice overhang, a 3 WD pad cure and a 7 WD footprint-scaled excavation remain. C1 77 (80–130) ✗ is 3 WD short.
+Remove by: delete the constants named above from jevCalibration.js and their uses in jevTree.js.
+
 ### LL-2026-10-14-01 — UT System / UNT schedule calibration (council audit #2)
 Status: applied (≥ 2 of 3 seats; numeric ties by median seat; parameters provisional, n ≤ 3 — review at n ≥ 8)   Scope: jevCalibration.js (new), jevTree, jevOverlap (exterior tier), jevTaxonomy (2 modules), preflight, ModuleSelection, App, schedule_audit
 Evidence: knowledge/council/2026-10-14-ut-system-audit/REPORT.md (UNT Starbucks Ph2, UTSW Ash Vault, UTSW C1 Vault, UTSW NB10.208, UTD balconies, UTD WSTC).
@@ -13,7 +24,7 @@ Result: Drive-benchmark mean miss 2.2× → 1.45×; NB10 and WSTC inside bands; 
 Remove by: delete web/src/data/jevCalibration.js imports in jevTree.js (calibrate, moduleRows extras, wiring branches) and the `exterior` tier.
 
 ### LL-2026-10-14-02 — Decisions surfaced to the user (audit #2)
-Status: **awaiting-user**
+Status: answered — "yes to all" (2026-10-14) → LL-2026-10-14-03
 1. Re-inspection contingency 1 WD on micro jobs (seat B yes; A and C: user decision). Canon LL-22 stays 2 WD until answered.
 2. UNT System 72 h (3 WD) inspection notice as the default for UNT jobs (available as a profile; opt-in today).
 3. Building stagger (leapfrog SS+5) for repeated exterior units vs LL-21 sequential zones.

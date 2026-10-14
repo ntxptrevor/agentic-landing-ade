@@ -9,7 +9,7 @@ description: >-
   canonical schedule, or projecttitle.ntxpllc.com/schedule; and when they say "remember this",
   "save this to memory" or "from now on" about scheduling.
 license: MIT
-version: 2.5.0
+version: 2.6.0
 owner: trevor@ntxpllc.com
 requires:
   skills: [ntxp-id, jobtread, ntxp-model-council, ntxp-model-router, hostinger-connector-v3]
