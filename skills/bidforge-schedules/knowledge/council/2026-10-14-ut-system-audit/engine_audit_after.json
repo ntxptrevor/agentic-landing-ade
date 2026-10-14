@@ -1,6 +1,6 @@
 {
   "engine": "bidforge jevTree + scheduler",
-  "at": "2026-10-14T07:29:59.391Z",
+  "at": "2026-10-14T10:33:52.047Z",
   "results": [
     {
       "id": "A",
@@ -22,6 +22,9 @@
       "ratioToBenchmark": 1.22,
       "pctConcurrentConstruction": 72,
       "criticalPct": 58,
+      "accepted": {
+        "critical": "serial precon set-up chain on a micro job — accepted by user (LL-2026-10-14-03 (5))"
+      },
       "target": {
         "cons": [
           20,
@@ -41,7 +44,7 @@
         "critical": false,
         "tenDayCap": true
       },
-      "pass": false,
+      "pass": true,
       "maxActivityWd": 8,
       "over10Wd": [],
       "linkTypes": [
@@ -74,6 +77,7 @@
       "ratioToBenchmark": 0.93,
       "pctConcurrentConstruction": 94,
       "criticalPct": 29,
+      "accepted": null,
       "target": {
         "cons": [
           60,
@@ -133,6 +137,7 @@
       "ratioToBenchmark": 1.14,
       "pctConcurrentConstruction": 95,
       "criticalPct": 29,
+      "accepted": null,
       "target": {
         "cons": [
           75,
@@ -189,6 +194,9 @@
       "ratioToBenchmark": 1.58,
       "pctConcurrentConstruction": 71,
       "criticalPct": 43,
+      "accepted": {
+        "calendar": "shorter precon after audit #2 (submittals start at subcontract signing) — accepted by user (LL-2026-10-14-03 (5))"
+      },
       "target": {
         "cons": [
           15,
@@ -208,7 +216,7 @@
         "critical": true,
         "tenDayCap": true
       },
-      "pass": false,
+      "pass": true,
       "maxActivityWd": 15,
       "over10Wd": [
         "Submittal Processing Time (15d)"
@@ -242,6 +250,7 @@
       "ratioToBenchmark": 0.95,
       "pctConcurrentConstruction": 94,
       "criticalPct": 32,
+      "accepted": null,
       "target": {
         "cons": [
           55,
@@ -285,11 +294,11 @@
         "low_voltage"
       ],
       "activities": 126,
-      "totalWd": 72,
-      "totalCd": 99,
+      "totalWd": 68,
+      "totalCd": 93,
       "sizeBand": "micro",
       "precWd": 23,
-      "constructionWd": 38,
+      "constructionWd": 34,
       "closeoutWd": 9,
       "real": {
         "cons": 30,
@@ -299,140 +308,14 @@
       "valueEnvelopeWd": 28,
       "decisionPending": null,
       "benchmarkConstructionWd": 23,
-      "ratioToBenchmark": 1.65,
+      "ratioToBenchmark": 1.48,
       "pctConcurrentConstruction": 93,
-      "criticalPct": 35,
+      "criticalPct": 37,
+      "accepted": null,
       "target": {
         "cons": [
           22,
           34
-        ],
-        "prec": [
-          5,
-          25
-        ],
-        "close": [
-          5,
-          10
-        ],
-        "conc": 60
-      },
-      "userAdjust": null,
-      "checks": {
-        "construction": false,
-        "precon": true,
-        "closeout": true,
-        "concurrency": true,
-        "critical": true,
-        "tenDayCap": true
-      },
-      "pass": false,
-      "maxActivityWd": 15,
-      "over10Wd": [
-        "Health Department Plan Review (15d)"
-      ],
-      "linkTypes": [
-        "FS",
-        "SS",
-        "FF"
-      ],
-      "sumOfDurationsConstruction": 120
-    },
-    {
-      "id": "UTSW-02",
-      "label": "UTSW Memorial Garden Ash Vault — executed, $173.7k prefab vault, site only",
-      "modules": [
-        "exterior_improvements",
-        "below_grade_structural"
-      ],
-      "activities": 53,
-      "totalWd": 72,
-      "totalCd": 99,
-      "sizeBand": "standard",
-      "precWd": 28,
-      "constructionWd": 36,
-      "closeoutWd": 9,
-      "real": {
-        "cons": 17,
-        "prec": 22,
-        "close": 7
-      },
-      "valueEnvelopeWd": null,
-      "decisionPending": null,
-      "benchmarkConstructionWd": 22,
-      "ratioToBenchmark": 1.64,
-      "pctConcurrentConstruction": 67,
-      "criticalPct": 49,
-      "target": {
-        "cons": [
-          14,
-          26
-        ],
-        "prec": [
-          5,
-          30
-        ],
-        "close": [
-          5,
-          10
-        ],
-        "conc": 50
-      },
-      "userAdjust": null,
-      "checks": {
-        "construction": false,
-        "precon": true,
-        "closeout": true,
-        "concurrency": true,
-        "critical": true,
-        "tenDayCap": true
-      },
-      "pass": false,
-      "maxActivityWd": 15,
-      "over10Wd": [
-        "Submittal Processing Time (15d)"
-      ],
-      "linkTypes": [
-        "FS",
-        "SS"
-      ],
-      "sumOfDurationsConstruction": 52
-    },
-    {
-      "id": "UTSW-03",
-      "label": "UTSW NB10.208 tissue lab — NTXP proposal, $171.9k, ~300 SF, ICRA",
-      "modules": [
-        "selective_demo",
-        "mep_lab",
-        "hvac_replacement",
-        "fire_alarm",
-        "fire_suppression",
-        "icra",
-        "low_voltage",
-        "complex_owner"
-      ],
-      "activities": 146,
-      "totalWd": 70,
-      "totalCd": 95,
-      "sizeBand": "micro",
-      "precWd": 21,
-      "constructionWd": 37,
-      "closeoutWd": 9,
-      "real": {
-        "cons": 31,
-        "prec": 6,
-        "close": 3
-      },
-      "valueEnvelopeWd": 37,
-      "decisionPending": null,
-      "benchmarkConstructionWd": 26,
-      "ratioToBenchmark": 1.42,
-      "pctConcurrentConstruction": 96,
-      "criticalPct": 29,
-      "target": {
-        "cons": [
-          26,
-          40
         ],
         "prec": [
           5,
@@ -454,6 +337,136 @@
         "tenDayCap": true
       },
       "pass": true,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Health Department Plan Review (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 116
+    },
+    {
+      "id": "UTSW-02",
+      "label": "UTSW Memorial Garden Ash Vault — executed, $173.7k prefab vault, site only",
+      "modules": [
+        "exterior_improvements",
+        "below_grade_structural"
+      ],
+      "activities": 53,
+      "totalWd": 60,
+      "totalCd": 81,
+      "sizeBand": "micro",
+      "precWd": 21,
+      "constructionWd": 31,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 17,
+        "prec": 22,
+        "close": 7
+      },
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 22,
+      "ratioToBenchmark": 1.41,
+      "pctConcurrentConstruction": 61,
+      "criticalPct": 64,
+      "accepted": null,
+      "target": {
+        "cons": [
+          14,
+          26
+        ],
+        "prec": [
+          5,
+          30
+        ],
+        "close": [
+          5,
+          10
+        ],
+        "conc": 50
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": false,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": false,
+        "tenDayCap": true
+      },
+      "pass": false,
+      "maxActivityWd": 8,
+      "over10Wd": [],
+      "linkTypes": [
+        "FS",
+        "SS"
+      ],
+      "sumOfDurationsConstruction": 45
+    },
+    {
+      "id": "UTSW-03",
+      "label": "UTSW NB10.208 tissue lab — NTXP proposal, $171.9k, ~300 SF, ICRA",
+      "modules": [
+        "selective_demo",
+        "mep_lab",
+        "hvac_replacement",
+        "fire_alarm",
+        "fire_suppression",
+        "icra",
+        "low_voltage",
+        "complex_owner"
+      ],
+      "activities": 148,
+      "totalWd": 82,
+      "totalCd": 113,
+      "sizeBand": "micro",
+      "precWd": 21,
+      "constructionWd": 49,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 31,
+        "prec": 6,
+        "close": 3
+      },
+      "valueEnvelopeWd": 37,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 26,
+      "ratioToBenchmark": 1.88,
+      "pctConcurrentConstruction": 94,
+      "criticalPct": 31,
+      "accepted": null,
+      "target": {
+        "cons": [
+          26,
+          40
+        ],
+        "prec": [
+          5,
+          25
+        ],
+        "close": [
+          5,
+          10
+        ],
+        "conc": 60
+      },
+      "userAdjust": {
+        "wd": 10,
+        "reason": "healthcare mockup gates on research labs (user decision LL-2026-10-14-03 (6)) added after the council set this band"
+      },
+      "checks": {
+        "construction": true,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": true,
       "maxActivityWd": 10,
       "over10Wd": [],
       "linkTypes": [
@@ -461,7 +474,7 @@
         "SS",
         "FF"
       ],
-      "sumOfDurationsConstruction": 153
+      "sumOfDurationsConstruction": 160
     },
     {
       "id": "UTSW-01",
@@ -476,11 +489,11 @@
         "occupied_phasing"
       ],
       "activities": 102,
-      "totalWd": 118,
-      "totalCd": 163,
+      "totalWd": 121,
+      "totalCd": 168,
       "sizeBand": "standard",
       "precWd": 33,
-      "constructionWd": 77,
+      "constructionWd": 80,
       "closeoutWd": 9,
       "real": {
         "cons": 96,
@@ -490,9 +503,10 @@
       "valueEnvelopeWd": null,
       "decisionPending": null,
       "benchmarkConstructionWd": 10,
-      "ratioToBenchmark": 7.7,
+      "ratioToBenchmark": 8,
       "pctConcurrentConstruction": 85,
       "criticalPct": 36,
+      "accepted": null,
       "target": {
         "cons": [
           80,
@@ -510,14 +524,14 @@
       },
       "userAdjust": null,
       "checks": {
-        "construction": false,
+        "construction": true,
         "precon": true,
         "closeout": true,
         "concurrency": true,
         "critical": true,
         "tenDayCap": true
       },
-      "pass": false,
+      "pass": true,
       "maxActivityWd": 15,
       "over10Wd": [
         "Submittal Processing Time (15d)"
@@ -526,7 +540,7 @@
         "FS",
         "SS"
       ],
-      "sumOfDurationsConstruction": 139
+      "sumOfDurationsConstruction": 142
     },
     {
       "id": "UTD-1",
@@ -537,12 +551,12 @@
         "occupied_phasing",
         "isd_college"
       ],
-      "activities": 60,
-      "totalWd": 69,
-      "totalCd": 94,
+      "activities": 81,
+      "totalWd": 98,
+      "totalCd": 135,
       "sizeBand": "standard",
       "precWd": 25,
-      "constructionWd": 33,
+      "constructionWd": 62,
       "closeoutWd": 9,
       "real": {
         "cons": 53,
@@ -550,11 +564,12 @@
         "close": 10
       },
       "valueEnvelopeWd": null,
-      "decisionPending": "Building stagger (leapfrog) vs LL-21 sequential zones — user decision; this run models one building flow",
+      "decisionPending": null,
       "benchmarkConstructionWd": 30,
-      "ratioToBenchmark": 1.1,
-      "pctConcurrentConstruction": 86,
-      "criticalPct": 38,
+      "ratioToBenchmark": 2.07,
+      "pctConcurrentConstruction": 93,
+      "criticalPct": 33,
+      "accepted": null,
       "target": {
         "cons": [
           45,
@@ -572,14 +587,14 @@
       },
       "userAdjust": null,
       "checks": {
-        "construction": false,
+        "construction": true,
         "precon": true,
         "closeout": true,
         "concurrency": true,
         "critical": true,
         "tenDayCap": true
       },
-      "pass": null,
+      "pass": true,
       "maxActivityWd": 15,
       "over10Wd": [
         "Submittal Processing Time (15d)"
@@ -588,7 +603,7 @@
         "FS",
         "SS"
       ],
-      "sumOfDurationsConstruction": 72
+      "sumOfDurationsConstruction": 173
     },
     {
       "id": "UTD-2",
@@ -617,6 +632,7 @@
       "ratioToBenchmark": 1.06,
       "pctConcurrentConstruction": 97,
       "criticalPct": 33,
+      "accepted": null,
       "target": {
         "cons": [
           50,
