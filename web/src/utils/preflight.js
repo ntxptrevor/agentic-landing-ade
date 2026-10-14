@@ -1,6 +1,7 @@
 import { codaHash } from './codaBackup.js';
 import { isWorkingDay } from './dateUtils.js';
-import { envelopeWd } from './jevTree.js';
+import { envelopeWd, valueEnvelopeWd } from './jevTree.js';
+import { VALUE_ENVELOPE } from '../data/jevCalibration.js';
 import { DURATION_MODEL } from '../data/jevOverlap.js';
 
 // Deterministic pre-flight checks run before every canonical output. Their results
@@ -82,6 +83,16 @@ export function sanityChecks(project, meta) {
   } else {
     out.push({ id: 'days_envelope', ok: false, warnOnly: true, msg: 'No scope profile (tier / SF / sector) — days sanity check skipped' });
   }
+  // Contract-value cross-check (council audit #2): interior tiers only, warn-only, provisional
+  // (n = 3). Shown beside the SF envelope with their geometric mean; a wide disagreement means
+  // the SF or the value is probably wrong.
+  const venv = valueEnvelopeWd(meta.scope || {});
+  if (venv) {
+    const vr = consWd / venv;
+    const blend = env ? Math.round(Math.sqrt(env * venv)) : null;
+    const mismatch = env && Math.max(env, venv) / Math.min(env, venv) > VALUE_ENVELOPE.mismatch;
+    out.push({ id: 'value_envelope', ok: vr >= VALUE_ENVELOPE.band[0] && vr <= VALUE_ENVELOPE.band[1] && !mismatch, warnOnly: true, msg: `Construction ${consWd} WD vs ${venv} WD contract-value envelope (${vr.toFixed(2)}×; warn outside ${VALUE_ENVELOPE.band[0]}–${VALUE_ENVELOPE.band[1]}×)${blend ? ` · SF ${env} / value ${venv} / blend ${blend} WD` : ''}${mismatch ? ' — SF and value disagree by more than 1.6×: check the SF or the contract value' : ''} · provisional (n = 3)` });
+  }
   const conc = Math.round(cons.filter(t => cons.some(o => o !== t && o.startDate <= t.endDate && o.endDate >= t.startDate)).length / cons.length * 100);
   out.push({ id: 'overlap', ok: conc >= g.minConcurrentPct, msg: `${conc}% of construction activities run concurrently (min ${g.minConcurrentPct}%; NTXP actuals 85–95%)` });
   const crit = Math.round(all.filter(t => t.isCritical).length / all.length * 100);
@@ -89,7 +100,10 @@ export function sanityChecks(project, meta) {
   const long = cons.filter(t => t.duration > 10);
   out.push({ id: 'ten_day_rule', ok: long.length === 0, msg: long.length ? `Over 10 WD: ${long.slice(0, 3).map(t => t.name).join(', ')}` : 'No construction activity over 10 WD' });
   const precon = span(phase('preconstruction'));
-  const closeout = span(phase('closeout'));
+  // Closeout runs SC → Final Walk; billing rows after the walk are administrative (audit #2).
+  const fw = all.find(t => t.name === 'Final Walk');
+  const scRow = all.find(t => /owner punch walk \/ substantial completion/i.test(t.name));
+  const closeout = fw?.endDate && scRow?.endDate ? wd(scRow.endDate, fw.endDate) - 1 : span(phase('closeout'));
   out.push({ id: 'precon_span', ok: precon <= g.maxPreconWd, warnOnly: true, msg: `Preconstruction ${precon} WD (target ≤ ${g.maxPreconWd})` });
   out.push({ id: 'closeout_span', ok: closeout <= g.maxCloseoutWd, warnOnly: true, msg: `Closeout ${closeout} WD (target ≤ ${g.maxCloseoutWd})` });
   const sc = all.find(t => /owner punch walk \/ substantial completion/i.test(t.name));

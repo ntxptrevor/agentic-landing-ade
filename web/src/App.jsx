@@ -99,10 +99,10 @@ export default function App() {
 
   const handleModulesDone = (modules, scope) => {
     const confirmed = modules.filter(m => m.status === 'confirmed').map(m => m.id);
-    const { wbs, dependencies, unplaced } = buildWbs(confirmed, scope);
+    const { wbs, dependencies, unplaced } = buildWbs(confirmed, { ...scope, startDate: project.startDate });
     updateProject({ wbs, dependencies });
     setMeta(m => {
-      let next = logChange({ ...m, modules, scope }, { type: 'scope_profile', source: 'scope modules', jevRating: 3, after: scope, reason: `Tier ${scope.tier}, ${scope.sf} SF, ${scope.sector}${scope.constraints.length ? `, ${scope.constraints.join('/')}` : ''} — tier-dropped rows removed by user decision` });
+      let next = logChange({ ...m, modules, scope }, { type: 'scope_profile', source: 'scope modules', jevRating: 3, after: scope, reason: `Tier ${scope.tier}, ${scope.sf} SF, ${scope.sector}${scope.constraints.length ? `, ${scope.constraints.join('/')}` : ''} — tier-dropped rows removed by user decision${scope.ownerProfile && scope.ownerProfile !== 'default' ? `; inspection notice profile "${scope.ownerProfile}" selected by user` : ''}${scope.contingencyWd != null ? `; re-inspection contingency set to ${scope.contingencyWd} WD by user` : ''}` });
       next = logChange(next, {
         type: 'modules_confirmed', source: 'scope modules', jevRating: 3,
         after: confirmed.map(id => MODULE_BY_ID[id]?.label || id),

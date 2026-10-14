@@ -1,0 +1,657 @@
+{
+  "engine": "bidforge jevTree + scheduler",
+  "at": "2026-10-14T07:29:59.391Z",
+  "results": [
+    {
+      "id": "A",
+      "label": "ISD light refresh — paint, ceilings, flooring, 3,000 SF, summer",
+      "modules": [
+        "isd_college"
+      ],
+      "activities": 60,
+      "totalWd": 67,
+      "totalCd": 92,
+      "sizeBand": "micro",
+      "precWd": 23,
+      "constructionWd": 33,
+      "closeoutWd": 9,
+      "real": null,
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 27,
+      "ratioToBenchmark": 1.22,
+      "pctConcurrentConstruction": 72,
+      "criticalPct": 58,
+      "target": {
+        "cons": [
+          20,
+          35
+        ],
+        "cd": [
+          65,
+          125
+        ],
+        "conc": 60
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": true,
+        "calendar": true,
+        "concurrency": true,
+        "critical": false,
+        "tenDayCap": true
+      },
+      "pass": false,
+      "maxActivityWd": 8,
+      "over10Wd": [],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 65
+    },
+    {
+      "id": "B",
+      "label": "Standard interior renovation — 10,000 SF office/classroom",
+      "modules": [
+        "selective_demo",
+        "fire_alarm",
+        "fire_suppression",
+        "low_voltage"
+      ],
+      "activities": 115,
+      "totalWd": 102,
+      "totalCd": 141,
+      "sizeBand": "standard",
+      "precWd": 25,
+      "constructionWd": 65,
+      "closeoutWd": 10,
+      "real": null,
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 70,
+      "ratioToBenchmark": 0.93,
+      "pctConcurrentConstruction": 94,
+      "criticalPct": 29,
+      "target": {
+        "cons": [
+          60,
+          85
+        ],
+        "cd": [
+          140,
+          195
+        ],
+        "conc": 70
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": true,
+        "calendar": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": true,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 283
+    },
+    {
+      "id": "C",
+      "label": "Occupied clinic renovation with ICRA — 6,000 SF",
+      "modules": [
+        "selective_demo",
+        "abatement",
+        "icra",
+        "occupied_phasing",
+        "medical_specific",
+        "medical_specialties",
+        "fire_alarm",
+        "fire_suppression",
+        "low_voltage"
+      ],
+      "activities": 154,
+      "totalWd": 143,
+      "totalCd": 198,
+      "sizeBand": "standard",
+      "precWd": 30,
+      "constructionWd": 98,
+      "closeoutWd": 12,
+      "real": null,
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 86,
+      "ratioToBenchmark": 1.14,
+      "pctConcurrentConstruction": 95,
+      "criticalPct": 29,
+      "target": {
+        "cons": [
+          75,
+          100
+        ],
+        "cd": [
+          175,
+          235
+        ],
+        "conc": 70
+      },
+      "userAdjust": {
+        "wd": 10,
+        "reason": "two 5 WD healthcare mockup gates added by user decision LL-2026-10-13-23 after the council set this band"
+      },
+      "checks": {
+        "construction": true,
+        "calendar": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": true,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Texas HHSC Licensing Plan Review Submittal (15d)",
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 399
+    },
+    {
+      "id": "D",
+      "label": "ISD summer RTU replacement — 4 units",
+      "modules": [
+        "hvac_replacement",
+        "isd_college"
+      ],
+      "activities": 56,
+      "totalWd": 66,
+      "totalCd": 91,
+      "sizeBand": "standard",
+      "precWd": 25,
+      "constructionWd": 30,
+      "closeoutWd": 9,
+      "real": null,
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 19,
+      "ratioToBenchmark": 1.58,
+      "pctConcurrentConstruction": 71,
+      "criticalPct": 43,
+      "target": {
+        "cons": [
+          15,
+          36
+        ],
+        "cd": [
+          95,
+          200
+        ],
+        "conc": 50
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": true,
+        "calendar": false,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": false,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS"
+      ],
+      "sumOfDurationsConstruction": 47
+    },
+    {
+      "id": "E",
+      "label": "County jail holding-area renovation — 4,000 SF",
+      "modules": [
+        "selective_demo",
+        "secured_building",
+        "access_control",
+        "fire_alarm"
+      ],
+      "activities": 116,
+      "totalWd": 102,
+      "totalCd": 141,
+      "sizeBand": "standard",
+      "precWd": 29,
+      "constructionWd": 61,
+      "closeoutWd": 10,
+      "real": null,
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 64,
+      "ratioToBenchmark": 0.95,
+      "pctConcurrentConstruction": 94,
+      "criticalPct": 32,
+      "target": {
+        "cons": [
+          55,
+          80
+        ],
+        "cd": [
+          140,
+          210
+        ],
+        "conc": 70
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": true,
+        "calendar": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": true,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 248
+    },
+    {
+      "id": "UNT-01",
+      "label": "UNT Starbucks Ph2 — executed, $98.6k food-service remodel, ~400 SF",
+      "modules": [
+        "kitchen_foodservice",
+        "selective_demo",
+        "isd_college",
+        "occupied_phasing",
+        "fire_alarm",
+        "low_voltage"
+      ],
+      "activities": 126,
+      "totalWd": 72,
+      "totalCd": 99,
+      "sizeBand": "micro",
+      "precWd": 23,
+      "constructionWd": 38,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 30,
+        "prec": 0,
+        "close": 9
+      },
+      "valueEnvelopeWd": 28,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 23,
+      "ratioToBenchmark": 1.65,
+      "pctConcurrentConstruction": 93,
+      "criticalPct": 35,
+      "target": {
+        "cons": [
+          22,
+          34
+        ],
+        "prec": [
+          5,
+          25
+        ],
+        "close": [
+          5,
+          10
+        ],
+        "conc": 60
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": false,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": false,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Health Department Plan Review (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 120
+    },
+    {
+      "id": "UTSW-02",
+      "label": "UTSW Memorial Garden Ash Vault — executed, $173.7k prefab vault, site only",
+      "modules": [
+        "exterior_improvements",
+        "below_grade_structural"
+      ],
+      "activities": 53,
+      "totalWd": 72,
+      "totalCd": 99,
+      "sizeBand": "standard",
+      "precWd": 28,
+      "constructionWd": 36,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 17,
+        "prec": 22,
+        "close": 7
+      },
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 22,
+      "ratioToBenchmark": 1.64,
+      "pctConcurrentConstruction": 67,
+      "criticalPct": 49,
+      "target": {
+        "cons": [
+          14,
+          26
+        ],
+        "prec": [
+          5,
+          30
+        ],
+        "close": [
+          5,
+          10
+        ],
+        "conc": 50
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": false,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": false,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS"
+      ],
+      "sumOfDurationsConstruction": 52
+    },
+    {
+      "id": "UTSW-03",
+      "label": "UTSW NB10.208 tissue lab — NTXP proposal, $171.9k, ~300 SF, ICRA",
+      "modules": [
+        "selective_demo",
+        "mep_lab",
+        "hvac_replacement",
+        "fire_alarm",
+        "fire_suppression",
+        "icra",
+        "low_voltage",
+        "complex_owner"
+      ],
+      "activities": 146,
+      "totalWd": 70,
+      "totalCd": 95,
+      "sizeBand": "micro",
+      "precWd": 21,
+      "constructionWd": 37,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 31,
+        "prec": 6,
+        "close": 3
+      },
+      "valueEnvelopeWd": 37,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 26,
+      "ratioToBenchmark": 1.42,
+      "pctConcurrentConstruction": 96,
+      "criticalPct": 29,
+      "target": {
+        "cons": [
+          26,
+          40
+        ],
+        "prec": [
+          5,
+          25
+        ],
+        "close": [
+          5,
+          10
+        ],
+        "conc": 60
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": true,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": true,
+      "maxActivityWd": 10,
+      "over10Wd": [],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 153
+    },
+    {
+      "id": "UTSW-01",
+      "label": "UTSW C1 Mech Vault — executed, $517.8k below-grade CIP vault (target = 96 WD baseline; 189 WD actual is a risk tail)",
+      "modules": [
+        "site_work",
+        "selective_demo",
+        "abatement",
+        "hvac_replacement",
+        "exterior_improvements",
+        "below_grade_structural",
+        "occupied_phasing"
+      ],
+      "activities": 102,
+      "totalWd": 118,
+      "totalCd": 163,
+      "sizeBand": "standard",
+      "precWd": 33,
+      "constructionWd": 77,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 96,
+        "prec": 47,
+        "close": 20
+      },
+      "valueEnvelopeWd": null,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 10,
+      "ratioToBenchmark": 7.7,
+      "pctConcurrentConstruction": 85,
+      "criticalPct": 36,
+      "target": {
+        "cons": [
+          80,
+          130
+        ],
+        "prec": [
+          20,
+          50
+        ],
+        "close": [
+          8,
+          20
+        ],
+        "conc": 50
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": false,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": false,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS"
+      ],
+      "sumOfDurationsConstruction": 139
+    },
+    {
+      "id": "UTD-1",
+      "label": "UTD Balcony Rebuild — proposal (not awarded), $683.6k, 4 buildings",
+      "modules": [
+        "exterior_improvements",
+        "structural_exterior_rebuild",
+        "occupied_phasing",
+        "isd_college"
+      ],
+      "activities": 60,
+      "totalWd": 69,
+      "totalCd": 94,
+      "sizeBand": "standard",
+      "precWd": 25,
+      "constructionWd": 33,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 53,
+        "prec": 1,
+        "close": 10
+      },
+      "valueEnvelopeWd": null,
+      "decisionPending": "Building stagger (leapfrog) vs LL-21 sequential zones — user decision; this run models one building flow",
+      "benchmarkConstructionWd": 30,
+      "ratioToBenchmark": 1.1,
+      "pctConcurrentConstruction": 86,
+      "criticalPct": 38,
+      "target": {
+        "cons": [
+          45,
+          65
+        ],
+        "prec": [
+          5,
+          45
+        ],
+        "close": [
+          5,
+          15
+        ],
+        "conc": 50
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": false,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": null,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS"
+      ],
+      "sumOfDurationsConstruction": 72
+    },
+    {
+      "id": "UTD-2",
+      "label": "UTD WSTC Wind Energy suite — proposal duration only, $559.8k, ~3,500 SF",
+      "modules": [
+        "selective_demo",
+        "hvac_replacement",
+        "mep_lab",
+        "low_voltage",
+        "access_control",
+        "isd_college"
+      ],
+      "activities": 123,
+      "totalWd": 93,
+      "totalCd": 128,
+      "sizeBand": "standard",
+      "precWd": 26,
+      "constructionWd": 56,
+      "closeoutWd": 9,
+      "real": {
+        "cons": 69
+      },
+      "valueEnvelopeWd": 70,
+      "decisionPending": null,
+      "benchmarkConstructionWd": 53,
+      "ratioToBenchmark": 1.06,
+      "pctConcurrentConstruction": 97,
+      "criticalPct": 33,
+      "target": {
+        "cons": [
+          50,
+          75
+        ],
+        "prec": [
+          15,
+          45
+        ],
+        "close": [
+          8,
+          15
+        ],
+        "conc": 60
+      },
+      "userAdjust": null,
+      "checks": {
+        "construction": true,
+        "precon": true,
+        "closeout": true,
+        "concurrency": true,
+        "critical": true,
+        "tenDayCap": true
+      },
+      "pass": true,
+      "maxActivityWd": 15,
+      "over10Wd": [
+        "Submittal Processing Time (15d)"
+      ],
+      "linkTypes": [
+        "FS",
+        "SS",
+        "FF"
+      ],
+      "sumOfDurationsConstruction": 241
+    }
+  ]
+}

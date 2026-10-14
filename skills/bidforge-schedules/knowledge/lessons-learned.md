@@ -3,6 +3,24 @@
 Dated, removable entries. Status: `applied` · `applied-provisional` · `awaiting-user` · `removed`.
 Format and vote rules: ../references/self-improvement.md. Newest first.
 
+## 2026-10-14
+
+### LL-2026-10-14-01 — UT System / UNT schedule calibration (council audit #2)
+Status: applied (≥ 2 of 3 seats; numeric ties by median seat; parameters provisional, n ≤ 3 — review at n ≥ 8)   Scope: jevCalibration.js (new), jevTree, jevOverlap (exterior tier), jevTaxonomy (2 modules), preflight, ModuleSelection, App, schedule_audit
+Evidence: knowledge/council/2026-10-14-ut-system-audit/REPORT.md (UNT Starbucks Ph2, UTSW Ash Vault, UTSW C1 Vault, UTSW NB10.208, UTD balconies, UTD WSTC).
+Changes: size bands (micro ≤ 30 WD envelope or ≤ $250k); micro AHJ inspection base 1 WD; submittal processing 8/15/20; punch 4/6/10; module AHJ tests branch to Final Clean; post-SC rows → closeout; phase-only rows need > 1 phase; `exterior` tier; exterior/module flows join Final Clean (feedDeadEnds fix); below_grade_structural + structural_exterior_rebuild modules; weather row; NTP-start design reviews; sub shop drawings from subcontract signing; contract-value envelope (warn-only); owner notice profiles (default 5/2 unchanged); closeout measured to Final Walk; food-service under-slab rules; owner-stored FF&E row; renderings never hold site work; envelope rows moved from exterior_improvements to roofing.
+Result: Drive-benchmark mean miss 2.2× → 1.45×; NB10 and WSTC inside bands; UNT 38 (34 with the two decisions below), Ash 36, C1 77, balconies pending LL-02.
+Remove by: delete web/src/data/jevCalibration.js imports in jevTree.js (calibrate, moduleRows extras, wiring branches) and the `exterior` tier.
+
+### LL-2026-10-14-02 — Decisions surfaced to the user (audit #2)
+Status: **awaiting-user**
+1. Re-inspection contingency 1 WD on micro jobs (seat B yes; A and C: user decision). Canon LL-22 stays 2 WD until answered.
+2. UNT System 72 h (3 WD) inspection notice as the default for UNT jobs (available as a profile; opt-in today).
+3. Building stagger (leapfrog SS+5) for repeated exterior units vs LL-21 sequential zones.
+4. Site-only fixed tail (Mobilization 3, Final Clean 3, SC walk 3, AHJ exterior inspection) — seat C proposed a 1 WD SC walk; single seat, not applied.
+5. Reference scenario A now 58% critical (max 50%) and D 91 CD (floor 95) after the precon change — accept, or adjust the precon set-up chain / bands?
+6. Do healthcare mockup gates (LL-23) apply to research labs at academic medical centers?
+
 ## 2026-10-13
 
 ### LL-2026-10-13-22…25 — Inspection holds, mockup gates, finish rows, specialty overlap (user decisions — canon)

@@ -3,6 +3,7 @@ import { JEV_MODULES, JEV_CLASSES } from '../data/jevTaxonomy.js';
 import { CONSTRUCTION_PHASES } from '../data/constructionPhases.js';
 import { MODULE_TASKS } from '../data/jevModuleTasks.js';
 import { SCOPE_TIERS, SECTORS, CONSTRAINTS } from '../data/jevOverlap.js';
+import { OWNER_PROFILES } from '../data/jevCalibration.js';
 
 // Trade groups a zone can carry (construction sub-phases; final clean / SC belong to the phase).
 const TRADE_GROUPS = [...new Set(CONSTRUCTION_PHASES.find(p => p.id === 'construction').defaultTasks.map(t => t.sub))]
@@ -53,6 +54,14 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
     })), {
       tier: scope.tier, sf: zoned ? zoneSf : Number(scope.sf), sector: scope.sector, constraints: scope.constraints,
       units: Number(scope.units) || 0,
+      // Council audit #2 fields (all optional).
+      contractValue: Number(scope.contractValue) || null, valueYear: Number(scope.valueYear) || null,
+      ownerEquipmentValue: Number(scope.ownerEquipmentValue) || null,
+      ownerProfile: scope.ownerProfile || 'default',
+      contingencyWd: scope.contingencyWd === '' || scope.contingencyWd == null ? null : Number(scope.contingencyWd),
+      ownerStoredItems: !!scope.ownerStoredItems, precast: !!scope.precast,
+      wallLifts: Number(scope.wallLifts) || null, footprintSf: Number(scope.footprintSf) || null,
+      weatherDays: scope.weatherDays === '' || scope.weatherDays == null ? null : Number(scope.weatherDays),
       phasing: zoned ? { phases: scope.phasing.phases.map(ph => ({ ...ph, changeoverDays: Number(ph.changeoverDays) || 0, zones: ph.zones.map(z => ({ ...z, sf: Number(z.sf) })) })) } : null,
     });
   };
@@ -99,6 +108,56 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
             </label>
           ))}
         </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Contract value ($, optional)</label>
+            <input type="number" min="0" value={scope.contractValue || ''} onChange={e => setScope(x => ({ ...x, contractValue: e.target.value }))} placeholder="e.g. 175000" />
+          </div>
+          <div className="form-group">
+            <label>Value year</label>
+            <input type="number" min="2000" value={scope.valueYear || ''} onChange={e => setScope(x => ({ ...x, valueYear: e.target.value }))} placeholder={String(new Date().getFullYear())} />
+          </div>
+          <div className="form-group">
+            <label>Owner-furnished equipment in value ($)</label>
+            <input type="number" min="0" value={scope.ownerEquipmentValue || ''} onChange={e => setScope(x => ({ ...x, ownerEquipmentValue: e.target.value }))} placeholder="0" />
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Inspection notice profile</label>
+            <select value={scope.ownerProfile || 'default'} onChange={e => setScope(x => ({ ...x, ownerProfile: e.target.value }))}>
+              {Object.entries(OWNER_PROFILES).map(([k, p]) => <option key={k} value={k}>{p.label}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Re-inspection contingency (WD, blank = profile)</label>
+            <input type="number" min="0" value={scope.contingencyWd ?? ''} onChange={e => setScope(x => ({ ...x, contingencyWd: e.target.value }))} placeholder={String(OWNER_PROFILES[scope.ownerProfile || 'default'].contingencyWd)} />
+          </div>
+          <div className="form-group">
+            <label>Weather days (blank = automatic)</label>
+            <input type="number" min="0" value={scope.weatherDays ?? ''} onChange={e => setScope(x => ({ ...x, weatherDays: e.target.value }))} placeholder="auto" />
+          </div>
+        </div>
+        {choice.below_grade_structural === 'yes' && (
+          <div className="form-row">
+            <div className="form-group">
+              <label>Structure footprint (SF)</label>
+              <input type="number" min="1" value={scope.footprintSf || ''} onChange={e => setScope(x => ({ ...x, footprintSf: e.target.value }))} placeholder="200" />
+            </div>
+            <div className="form-group">
+              <label>CIP wall lifts</label>
+              <select value={scope.wallLifts || 2} onChange={e => setScope(x => ({ ...x, wallLifts: e.target.value }))}>
+                {[1, 2, 3].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <label className={`constraint-chip ${scope.precast ? 'on' : ''}`}>
+              <input type="checkbox" checked={!!scope.precast} onChange={e => setScope(x => ({ ...x, precast: e.target.checked }))} /> Prefabricated / precast vault (crane set)
+            </label>
+          </div>
+        )}
+        <label className={`constraint-chip ${scope.ownerStoredItems ? 'on' : ''}`} style={{ marginBottom: 8 }}>
+          <input type="checkbox" checked={!!scope.ownerStoredItems} onChange={e => setScope(x => ({ ...x, ownerStoredItems: e.target.checked }))} /> Owner-stored FF&amp;E / equipment to transport to site
+        </label>
         <label className="constraint-chip" style={{ marginBottom: 8 }}>
           <input type="checkbox" checked={zoned} onChange={e => setScope(x => ({ ...x, phasing: e.target.checked ? { phases: [newPhase(1)] } : null, constraints: e.target.checked && !x.constraints.includes('phased') ? [...x.constraints, 'phased'] : x.constraints }))} />
           {zoned ? '☑' : '☐'} Phased / zoned work — each phase and each zone is completed before the next starts

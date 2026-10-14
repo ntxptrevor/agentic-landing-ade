@@ -4,6 +4,13 @@ import { CONSTRUCTION_PHASES } from '../data/constructionPhases.js';
 import { MODULE_TASKS } from '../data/jevModuleTasks.js';
 import { MODULE_BY_ID, classifyLineItem } from '../data/jevTaxonomy.js';
 import { OVERLAP_LINKS, HARD_GATES, SCOPE_TIERS, SECTORS, CONSTRAINTS, DURATION_MODEL, FIXED_TIME_RE } from '../data/jevOverlap.js';
+import {
+  SIZE_BANDS, BAND_DURATIONS, MICRO_INSPECTION_WD, OWNER_PROFILES, MULTI_PHASE_ONLY, EXTERIOR_FLOW, EXTERIOR_MODULES,
+  WEATHER, NTP_REVIEW_RE, SHOP_DRAWING_RE, VALUE_ENVELOPE, CALIBRATION_MODULE_TASKS, CALIBRATION_LINKS,
+  PRECAST_REPLACES, PRECAST_ROWS, KITCHEN_ROWS, KITCHEN_LINKS, OPTIONAL_ROWS, ENVELOPE_ROWS,
+} from '../data/jevCalibration.js';
+
+const ALL_LINKS = [...OVERLAP_LINKS, ...CALIBRATION_LINKS, ...KITCHEN_LINKS];
 
 const PHASE_ORDER = ['preconstruction', 'construction', 'closeout'];
 const BACKBONE_ORDER = CONSTRUCTION_PHASES.flatMap(p => p.defaultTasks.map(t => t.name));
@@ -21,7 +28,7 @@ function included(task, confirmed, tier, phaseId) {
 }
 
 // Returns ordered task definitions per phase, with module rows spliced after anchors.
-export function composeSequence(confirmedIds, tier) {
+export function composeSequence(confirmedIds, tier, scope = {}) {
   const confirmed = new Set(confirmedIds);
   const overrides = SCOPE_TIERS[tier]?.override || {};
   const phases = CONSTRUCTION_PHASES.map(p => ({
@@ -30,8 +37,9 @@ export function composeSequence(confirmedIds, tier) {
     rows: p.defaultTasks.filter(t => included(t, confirmed, tier, p.id)).map(t => ({ ...t, ...(overrides[t.name] || {}), baseName: t.name, source: 'backbone' })),
   }));
   const unplaced = [];
-  for (const modId of confirmedIds) {
-    const rows = MODULE_TASKS[modId] || [];
+  const order = [...confirmedIds, ...(scope.ownerStoredItems ? ['_optional'] : [])];
+  for (const modId of order) {
+    const rows = moduleRows(modId, confirmed, scope);
     const label = MODULE_BY_ID[modId]?.label || modId;
     // Insert in reverse so several rows after the same anchor keep their order.
     const placedAfter = new Map();
@@ -60,8 +68,97 @@ export function composeSequence(confirmedIds, tier) {
       placedAfter.set(key, offset + 1);
     }
   }
-  addInspectionNotices(phases);
+  calibrate(phases, confirmed, scope);
+  addInspectionNotices(phases, scope);
   return { phases, unplaced };
+}
+
+// Module rows: council merge + calibration audit #2 modules, the food-service under-slab
+// sequence, the precast variant and optional scope-profile rows.
+function moduleRows(modId, confirmed, scope) {
+  if (modId === '_optional') return [OPTIONAL_ROWS.ownerStoredItems];
+  let rows = [...(MODULE_TASKS[modId] || []), ...(CALIBRATION_MODULE_TASKS[modId] || [])];
+  if (modId === 'exterior_improvements') rows = rows.filter(r => !ENVELOPE_ROWS.includes(r.name));
+  if (modId === 'roofing') rows = [...rows, ...(MODULE_TASKS.exterior_improvements || []).filter(r => ENVELOPE_ROWS.includes(r.name))];
+  if (modId === 'below_grade_structural') {
+    const lifts = Math.max(1, Math.min(3, Number(scope.wallLifts) || 2));
+    rows = rows.filter(r => !r.lift || r.lift <= lifts);
+    if (scope.precast) {
+      const at = rows.findIndex(r => PRECAST_REPLACES.includes(r.name));
+      rows = rows.filter(r => !PRECAST_REPLACES.includes(r.name));
+      rows.splice(at, 0, ...PRECAST_ROWS);
+    }
+  }
+  if (modId === 'kitchen_foodservice') {
+    // Skip the GPR row when demo already scans before coring.
+    const scans = confirmed.has('selective_demo');
+    rows = [...rows, ...KITCHEN_ROWS.filter(r => !(scans && /^GPR/.test(r.name)))];
+  }
+  // complex_owner renderings / mockup room are sized to the job: dropped in the micro band.
+  // Renderings never hold site work (seats B + C): they gate owner approvals, not Make Safe.
+  if (modId === 'complex_owner') rows = rows.map(r => (/renderings/i.test(r.name) ? { ...r, noGate: true } : r));
+  if (modId === 'complex_owner' && sizeBand(scope) === 'micro') rows = rows.filter(r => !/renderings|mockup room|mockup review/i.test(r.name));
+  return rows;
+}
+
+// Size band from the scope profile (council audit #2). Exterior and equipment tiers keep their
+// own rules.
+export function sizeBand(scope = {}) {
+  if (!scope || ['exterior', 'equipment'].includes(scope.tier)) return 'standard';
+  const env = scope.sf ? envelopeWd({ ...scope, phasing: null }) : null;
+  const v = normalizedValue(scope);
+  if (env != null ? env <= SIZE_BANDS.microEnvelopeWd : (v != null && v <= SIZE_BANDS.microValue)) return 'micro';
+  if ((env != null && env > SIZE_BANDS.largeEnvelopeWd) || (v != null && v > SIZE_BANDS.largeValue)) return 'large';
+  return 'standard';
+}
+
+export function ownerProfile(scope = {}) {
+  const own = {};
+  // A value the user typed in the scope profile wins over the preset (logged as a user decision).
+  for (const k of ['inspectionNoticeWd', 'contingencyWd']) if (scope?.[k] != null && scope[k] !== '') own[k] = Number(scope[k]);
+  return { ...OWNER_PROFILES.default, ...(OWNER_PROFILES[scope?.ownerProfile] || {}), ...own };
+}
+
+// Structural fixes from the UT System audit: phase-only rows need >1 phase, rows that happen
+// after SC belong to closeout, size-band durations, exposed-work weather row.
+function calibrate(phases, confirmed, scope) {
+  const multiPhase = (scope.phasing?.phases || []).length > 1;
+  const band = sizeBand(scope);
+  const cons = phases.find(p => p.id === 'construction');
+  const close = phases.find(p => p.id === 'closeout');
+  for (const p of phases) {
+    if (!multiPhase) p.rows = p.rows.filter(r => !MULTI_PHASE_ONLY.includes(r.name));
+    for (const r of p.rows) {
+      const b = BAND_DURATIONS[r.name];
+      if (b && b[band] != null) r.duration = b[band];
+    }
+  }
+  const sc = cons.rows.findIndex(r => r.name === 'Owner Punch Walk / Substantial Completion');
+  if (sc >= 0 && sc < cons.rows.length - 1) {
+    const tail = cons.rows.splice(sc + 1).map(r => ({ ...r, parallel: true, postSc: true, milestone: false }));
+    close.rows.unshift(...tail);
+  }
+  // Weather: one visible row per job with exposed work, sized from the exposed labor days.
+  const exposed = cons.rows.filter(r => r.exposed || (EXTERIOR_FLOW.includes(r.name) && !/inspection|containment/i.test(r.name)));
+  if (exposed.length) {
+    // Average the monthly rate over the months the exposed work spans (≈1.4 CD per WD).
+    const exposedWd = exposed.reduce((a, r) => a + (r.duration || 0), 0);
+    let rate = WEATHER.defaultRate;
+    if (scope.startDate) {
+      const m0 = new Date(`${scope.startDate}T00:00:00`).getMonth();
+      const months = Math.max(1, Math.ceil(exposedWd * 1.4 / 30));
+      rate = Array.from({ length: months }, (_, k) => WEATHER.rateByMonth[(m0 + k) % 12]).reduce((a, b) => a + b, 0) / months;
+    }
+    const wd = scope.weatherDays != null ? Number(scope.weatherDays) : Math.min(WEATHER.capWd, Math.ceil(exposed.reduce((a, r) => a + (r.duration || 0), 0) * rate));
+    if (wd > 0) {
+      // After the last exposed row and any inspection of it, so a request is never anchored to
+      // the weather allowance.
+      let last = cons.rows.lastIndexOf(exposed[exposed.length - 1]);
+      while (cons.rows[last + 1] && INSPECTION_RE.test(cons.rows[last + 1].name)) last++;
+      const mod = exposed[exposed.length - 1].module;
+      cons.rows.splice(last + 1, 0, { name: WEATHER.rowName, duration: wd, trade: 'GC', category: 'activity', cls: 'standard_renovation', sub: exposed[exposed.length - 1].sub, module: mod, source: exposed[exposed.length - 1].source, weather: true, notes: `${Math.round(rate * 100)}% of ${exposed.reduce((a, r) => a + (r.duration || 0), 0)} exposed WD — set to 0 in the scope profile to remove` });
+    }
+  }
 }
 
 // User decision 2026-10-13 (LL-22): AHJ / state / owner inspections carry a 5 WD request notice
@@ -70,16 +167,19 @@ export function composeSequence(confirmedIds, tier) {
 // Infection Prevention and third-party checks keep their own durations.
 const INSPECTION_RE = /cover-?up inspection|above-?ceiling|underground (mep )?inspection|exterior inspection|fire marshal|tdlr|hhsc|jail standards|city inspection|building final/i;
 const NOT_INSPECTION_RE = /pre-?punch|moisture|request|notice|daily|monitoring|log\b|within 1 year|permit|infection prevention|third-party/i;
-export const INSPECTION_RULES = { noticeWd: 5, contingencyWd: 2 };
-function addInspectionNotices(phases) {
+export const INSPECTION_RULES = { noticeWd: OWNER_PROFILES.default.inspectionNoticeWd, contingencyWd: OWNER_PROFILES.default.contingencyWd };
+function addInspectionNotices(phases, scope = {}) {
+  const prof = ownerProfile(scope);
+  const micro = sizeBand(scope) === 'micro';
   for (const p of phases) {
     if (p.id === 'preconstruction') continue;
     const out = [];
     for (const r of p.rows) {
       const name = r.baseName || r.name;
       if (INSPECTION_RE.test(name) && !NOT_INSPECTION_RE.test(name) && r.duration > 0 && !r.noGate) {
-        out.push({ name: `Request: ${r.name} (${INSPECTION_RULES.noticeWd} WD notice)`, baseName: `Notice: ${name}`, noticeFor: name, duration: 0, milestone: true, parallel: true, trade: 'GC', category: 'deliverable', cls: 'inspection', sub: r.sub, source: 'notice' });
-        out.push({ ...r, duration: r.duration + INSPECTION_RULES.contingencyWd, reinspectionWd: INSPECTION_RULES.contingencyWd });
+        out.push({ name: `Request: ${r.name} (${prof.inspectionNoticeWd} WD notice)`, baseName: `Notice: ${name}`, noticeFor: name, noticeWd: prof.inspectionNoticeWd, duration: 0, milestone: true, parallel: true, trade: 'GC', category: 'deliverable', cls: 'inspection', sub: r.sub, source: 'notice' });
+        const base = micro ? MICRO_INSPECTION_WD : r.duration;
+        out.push({ ...r, duration: base + prof.contingencyWd, reinspectionWd: prof.contingencyWd });
         continue;
       }
       out.push(r);
@@ -119,6 +219,25 @@ export function envelopeWd(scope = {}) {
   return Math.round(e.coef * Math.pow(scope.sf, e.exp) * (e.tier[scope.tier] ?? 1) * sector * k);
 }
 
+// Contract value in current dollars, net of large owner-furnished equipment (council audit #2).
+export function normalizedValue(scope = {}) {
+  const v = Number(scope?.contractValue);
+  if (!v) return null;
+  const years = scope.valueYear ? Math.max(0, new Date().getFullYear() - Number(scope.valueYear)) : 0;
+  let x = v * Math.pow(1 + VALUE_ENVELOPE.escalationPct / 100, years);
+  const eq = Number(scope.ownerEquipmentValue) || 0;
+  if (eq > v * VALUE_ENVELOPE.ownerEquipmentCapPct / 100) x -= eq * (x / v);
+  return Math.round(x);
+}
+
+// Contract-value envelope (interior tiers only; warn-only cross-check in the sanity gate).
+export function valueEnvelopeWd(scope = {}) {
+  const v = normalizedValue(scope);
+  if (!v || ['exterior', 'equipment'].includes(scope.tier)) return null;
+  const e = VALUE_ENVELOPE;
+  return Math.round(e.coef * Math.pow(v / e.per, e.exp));
+}
+
 function scaleRows(phases, scope) {
   const { min, max } = DURATION_MODEL.perTask;
   for (const p of phases) {
@@ -133,6 +252,11 @@ function scaleRows(phases, scope) {
         d = Math.max(DURATION_MODEL.equipment.minSet, Math.ceil(units * DURATION_MODEL.equipment.setDaysPerUnit));
       } else if (scope.tier === 'equipment' && /disconnect|recovery|curb adapter/i.test(r.name)) {
         d = Math.max(1, Math.ceil(units * DURATION_MODEL.equipment.setDaysPerUnit / 2));
+      } else if (labor && r.noScale) {
+        // per-unit cycle rows (one building, crane set) keep their duration
+      } else if (labor && r.sizeBase) {
+        // Structure rows scale with the structure's own footprint, not the site area.
+        d = Math.max(min, Math.round(d * Math.pow((Number(scope.footprintSf) || r.sizeBase) / r.sizeBase, DURATION_MODEL.perTask.exp)));
       } else if (labor && scope.sf) {
         d = Math.max(min, Math.round(d * f));
       }
@@ -200,7 +324,7 @@ function expandZones(phases, scope) {
 }
 
 export function buildWbs(confirmedIds, scope = null) {
-  const composed = composeSequence(confirmedIds, scope?.tier);
+  const composed = composeSequence(confirmedIds, scope?.tier, scope || {});
   const unplaced = composed.unplaced;
   const phases = isZoned(scope) ? expandZones(composed.phases, scope) : composed.phases;
   if (scope) scaleRows(phases, scope);
@@ -220,8 +344,10 @@ export function buildWbs(confirmedIds, scope = null) {
           protected: !!t.critical, parallel: !!t.parallel, noGate: !!t.noGate, lesson: t.lesson || null, predOffset: t.predOffset,
           source: t.source, predecessors: [], successors: [], isCritical: false, notes: '', children: [],
           baseName: t.baseName || t.splitOf || t.name, splitIndex: t.splitIndex || null, splitCount: t.splitCount || null,
-          noticeFor: t.noticeFor || null,
+          noticeFor: t.noticeFor || null, noticeWd: t.noticeWd ?? null,
+          exposed: !!t.exposed, weather: !!t.weather, postSc: !!t.postSc,
           ...(t.reinspectionWd ? { notes: `Includes ${t.reinspectionWd} WD re-inspection contingency` } : {}),
+          ...(t.weather ? { notes: t.notes } : {}),
           windowDays: /state|tdlr|hhsc|fire marshal|\baru\b|jail standards|ras inspection/i.test(t.name) ? 5 : null,
         };
       }),
@@ -238,8 +364,27 @@ export function buildWbs(confirmedIds, scope = null) {
       // Submittal rows gate their material's install through the procurement tracker
       // (order-by / need-by), not the site sequence, so they never hold a site gate.
       if (t.source?.startsWith('module:') && /^submittals?:/i.test(t.name)) t.noGate = true;
+      // AHJ tests owned by a module (FA 100% acceptance, hood trip test) are their own branch
+      // off the trade's work and join Final Clean — they no longer chain into one another.
+      if (t.source?.startsWith('module:') && t.isMilestone && INSPECTION_RE.test(t.name)) { t.parallel = true; t.moduleFlow = true; t.isMilestone = false; }
+      // Site / exterior backbone rows are one flow beside the interior backbone (audit #2).
+      if (EXTERIOR_FLOW.includes(t.baseName) || t.weather && !t.source?.startsWith('module:')) { t.parallel = true; t.moduleFlow = true; t.source = 'exterior-flow'; t.exteriorFlow = true; }
+      if (t.source?.startsWith('module:') && EXTERIOR_MODULES.some(m => t.source === `module:${m}`)) t.exteriorFlow = true;
     }
   }
+  // Design-document reviews start at NTP and feed the job-start gate (audit #2, R4).
+  const precon = wbs.find(p => p.phaseKey === 'preconstruction');
+  if (precon) {
+    for (const t of precon.children) {
+      if (t.source?.startsWith('module:') && NTP_REVIEW_RE.test(t.name) && !SHOP_DRAWING_RE.test(t.name)) { t.fromNtp = true; t.parallel = true; t.feeds = 'Confirm Job Start Approval (Gate)'; }
+      // Sub shop drawings / permits wait only for the subcontract, not the job-start gate, and
+      // chain within their trade (shop drawings → permit submittal → permit approved).
+      else if (t.source?.startsWith('module:') && SHOP_DRAWING_RE.test(t.name)) { t.fromSubs = true; t.parallel = true; t.feeds = 'Ready to Mobilize — Confirmed NTXP PM / Super'; }
+    }
+  }
+  // Billing rows run beside the closeout chain; closeout is measured to Final Walk.
+  const closeout = wbs.find(p => p.phaseKey === 'closeout');
+  if (closeout) for (const t of closeout.children) if (/^submit (100% pay app|final bill)/i.test(t.name)) { t.parallel = true; t.noGate = true; }
 
   // Sequential wiring; parallel rows hang off their anchor and are skipped as predecessors.
   const gateNames = new Set(HARD_GATES);
@@ -259,9 +404,15 @@ export function buildWbs(confirmedIds, scope = null) {
       } else if (task.moduleFlow && prev?.moduleFlow && prev.source === task.source) {
         link(task, prev); // same module, same anchor group: the trade's own sequence
       } else if (task.moduleFlow) {
-        const anchor = lastSeq || prev;
-        if (gateNames.has(anchor.baseName)) link(task, anchor);
+        // A group can open with post-SC rows (closeout) whose only earlier row is a notice.
+        const anchor = lastSeq || prev || lastOfPrevPhase;
+        if (!anchor) { /* first real row of the project */ } else if (gateNames.has(anchor.baseName) || anchor === lastOfPrevPhase) link(task, anchor);
         else link(task, anchor, 'SS', 1);
+      } else if (task.fromSubs) {
+        const prevSub = phase.children.slice(0, i).reverse().find(x => x.fromSubs && x.source === task.source);
+        link(task, prevSub || phase.children.find(x => x.baseName === 'All Subcontracts Signed — Confirmed') || lastSeq || prev);
+      } else if (task.fromNtp) {
+        link(task, phase.children.find(x => x.baseName === 'Notice to Proceed (NTP)') || lastSeq || prev);
       } else if (task.parallel) {
         link(task, lastSeq || prev);
       } else if (typeof task.predOffset === 'number' && phase.children[i + task.predOffset]) {
@@ -281,13 +432,23 @@ export function buildWbs(confirmedIds, scope = null) {
   }
   applyOverlap(wbs, deps);
   wireNotices(wbs, deps);
+  // Billing rows no longer carry the closeout chain, so punch corrections drive Final Walk directly.
+  for (const g of wbs) {
+    const punch = g.children.find(t => t.baseName === 'Perform Punch Corrections');
+    const walk = g.children.find(t => t.baseName === 'Final Walk');
+    if (punch && walk && !walk.predecessors.includes(punch.id)) {
+      walk.predecessors.push(punch.id);
+      deps.push({ from: punch.id, to: walk.id, type: 'FS', lag: 0, lagUnit: 'days', source: 'closeout' });
+    }
+  }
 
   // Parallel rows feed the next protected gate/milestone in their phase, so a late
   // permit or submittal pushes the schedule instead of dead-ending with false float.
   for (const phase of wbs) {
     phase.children.forEach((task, i) => {
       if (!task.parallel || task.noGate || task.moduleFlow || task.noticeFor) return;
-      const gate = phase.children.slice(i + 1).find(t => t.protected && t.isMilestone && !t.isReference)
+      const gate = (task.feeds && phase.children.find(t => t.baseName === task.feeds))
+        || phase.children.slice(i + 1).find(t => t.protected && t.isMilestone && !t.isReference)
         || phase.children.slice(i + 1).reverse().find(t => !t.parallel && !t.isReference);
       if (gate && !gate.predecessors.includes(task.id)) {
         gate.predecessors.push(task.id);
@@ -314,7 +475,7 @@ function applyOverlapGroup(all, deps) {
   const pick = (name, end) => { const xs = byBase.get(name); return xs ? (end === 'last' ? xs[xs.length - 1] : xs[0]) : null; };
   const order = new Map(all.map((t, i) => [t.id, i]));
   const incoming = new Map();
-  for (const l of OVERLAP_LINKS) {
+  for (const l of ALL_LINKS) {
     const from = pick(l.from, l.type === 'SS' ? 'first' : 'last');
     const to = pick(l.to, l.type === 'FF' ? 'last' : 'first');
     if (!from || !to || from === to || order.get(from.id) > order.get(to.id)) continue;
@@ -352,7 +513,7 @@ function wireNotices(wbs, deps) {
       for (const from of n.predecessors) deps.push({ from, to: n.id, type: 'SS', lag: 0, lagUnit: 'days', source: 'notice' });
       if (!n.predecessors.length && i > 0) { n.predecessors = [group.children[i - 1].id]; deps.push({ from: n.predecessors[0], to: n.id, type: 'SS', lag: 0, lagUnit: 'days', source: 'notice' }); }
       insp.predecessors.push(n.id);
-      deps.push({ from: n.id, to: insp.id, type: 'FS', lag: INSPECTION_RULES.noticeWd, lagUnit: 'days', source: 'notice' });
+      deps.push({ from: n.id, to: insp.id, type: 'FS', lag: n.noticeWd ?? INSPECTION_RULES.noticeWd, lagUnit: 'days', source: 'notice' });
     });
   }
 }
@@ -368,7 +529,14 @@ function feedDeadEnds(wbs, deps) {
     phase.children.forEach((t, i) => {
       if (finishDriven.has(t.id) || t.isReference || t.noGate || t === lastTask) return;
       const later = phase.children.slice(i + 1).filter(x => !x.isReference);
-      const target = later.find(x => HARD_GATES.includes(x.baseName)) || later[later.length - 1];
+      let target = later.find(x => HARD_GATES.includes(x.baseName)) || later[later.length - 1];
+      // A module or exterior flow that would dead-end into the start of interior work (Make Safe /
+      // ready-to-mobilize) instead joins the group's Final Clean or handover (audit #2: the site,
+      // roofing and exterior flows were running in series ahead of the interior backbone).
+      const early = target && ['Make Safe', 'Ready to Mobilize — Confirmed NTXP PM / Super'].includes(target.baseName);
+      if (t.moduleFlow && (t.exteriorFlow || early)) {
+        target = later.find(x => ['Final Clean', 'Zone Complete'].includes(x.baseName)) || target;
+      }
       if (!target || target.predecessors.includes(t.id)) return;
       target.predecessors.push(t.id);
       deps.push({ from: t.id, to: target.id, type: 'FS', lag: 0, lagUnit: 'days', source: 'open-finish' });

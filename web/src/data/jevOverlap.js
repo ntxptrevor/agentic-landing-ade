@@ -117,6 +117,14 @@ export const SCOPE_TIERS = {
       'T-Bar Above-Ceiling MEP Inspection', 'Terminate & Integrate Access Control & Building Controls',
       'Start Up Control Systems & Test', 'Test, Adjust & Balance (TAB)', 'Final Clean', 'Owner Punch Walk / Substantial Completion'],
   },
+  // Site / exterior only (council audit #2, seats A + C): the interior backbone is removed; the
+  // site and exterior flows, inspections, cleanup and SC remain (UTSW Ash Vault: 17 WD of site work).
+  exterior: {
+    label: 'Site / exterior only (no interior work)',
+    keep: ['Mobilization', 'Exterior Containment', 'Site Work', 'Underground Inspections', 'Pourback — Exterior',
+      'Landscape Repairs', 'Sod & Commercial Planting', 'Permanent Fencing', 'Exterior Inspections', 'Make Safe',
+      'Install Exterior / Electronic Wall Signage', 'Final Clean', 'Owner Punch Walk / Substantial Completion'],
+  },
 };
 
 export const SECTORS = {
@@ -137,7 +145,7 @@ export const CONSTRAINTS = {
 
 // Medians of the three seats' duration models.
 export const DURATION_MODEL = {
-  envelope: { coef: 2.13, exp: 0.379, tier: { light: 0.6, standard: 1.0, heavy: 1.25, gut: 1.4, equipment: 0.5 } },
+  envelope: { coef: 2.13, exp: 0.379, tier: { light: 0.6, standard: 1.0, heavy: 1.25, gut: 1.4, equipment: 0.5, exterior: 0.5 } },
   perTask: { baseSf: 4500, exp: 0.379, min: 1, max: 10 },
   constraintDamping: 0.8,
   constraintCap: 1.6,
