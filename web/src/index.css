@@ -901,9 +901,10 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media print {
+  /* NTXP outputs are 11x17 landscape with Document Engine margins (0.5in). */
   @page {
-    size: 8.5in 11in portrait;
-    margin: 0.5in 0.5in 0.75in 0.5in;
+    size: 17in 11in;
+    margin: 0.5in;
   }
 
   body {
@@ -916,7 +917,9 @@ input:focus, select:focus, textarea:focus {
 
   .header, .sidebar, .tabs, .btn-group, .step-indicator,
   .header-actions, .procurement-import-area, .export-grid,
+  .summary-grid, .preflight, .notice, .context-panel, .project-bar, .tab-sync,
   .no-print { display: none !important; }
+  .canon-wrap { overflow: visible !important; }
 
   .layout { display: block; }
   .main { padding: 0; }

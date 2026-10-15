@@ -65,7 +65,7 @@ export const CANON_CSS = `
 @media print{
   /* NTXP Document Engine v2.1 on 11x17 landscape: 0.5in margins, 1.00in navy band repeated
      with the header row, footer with page number bold italic navy bottom right. */
-  @page{size:17in 11in;margin:.5in .5in .55in .5in;
+  @page{size:17in 11in;margin:.5in;
     @bottom-right{content:"Page " counter(page) " of " counter(pages);font:italic 700 8pt "Open Sans",Arial,sans-serif;color:#1B2A4E}}
   .canon-grip,.canon-row-task .grip{display:none}
   .canon-page{min-width:0;border-radius:0}
@@ -242,7 +242,7 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight, 
                 {...(onReorder && r.kind === 'task' ? {
                   draggable: true,
                   onDragStart: e => { setDragId(r.key); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', r.key); },
-                  onDragOver: e => { if (dragId) { e.preventDefault(); setOverId(r.key); } },
+                  onDragOver: e => { if (dragId) { e.preventDefault(); if (overId !== r.key) setOverId(r.key); } },
                   onDragLeave: () => setOverId(o => (o === r.key ? null : o)),
                   onDrop: e => { e.preventDefault(); const from = dragId; setDragId(null); setOverId(null); if (from && from !== r.key) onReorder(from, r.key); },
                   onDragEnd: () => { setDragId(null); setOverId(null); },
