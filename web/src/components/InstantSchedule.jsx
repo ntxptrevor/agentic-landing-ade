@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { KINDS, classifyFile, extractText, analyzeIntake } from '../utils/fileIntake.js';
 import { JEV_MODULES } from '../data/jevTaxonomy.js';
 import { SCOPE_TIERS, SECTORS, CONSTRAINTS } from '../data/jevOverlap.js';
+import { matchProjects } from '../utils/canonical.js';
 
 const nextMonday = () => {
   const d = new Date();
@@ -11,7 +12,7 @@ const nextMonday = () => {
 
 // Upload anything (specs, schedules, quotes, plans, photos, emails) → the skill's deterministic
 // logic reads it → an instant canonical schedule ready to review and save.
-export default function InstantSchedule({ initialName = '', onBuild, onCancel }) {
+export default function InstantSchedule({ initialName = '', projects = [], currentSlug = '', onBuild, onCancel }) {
   const [name, setName] = useState(initialName);
   const [number, setNumber] = useState('');
   const [status, setStatus] = useState('bid');
@@ -24,6 +25,12 @@ export default function InstantSchedule({ initialName = '', onBuild, onCancel })
   const [ackNone, setAckNone] = useState(false);
   const [useImport, setUseImport] = useState(true);
   const [drag, setDrag] = useState(false);
+  // Existing KB project chosen for this build ('' = undecided, '__new__' = create a new one).
+  const [target, setTarget] = useState(currentSlug || '');
+  const matches = currentSlug ? [] : matchProjects(projects, { name, number });
+  const chosen = projects.find(p => p.slug === (currentSlug || target));
+  const awarded = chosen?.status === 'active';
+  const identityOk = !!currentSlug || !matches.length || !!target;
 
   const addFiles = async fileList => {
     const files = [...fileList];
@@ -48,10 +55,12 @@ export default function InstantSchedule({ initialName = '', onBuild, onCancel })
 
   const imported = analysis?.schedules.find(s => s.wbs?.length);
   const hasReq = (analysis?.requirementsDocs || []).length > 0;
-  const ready = name.trim() && analysis && scope && (hasReq || ackNone) && (useImport && imported ? true : scope.tier && scope.sector && Number(scope.sf) > 0);
+  const unread = analysis?.unreadSpecs || [];
+  const ready = name.trim() && identityOk && analysis && scope && (hasReq || ackNone) && (useImport && imported ? true : scope.tier && scope.sector && Number(scope.sf) > 0);
 
   const build = () => onBuild({
-    name: name.trim(), number: number.trim(), status, startDate: (useImport && imported?.startDate) || startDate,
+    name: name.trim(), number: number.trim(), status: awarded ? 'active' : status,
+    existingSlug: currentSlug || (target && target !== '__new__' ? target : ''), startDate: (useImport && imported?.startDate) || startDate,
     modules: Object.entries(mods).filter(([, v]) => v).map(([k]) => k),
     scope: { ...scope, sf: Number(scope.sf) || 0, contractValue: Number(scope.contractValue) || null, valueYear: new Date().getFullYear() },
     imported: useImport ? imported : null,
@@ -66,10 +75,27 @@ export default function InstantSchedule({ initialName = '', onBuild, onCancel })
         <div className="form-group"><label>Project name</label><input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. UNT Union Starbucks Ph 3" /></div>
         <div className="form-group"><label>Job / bid number</label><input value={number} onChange={e => setNumber(e.target.value)} placeholder="optional" /></div>
         <div className="form-group"><label>Status</label>
-          <select value={status} onChange={e => setStatus(e.target.value)}><option value="bid">Pursuit (bid folder)</option><option value="active">Awarded (project folder)</option></select>
+          <select value={awarded ? 'active' : status} disabled={awarded} title={awarded ? 'This project is awarded — it stays in its project folder' : ''} onChange={e => setStatus(e.target.value)}><option value="bid">Pursuit (bid folder)</option><option value="active">Awarded (project folder)</option></select>
         </div>
         <div className="form-group"><label>Planned start</label><input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></div>
       </div>
+
+      {matches.length > 0 && (
+        <div className={`req-gate ${target ? 'ok' : ''}`} role="group" aria-label="Existing project match">
+          <b>This looks like an existing knowledge-base project.</b> Pick it so the schedule is added as its next version instead of a second canonical:
+          <div className="constraint-row" style={{ marginTop: 6 }}>
+            {matches.map(p => (
+              <label key={p.slug} className={`constraint-chip ${target === p.slug ? 'on' : ''}`}>
+                <input type="radio" name="kb-target" checked={target === p.slug} onChange={() => setTarget(p.slug)} />
+                {p.number ? `${p.number} · ` : ''}{p.name} <span className="input-hint">({p.slug}{p.status ? `, ${p.status}` : ''}{p.version ? `, v${p.version}` : ''} — {p.why})</span>
+              </label>
+            ))}
+            <label className={`constraint-chip ${target === '__new__' ? 'on' : ''}`}>
+              <input type="radio" name="kb-target" checked={target === '__new__'} onChange={() => setTarget('__new__')} /> No — create a new project
+            </label>
+          </div>
+        </div>
+      )}
 
       <label className={`dropzone ${drag ? 'over' : ''}`}
         onDragOver={e => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)}
@@ -149,13 +175,19 @@ export default function InstantSchedule({ initialName = '', onBuild, onCancel })
             </>
           )}
           {(analysis.contractDays || analysis.ntpText) && <p className="input-hint">Contract terms found: {analysis.contractDays ? `${analysis.contractDays} calendar days` : ''} {analysis.ntpText ? `· start ${analysis.ntpText}` : ''}</p>}
+          {unread.length > 0 && (
+            <div className="req-gate">
+              No text could be read from {unread.join(', ')} (scanned or image-only). It does not count as read requirements — upload a readable (OCR'd) copy{hasReq ? '' : ', or confirm below that no schedule requirements exist'}.
+            </div>
+          )}
           <div className={`req-gate ${hasReq ? 'ok' : ''}`}>
             {hasReq
-              ? <>Schedule requirements uploaded: {analysis.requirementsDocs.join(', ')}</>
+              ? <>Schedule requirements read: {analysis.requirementsDocs.join(', ')}</>
               : <label><input type="checkbox" checked={ackNone} onChange={e => setAckNone(e.target.checked)} /> No project manual, specifications or UGC with schedule requirements exist for this project (required to continue without one).</label>}
           </div>
           <div className="btn-group" style={{ marginTop: 12 }}>
             <button className="btn btn-primary" onClick={build} disabled={!ready}>Build instant schedule</button>
+            {!identityOk && <span className="input-hint">Choose the matching project (or "create a new project") above first.</span>}
           </div>
         </div>
       )}

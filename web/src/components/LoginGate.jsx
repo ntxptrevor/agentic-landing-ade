@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
 import { loginPassphrase } from '../utils/api.js';
 
+// Server auth_error codes (web/public/auth/*.php). Older code names are kept as aliases.
 const ERRORS = {
+  bad_state: 'Sign-in expired or was opened in another tab — try again.',
+  access_denied: 'Google sign-in was cancelled — try again or use the passphrase.',
   domain: 'Sign in with an @ntxpllc.com Google account.',
-  state: 'Sign-in expired — try again.',
   token: 'Google sign-in could not be verified — try again.',
   config: 'Google sign-in is not configured on the server yet — use the passphrase.',
+  nonce: 'Sign-in could not be verified (replayed or expired request) — try again.',
+  unverified: 'That Google account email is not verified — verify it with Google or use the passphrase.',
 };
+const ALIASES = {
+  state: 'bad_state', state_expired: 'bad_state', domain_not_allowed: 'domain', hd_mismatch: 'domain',
+  token_exchange_failed: 'token', token_invalid: 'token', google_not_configured: 'config', email_unverified: 'unverified',
+};
+const authErrorMessage = code => (code ? ERRORS[code] || ERRORS[ALIASES[code]] || `Sign-in failed (${String(code).slice(0, 40)}).` : '');
 
 export default function LoginGate({ session, onAuthenticated }) {
   const [pass, setPass] = useState('');
   const [error, setError] = useState(() => {
-    const code = new URLSearchParams(location.search).get('auth_error');
-    return code ? ERRORS[code] || `Sign-in failed (${code}).` : '';
+    return authErrorMessage(new URLSearchParams(location.search).get('auth_error'));
   });
   const [busy, setBusy] = useState(false);
 

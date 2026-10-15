@@ -60,6 +60,9 @@ export async function extractText(file) {
   return { text: '', note: e === 'mpp' ? 'Binary .mpp — save as XML from MS Project to import' : 'No text extracted (image / drawing) — kept as an attachment for the agent' };
 }
 
+export const MIN_SPEC_CHARS = 200;
+export const isReadSpec = i => i.kind === 'spec' && String(i.text || '').trim().length >= MIN_SPEC_CHARS;
+
 const num = s => Number(String(s).replace(/[,$\s]/g, ''));
 
 // Signals from all extracted text.
@@ -97,7 +100,10 @@ export function analyzeIntake(items, projectName = '') {
     contractDays: days ? Number(days[1]) : null,
     leadItems: leadHits,
     schedules,
-    requirementsDocs: items.filter(i => i.kind === 'spec').map(i => i.name),
-    specText: items.filter(i => i.kind === 'spec').map(i => i.text).join('\n').slice(0, 200000),
+    // A spec counts as read requirements only when text was actually extracted (a scanned PDF
+    // without OCR does not); unread specs need a readable copy or the acknowledgement.
+    requirementsDocs: items.filter(isReadSpec).map(i => i.name),
+    unreadSpecs: items.filter(i => i.kind === 'spec' && !isReadSpec(i)).map(i => i.name),
+    specText: items.filter(isReadSpec).map(i => i.text).join('\n').slice(0, 200000),
   };
 }

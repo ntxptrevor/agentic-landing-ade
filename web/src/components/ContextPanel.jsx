@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { safeHref } from '../utils/canonical.js';
 
 // Critical recent context for the selected project, read from the project KB activity
 // stream (JobTread logs, workspace and project files, schedule events). Nothing is
@@ -27,7 +28,7 @@ export default function ContextPanel({ activity, onClose }) {
           <li key={i} className={e.critical || (e.rating || 0) >= 3 ? 'crit' : ''}>
             <span className="context-src" title={e.source}>{ICON[e.source] || '•'}</span>
             <div>
-              <div className="context-text">{e.link ? <a href={e.link} target="_blank" rel="noreferrer">{e.text}</a> : e.text}</div>
+              <div className="context-text">{safeHref(e.link) ? <a href={safeHref(e.link)} target="_blank" rel="noreferrer noopener">{e.text}</a> : e.text}</div>
               <div className="context-date">{String(e.ts || '').slice(0, 16).replace('T', ' ')}{e.kind ? ` · ${e.kind}` : ''}</div>
             </div>
           </li>
