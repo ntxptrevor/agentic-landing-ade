@@ -3,6 +3,17 @@
 Dated, removable entries. Status: `applied` · `applied-provisional` · `awaiting-user` · `removed`.
 Format and vote rules: ../references/self-improvement.md. Newest first.
 
+## 2026-10-15
+
+### LL-2026-10-15-01 — Council audit #3: program-wide fixes (cloud front end, sync, forks, hooks)
+Status: applied (findings agreed by ≥ 2 seats or reproduced)   Scope: web/src, web/public (PHP), skills scripts/hooks, manifests
+Evidence: knowledge/council/2026-10-15-program-audit/REPORT.md; live smoke test knowledge/smoke-tests/2026-10-14-sync-smoke-test.md.
+Rules now canon in code: no publish over unpulled site saves; published = KB-published version; OAC gate fails on unpulled site saves or unacknowledged JEV ≥ 4 items; every changelog entry carries sources; every change reaches the KB activity stream; bookkeeping entries do not bump the version; drags keep link types/lags and never drop constraints silently; cycles are flagged, never scheduled; the Coda never truncates team notes.
+Remove by: revert the audit #3 commits (engine, sync, server, skill) listed in the PR.
+
+### LL-2026-10-15-02 — Decision surfaced: team passphrase
+Status: **awaiting-user** — all three seats rate the chosen passphrase critical (guessable, published earlier). Kept as the user's choice with mitigations; recommend a new passphrase or `passphrase_role: viewer`.
+
 ## 2026-10-14
 
 ### LL-2026-10-14-03 — Audit #2 decisions (user: "yes to all" — canon)
