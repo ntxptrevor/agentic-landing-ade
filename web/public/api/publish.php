@@ -105,6 +105,11 @@ foreach ((array)($bodyObj->bundles ?? []) as $b) {
             $inHash = hash('sha256', $json);
             if ($cur !== null && $curVersion !== null) {
                 if ($inVersion === $curVersion && ($inHash === $curHash || bf_canonical_same($canonical, $cur))) {
+                    // Identical content is still not a publish while site saves wait to be pulled:
+                    // the KB must pull and ack them first (no live.html, no publishedVersion).
+                    if ($unpulled) {
+                        return $conflict('unpulled_site_saves', 'Site saves not yet pulled into the KB; GET /api/changes.php, merge, ack, then publish');
+                    }
                     return ['status' => 200, 'unchanged' => true, 'version' => $curVersion, 'hash' => $curHash, 'unpulled' => $unpulled];
                 }
                 if ($inVersion < $curVersion) {

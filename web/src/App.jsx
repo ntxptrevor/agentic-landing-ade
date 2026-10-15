@@ -481,6 +481,10 @@ export default function App() {
     setMeta(emptyMeta());
     setComputed(null);
     setHosted(false);
+    // A new project must never inherit the open cloud project's identity: saving it would land
+    // on that project's slug with a valid base and replace its canonical.
+    setSlug(''); setServerVersion(null); setServerHash(null); setSavedAt(null); setActivity(null); setNotice(null);
+    if (server.available) history.replaceState(null, '', location.pathname);
     setStep('setup');
   };
 

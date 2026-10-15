@@ -193,6 +193,8 @@ jq -e '.version==3 and (.tasks|map(.name)|index("SITE EDIT punch walk")!=null)' 
 KB4B=$(jq -c --arg now "$NOW" "$KBEDIT" "$WORK/site-v3.json")
 chk "publish on right base but un-acked -> 409 unpulled_site_saves" 200 "$(bearer "$TOKEN" --data "{\"bundles\":[{\"slug\":\"demo-clinic\",\"baseVersion\":3,\"baseHash\":\"$HASH3\",\"canonical\":$KB4B}]}" "$B/api/publish.php")" \
   '.results[0].status==409 and .results[0].error=="unpulled_site_saves" and .results[0].unpulled==[3] and .results[0].currentVersion==3'
+chk "identical v3 publish while un-acked -> 409 (not 'unchanged')" 200 "$(bearer "$TOKEN" --data "{\"bundles\":[{\"slug\":\"demo-clinic\",\"baseVersion\":3,\"baseHash\":\"$HASH3\",\"canonical\":$(cat "$WORK/site-v3.json")}]}" "$B/api/publish.php")" \
+  '.results[0].status==409 and .results[0].error=="unpulled_site_saves" and (.results[0].unchanged|not)'
 chk "ack site v3"                        200 "$(bearer "$TOKEN" --data '{"ack":[{"slug":"demo-clinic","version":3}]}' "$B/api/changes.php")" '.acked==1'
 chk "publish v4 with right base after ack -> 200 + live" 200 "$(bearer "$TOKEN" --data "{\"bundles\":[{\"slug\":\"demo-clinic\",\"baseVersion\":3,\"baseHash\":\"$HASH3\",\"canonical\":$KB4B,\"html\":\"<!doctype html><p>KB live v4</p>\",\"htmlVersion\":4}]}" "$B/api/publish.php")" \
   '.results[0].status==200 and .results[0].version==4 and .results[0].live==true and .results[0].liveVersion==4 and .results[0].activityAdded==1'

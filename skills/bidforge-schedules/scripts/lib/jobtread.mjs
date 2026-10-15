@@ -39,9 +39,21 @@ export function workdayShift(a, b, cal) {
   return a < b ? workdaysBetween(a, b, cal) - (isWorkday(a, cal) ? 1 : 0) : -(workdaysBetween(b, a, cal) - (isWorkday(b, cal) ? 1 : 0));
 }
 
+// Accepts one Pave response, an array of page responses (every page of a paginated read), or a
+// plain array of task nodes.
 export function jtNodes(raw) {
-  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw)) {
+    const pages = raw.filter(x => x && (x.job || x.tasks || x.nodes));
+    return pages.length && pages.length === raw.length ? pages.flatMap(jtNodes) : raw;
+  }
   return raw?.job?.tasks?.nodes || raw?.tasks?.nodes || raw?.tasks || raw?.nodes || [];
+}
+
+// The last page of a paginated read has nextPage null; anything else means pages are missing.
+export function jtIncomplete(raw) {
+  const last = Array.isArray(raw) ? raw[raw.length - 1] : raw;
+  const np = last?.job?.tasks?.nextPage ?? last?.tasks?.nextPage ?? last?.nextPage;
+  return np !== undefined && np !== null && np !== '';
 }
 
 export function scheduleTasks(doc) {

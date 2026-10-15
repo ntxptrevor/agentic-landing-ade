@@ -16,7 +16,7 @@
 //           and not recorded (exit 1). Prints the updated canonical (or writes it with --write/--out).
 import fs from 'node:fs';
 import { view } from './lib/canonical_read.mjs';
-import { jtNodes, scheduleTasks, pushedMap, progressOf, jtProgress } from './lib/jobtread.mjs';
+import { jtNodes, jtIncomplete, scheduleTasks, pushedMap, progressOf, jtProgress } from './lib/jobtread.mjs';
 
 const TASK_FIELDS = { id: {}, name: {}, startDate: {}, endDate: {}, progress: {}, updatedAt: {} };
 
@@ -55,11 +55,15 @@ export function buildPushPlan(canon, rawJt, { jobId } = {}) {
     if (!progSame) $.progress = expect.progress / 100;
     requests.push({ kind: 'update', taskId: t.id, jobTreadTaskId: t.jobTreadTaskId, expect, body: { updateTask: { $ } } });
   }
+  // Paginated: repeat with $.page = previous nextPage until nextPage is null; save all pages as a JSON array.
   const readBack = { job: { $: { id: job }, tasks: { $: { size: 100 }, nodes: TASK_FIELDS, nextPage: {} } } };
   return { jobId: job, version: v.version, plannedAt: new Date().toISOString(), requests, conflicts, unchanged, readBack };
 }
 
 export function recordPush(canon, plan, rawReadback, { at = new Date().toISOString() } = {}) {
+  // Jobs with more than one page of tasks: every page must be read back (copy nextPage into $.page
+  // until it is null) and passed as an array, or later tasks would never get their mapping.
+  if (jtIncomplete(rawReadback)) throw new Error('read-back incomplete: nextPage is not null — fetch every page and pass them as a JSON array');
   const doc = structuredClone(canon);
   const holder = doc.meta && typeof doc.meta === 'object' && doc.meta.sync ? doc.meta : doc;
   holder.sync = holder.sync || {};

@@ -100,3 +100,15 @@ test('record refuses to record a read-back that differs from what was pushed', (
   assert.ok(mismatches.some(m => m.taskId === '2.2'));
   assert.equal(doc.sync.jobtreadPushed.T2.version, 10);
 });
+
+test('recordPush refuses an incomplete paginated read-back and accepts all pages', async () => {
+  const { recordPush } = await import('./jobtread_push.mjs');
+  const { jtNodes } = await import('./lib/jobtread.mjs');
+  const page1 = { job: { tasks: { nodes: [{ id: 'jt1', name: 'A', startDate: '2026-11-02', endDate: '2026-11-03' }], nextPage: 'p2' } } };
+  const page2 = { job: { tasks: { nodes: [{ id: 'jt2', name: 'B', startDate: '2026-11-04', endDate: '2026-11-05' }], nextPage: null } } };
+  const canon = { schema: 'bidforge.canonical.v1', version: 1, wbs: [], sync: {} };
+  const plan = { jobId: 'j', version: 1, requests: [] };
+  assert.throws(() => recordPush(canon, plan, page1), /incomplete/);
+  assert.equal(jtNodes([page1, page2]).length, 2);
+  assert.doesNotThrow(() => recordPush(canon, plan, [page1, page2]));
+});
