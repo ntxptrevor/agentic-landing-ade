@@ -1,0 +1,132 @@
+{
+  "schema": "bidforge.sources.v1",
+  "updated": "2026-10-15",
+  "staleAfterDays": 7,
+  "notes": "Environment-scan registry (references/environment-scan-and-crosswalk.md). env_scan.mjs plan prints the connector call for each source; env_scan.mjs register records lastScanAt and newly discovered sources. Drive folder ids are filled the first time a scan resolves the folder by name (folderId null = resolve by name).",
+  "sources": [
+    {
+      "id": "jobtread-jobs",
+      "kind": "jobtread",
+      "title": "JobTread jobs (org 22PEKtgSScq2)",
+      "tool": "mcp__JobTread__query",
+      "candidatesKey": "jobtread",
+      "args": {
+        "query": {
+          "organization": {
+            "$": { "id": "22PEKtgSScq2" },
+            "jobs": {
+              "$": { "size": 100, "sortBy": [{ "field": "createdAt", "order": "desc" }] },
+              "nodes": { "id": {}, "name": {}, "number": {}, "closedOn": {}, "location": { "address": {} }, "customer": { "name": {} } },
+              "nextPage": {}
+            }
+          }
+        }
+      },
+      "map": "nodes → {id, name, number, address: location.address, owner: customer.name, archived: !!closedOn}",
+      "lastScanAt": null
+    },
+    {
+      "id": "jobtread-notes-field",
+      "kind": "jobtread",
+      "title": "JobTread job custom field \"Notes\" (Project Coda backup, field 22PEPTyrwL4W)",
+      "tool": "mcp__JobTread__query",
+      "args": { "query": { "job": { "$": { "id": "{jobtreadJobId}" }, "customFieldValues": { "$": { "size": 50 }, "nodes": { "value": {}, "customField": { "name": {} } } } } } },
+      "lastScanAt": null
+    },
+    {
+      "id": "drive-active-bids",
+      "kind": "drive_folder",
+      "title": "Google Drive !Active Bids (pursuit folders, Schedules/)",
+      "tool": "mcp__Google_Drive__search_files",
+      "folderName": "!Active Bids",
+      "folderId": null,
+      "candidatesKey": "driveBid",
+      "args": { "query": "'{folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false" },
+      "resolveFolder": { "query": "title = '!Active Bids' and mimeType = 'application/vnd.google-apps.folder'" },
+      "map": "files → {id, name}",
+      "lastScanAt": null
+    },
+    {
+      "id": "drive-active-projects",
+      "kind": "drive_folder",
+      "title": "Google Drive !Active Projects (awarded jobs, 06 - Schedule/)",
+      "tool": "mcp__Google_Drive__search_files",
+      "folderName": "!Active Projects",
+      "folderId": null,
+      "candidatesKey": "driveProject",
+      "args": { "query": "'{folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false" },
+      "resolveFolder": { "query": "title = '!Active Projects' and mimeType = 'application/vnd.google-apps.folder'" },
+      "map": "files → {id, name}",
+      "lastScanAt": null
+    },
+    {
+      "id": "drive-knowledge-base",
+      "kind": "drive_folder",
+      "title": "Google Drive !!NTXP Knowledge Base (project KB folders, schedule/canonical.json)",
+      "tool": "mcp__Google_Drive__search_files",
+      "folderName": "!!NTXP Knowledge Base",
+      "folderId": null,
+      "candidatesKey": "kb",
+      "args": { "query": "'{folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false" },
+      "resolveFolder": { "query": "title = '!!NTXP Knowledge Base' and mimeType = 'application/vnd.google-apps.folder'" },
+      "map": "files → {path: '!!NTXP Knowledge Base/' + name, name, id}",
+      "lastScanAt": null
+    },
+    {
+      "id": "lightfield-accounts",
+      "kind": "crm",
+      "title": "Lightfield CRM accounts / opportunities",
+      "tool": "mcp__Lightfield__read_from_lightfield",
+      "candidatesKey": "lightfield",
+      "preflight": ["mcp__Lightfield__search_lightfield_api_docs {\"query\": \"list accounts\"}", "mcp__Lightfield__get_lightfield_api_details {path from search}"],
+      "args": { "path": "/v1/accounts", "query": { "search": "{projectName}" } },
+      "map": "accounts → {id, name}",
+      "lastScanAt": null
+    },
+    {
+      "id": "quickbooks-projects",
+      "kind": "accounting",
+      "title": "QuickBooks customer:job (project)",
+      "tool": "mcp__Intuit_QuickBooks__qbo_contact_search_customer",
+      "candidatesKey": "quickbooks",
+      "args": { "query": "{projectName}" },
+      "map": "customers → {id, name: fullyQualifiedName}",
+      "lastScanAt": null
+    },
+    {
+      "id": "hosted-site",
+      "kind": "site",
+      "title": "Hosted schedule site (schedule.ntxpllc.com)",
+      "tool": "curl",
+      "candidatesKey": "site",
+      "args": { "command": "curl -sS -H \"Authorization: Bearer $BIDFORGE_SITE_TOKEN\" https://schedule.ntxpllc.com/api/projects.php" },
+      "map": "projects → {slug, name}",
+      "lastScanAt": null
+    },
+    {
+      "id": "hosted-site-changes",
+      "kind": "site",
+      "title": "Hosted site unpulled saves (changes.php)",
+      "tool": "curl",
+      "args": { "command": "curl -sS -H \"Authorization: Bearer $BIDFORGE_SITE_TOKEN\" \"https://schedule.ntxpllc.com/api/changes.php?since={lastSyncAt}\" > changes.json" },
+      "lastScanAt": null
+    },
+    {
+      "id": "plaud-recordings",
+      "kind": "meetings",
+      "title": "Plaud recordings (meetings, site visits, calls)",
+      "tool": "mcp__Plaud_AI__list_files",
+      "args": {},
+      "lastScanAt": null
+    },
+    {
+      "id": "gemini-meeting-notes",
+      "kind": "meetings",
+      "title": "Gemini meeting notes (Drive Meetings/ folder)",
+      "tool": "mcp__Google_Drive__search_files",
+      "args": { "query": "fullText contains '{projectName}' and title contains 'Notes by Gemini' and modifiedTime > '{lastSyncAt}'" },
+      "lastScanAt": null
+    }
+  ],
+  "discovered": []
+}

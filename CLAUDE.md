@@ -84,7 +84,8 @@ When you add, rename, or re-version a skill, update **both** manifest files:
   Paths point at `skills/<name>/SKILL.md`.
 
 Skill descriptions in the manifests should match the intent of the skill's
-own frontmatter `description`. Versions are currently `1.0.0` for all plugins.
+own frontmatter `description`. Plugin versions live in both manifests (bidforge-schedules
+tracks the skill's own `version`, currently 2.7.0); bump both together.
 
 The `mygmc-smartcar` plugin is registered in `marketplace.json` with
 `source: "./plugins/mygmc-smartcar"` and carries its **own**
@@ -171,22 +172,23 @@ framework (`index.css` + inline styles). Durations are stored internally in
 
 ## Deploying the web app (docs/)
 
-`docs/` contains a **committed production build** used for static hosting
-(Hostinger Git deploy, per the commit history). The asset references in
-`docs/index.html` are **root-absolute** (`/assets/...`), so the site is served
-from a domain root, not a subpath.
+`docs/` contains a **committed production build** used for hosting at
+**schedule.ntxpllc.com** (Hostinger Git deploy). Since the cloud front end it also carries the PHP
+server (`api/`, `auth/`, `.htaccess`, `.user.ini`, copied from `web/public/`); the private config and
+data live outside the web root (see `web/public/api/README.md`). Vite `base` is `./`
+(relative asset paths), and the site is served from the schedule.ntxpllc.com domain root.
 
 To refresh the deployed site after changing `web/`:
 
 ```bash
-cd web && npm run build      # produces web/dist/
-# then copy web/dist/* into docs/ (index.html + assets/), replacing old hashed bundles
+cd web && npm run build      # produces web/dist/ (includes api/, auth/, .htaccess, .user.ini)
+# then replace docs/ wholesale with web/dist/ (dotfiles included), never merge
 ```
 
 Because the asset filenames are content-hashed, replacing `docs/` wholesale (not
 merging) avoids leaving stale bundles behind. If you change the deploy target to
-a subpath, set Vite's `base` in `web/vite.config.js` accordingly — it is
-currently unset (defaults to `/`).
+a subpath, check `base` in `web/vite.config.js` (currently `./`) and the
+`.htaccess` RewriteBase.
 
 ## Git workflow
 
@@ -210,3 +212,5 @@ currently unset (defaults to `/`).
 | Register a new skill / change versions | both files in `.claude-plugin/` |
 | Update the deployed site | `web/` build → `docs/` |
 | End-user install/usage instructions | `README.md` |
+| Query the canonical schedule from other tools / schedule hook / OAC gate | `skills/bidforge-schedules/references/integration.md` (`scripts/schedule_query.mjs`, `scripts/oac_gate.mjs`, `hooks/`) |
+| Environment scan / ID crosswalk / write guard / JobTread push / lesson metrics (skill) | `skills/bidforge-schedules/references/environment-scan-and-crosswalk.md`, `canonical-and-offramp.md` §4–7, `self-improvement.md`; tests: `node --test skills/bidforge-schedules/` |

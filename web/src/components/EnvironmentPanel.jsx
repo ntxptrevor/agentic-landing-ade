@@ -73,7 +73,7 @@ export default function EnvironmentPanel({ meta, projectName, onConfirm, onLinks
           <button className="btn btn-secondary" onClick={() => { try { navigator.clipboard.writeText(preview); } catch { /* clipboard unavailable */ } }}>Copy Notes block</button>
         </div>
         <pre className="coda-preview">{preview}</pre>
-        <p className="input-hint">{preview.length} / {CODA_MAX_CHARS} characters{preview.includes('· compact') ? ' — compact form (values truncated to fit)' : ''}.</p>
+        <p className="input-hint">{preview.length} / {CODA_MAX_CHARS} characters{preview.includes('· compact') ? ' — compact form (essential links kept; other fields left out to fit the 1,024-character field)' : ''}.</p>
       </div>
 
       <div className="card">

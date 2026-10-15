@@ -19,8 +19,8 @@
     },
     {
       "name": "bidforge-schedules",
-      "description": "NTXP BidForge Schedules - Interactive construction WBS schedule generator from bid documents. Creates Gantt charts, list views, and calendar views with export to JSON, CSV, Markdown, and MS Project XML.",
-      "version": "1.0.0",
+      "description": "NTXP BidForge Schedules v2.7 - canonical construction schedule engine: JEV-tree WBS + CPM, sync with JobTread/Drive/KB/hosted site, Project Coda backup, schedule-router hook and OAC gate, deterministic environment scan + identifier crosswalk, write guard, lesson drift metrics; exports MS Project XML, 11x17 PDF, JSON, CSV, Markdown.",
+      "version": "2.7.0",
       "author": {
         "name": "NTXP"
       },
@@ -30,9 +30,12 @@
         "construction",
         "scheduling",
         "project-management",
-        "wbs"
+        "wbs",
+        "cpm",
+        "jobtread"
       ],
-      "homepage": "https://github.com/jaewon42/agentic-landing-ade"
+      "homepage": "https://github.com/jaewon42/agentic-landing-ade",
+      "hooks": "./skills/bidforge-schedules/hooks/hooks.json"
     },
     {
       "name": "jobtread-integration",

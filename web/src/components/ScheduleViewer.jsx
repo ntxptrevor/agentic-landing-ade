@@ -24,7 +24,7 @@ const TABS = [
   { id: 'export', label: 'Export' },
 ];
 
-export default function ScheduleViewer({ project, meta, hosted, onProcurementImport, onApplyProposals, onMemory, onApplySync, onConfirmOptimization, onLinks, onCoda }) {
+export default function ScheduleViewer({ project, meta, hosted, onProcurementImport, onApplyProposals, onMemory, onApplySync, onConfirmOptimization, onLinks, onCoda, onReorder, onOac }) {
   const [activeTab, setActiveTab] = useState('canonical');
   const [syncOpen, setSyncOpen] = useState(false);
   const [preflight, setPreflight] = useState(null);
@@ -65,10 +65,15 @@ export default function ScheduleViewer({ project, meta, hosted, onProcurementImp
             {tab.label}
           </button>
         ))}
+        {!hosted && (
+          <button className="btn btn-primary btn-sm tab-sync" onClick={() => setSyncOpen(true)} title={meta.sync?.lastSyncAt ? `Last sync ${meta.sync.lastSyncAt}` : 'Never synced'}>
+            ⟳ SYNC
+          </button>
+        )}
       </div>
 
       <div className={activeTab === 'canonical' ? 'canon-wrap' : 'card'}>
-        {activeTab === 'canonical' && <CanonicalSchedule project={project} meta={meta} onSync={() => setSyncOpen(true)} onPreflight={handlePreflight} />}
+        {activeTab === 'canonical' && <CanonicalSchedule project={project} meta={meta} onSync={() => setSyncOpen(true)} onPreflight={handlePreflight} onReorder={onReorder} />}
         {activeTab === 'gantt' && <GanttChart project={project} />}
         {activeTab === 'list' && <ListView project={project} />}
         {activeTab === 'calendar' && <CalendarView project={project} />}
@@ -77,12 +82,12 @@ export default function ScheduleViewer({ project, meta, hosted, onProcurementImp
         {activeTab === 'input' && <InputPanel project={project} onApplyProposals={onApplyProposals} onMemory={onMemory} />}
         {activeTab === 'changelog' && <ChangelogPanel meta={meta} />}
         {activeTab === 'environment' && <EnvironmentPanel meta={meta} projectName={project.name} onConfirm={onConfirmOptimization} onLinks={onLinks} onCoda={onCoda} />}
-        {activeTab === 'export' && <ExportPanel project={project} meta={meta} preflight={preflight} />}
+        {activeTab === 'export' && <ExportPanel project={project} meta={meta} preflight={preflight} onSync={hosted ? null : () => setSyncOpen(true)} onOac={onOac} />}
       </div>
 
       {syncOpen && (
         <SyncModal project={project} meta={meta} onClose={() => setSyncOpen(false)}
-          onApply={(items, bundle) => { onApplySync(items, bundle); setSyncOpen(false); }} />
+          onApply={(items, bundle, held) => { onApplySync(items, bundle, held); setSyncOpen(false); }} />
       )}
     </div>
   );

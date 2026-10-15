@@ -2,7 +2,10 @@
 // Project Coda -> JobTread job custom field "Notes" (backup on every sync event).
 //
 //   build:   node coda_backup.mjs build  canonical.json current_notes.txt <event> [--job <id>] [--field Notes]
-//            -> JSON { notes, block, hash, changed, chars, mutation, readBack }
+//            -> JSON { status:'ready', form, notes, block, hash, changed, chars, mutation, readBack }
+//            -> exit 4 + JSON { status:'skipped', reason:'notes_too_long', budget, minChars, jevRating:3,
+//               message, mutation:null, codaBackup } when the team's notes leave no room for even
+//               the minimal block (head + Live schedule + KB + END). Nothing is written then.
 //   verify:  node coda_backup.mjs verify expected.json readback.json
 //            -> exit 0 when the read-back Notes equals the built value
 //   restore: node coda_backup.mjs restore current_notes.txt
@@ -29,12 +32,27 @@ if (cmd === 'build') {
   if (!jobId) { console.error('No JobTread job id (canonical project.jobtreadJobId or --job).'); process.exit(2); }
   const existing = readNotes(notesPath);
   const last = (doc.changelog || []).slice(-1)[0];
-  const block = lib.buildCodaBlock(coda, { event, canonicalVersion: doc.version || 0, lastChange: last?.id || '' });
+  // The team's notes and the block share the field's 1,024-character limit.
+  const budget = lib.codaBudget(existing);
+  const fit = lib.fitCodaBlock(coda, { event, canonicalVersion: doc.version || 0, lastChange: last?.id || '', maxChars: budget });
+  if (!fit.ok) {
+    // Never truncate the team's notes and never slice the block: write nothing, rate 3.
+    const humanChars = lib.humanNotes(existing).length;
+    const message = `Coda backup skipped: the team's Notes use ${humanChars} of ${lib.NOTES_FIELD_LIMIT} characters, leaving ${Math.max(0, budget)}; the smallest Coda block needs ${fit.minChars}. Shorten the team notes in JobTread (the Coda stays in the project KB).`;
+    process.stdout.write(JSON.stringify({
+      jobId, field, event, status: 'skipped', reason: fit.reason, budget: fit.budget, minChars: fit.minChars, jevRating: 3,
+      message, mutation: null, readBack: null,
+      codaBackup: { status: 'skipped', lastAt: new Date().toISOString(), lastHash: lib.codaHash(coda), error: `notes_too_long: ${message}` },
+    }, null, 2) + '\n');
+    console.error(message);
+    process.exit(4);
+  }
+  const block = fit.block;
   const notes = lib.mergeNotes(existing, block);
   const prior = lib.parseCodaBlock(existing);
   const hash = lib.codaHash(coda);
   const out = {
-    jobId, field, event, hash, chars: notes.length, blockChars: block.length,
+    jobId, field, event, status: 'ready', form: fit.form, budget, hash, chars: notes.length, blockChars: block.length,
     changed: !prior || prior.actualHash !== hash,
     priorTampered: !!prior?.tampered,
     humanNotesPreserved: lib.preservesTeamNotes(existing, notes),

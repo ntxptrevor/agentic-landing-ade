@@ -9,7 +9,7 @@ description: >-
   canonical schedule, or projecttitle.ntxpllc.com/schedule; and when they say "remember this",
   "save this to memory" or "from now on" about scheduling.
 license: MIT
-version: 2.6.0
+version: 2.7.0
 owner: trevor@ntxpllc.com
 requires:
   skills: [ntxp-id, jobtread, ntxp-model-council, ntxp-model-router, hostinger-connector-v3]
@@ -78,7 +78,10 @@ the model council, Hostinger).
 
 ### 1 · Initialize (every conversation) — `references/initialization.md`
 Discover host model, models/council seats, skills/plugins, connectors, project file, JobTread job,
-Drive folder, QuickBooks project, knowledge base and **Project Coda**. Fix anomalies (wrong or
+Drive folder, QuickBooks project, knowledge base and **Project Coda**. Project identifiers come from
+the deterministic environment scan + crosswalk (`scripts/env_scan.mjs` → connector calls →
+`scripts/crosswalk.mjs resolve|verify`; `references/environment-scan-and-crosswalk.md`); ambiguous
+matches are asked, never auto-picked. Fix anomalies (wrong or
 missing job, unlocated folder). Print the confirmation block; on user confirmation append it to
 the optimization chain (canonical + KB).
 
@@ -105,8 +108,10 @@ export HTML + 11x17 PDF + MSPDI XML to Drive and JobTread before quitting.
 ### 5 · Off-ramp and canonical sync — `references/canonical-and-offramp.md`
 Identify the project, locate the bid/project folder, save to the knowledge base (original
 schedule, every input, dated changelog), write 11x17 PDF + MSPDI XML to Drive, push dates to
-JobTread through Pave, back up the Project Coda to the JobTread job "Notes" field. Install the
-daily one-way JobTread pull routine.
+JobTread through Pave (`scripts/jobtread_push.mjs`: one request per task, pushed dates recorded in
+`sync.jobtreadPushed` after read-back), back up the Project Coda to the JobTread job "Notes" field.
+Every write to a derived copy passes `scripts/write_guard.mjs` (never an older version than the target
+holds). Install the daily one-way JobTread pull routine.
 
 ### 6 · Sync — `references/sync-workflow.md`
 SYNC button (top right of the canonical page) or `--sync`: scan JobTread (edits, daily reports,
@@ -125,7 +130,20 @@ JEV rating 1–5 drives highlighting, notification, user gating and model escala
 Measure how much of each schedule later changed and why; propose JEV changes; council votes;
 overwhelming majority applies, anything else is asked of the user next session (user answer is
 canon). Every applied change is a removable, dated entry in `knowledge/lessons-learned.md`.
-"Remember this / from now on" directives go to `knowledge/memory.md` (project or global scope).
+Per-lesson drift metrics are code (`scripts/lessons_metrics.mjs` → `knowledge/metrics/<date>.json`,
+variance beyond threshold flags a lesson for council review); `scripts/lesson_toggle.mjs` marks a lesson
+removed/applied and lists every tagged row and link. "Remember this / from now on" directives go to
+`knowledge/memory.md` (project or global scope).
+
+### 9 · Integration & hooks — `references/integration.md`
+Other tools read the schedule with `scripts/schedule_query.mjs` (summary, lookahead, milestones, critical,
+task, late, changes, activity, oac) and never re-derive it. The `hooks/schedule_router.mjs` UserPromptSubmit hook
+(registered by the marketplace entry and this repo's `.claude/settings.json`) scores prompts — construction
+activity × time/progress signals plus direct schedule terms, calendar/code talk subtracted; fixture
+`hooks/router.test.mjs` — so every stated fact becomes a sourced canonical input (folder routing, no-fork
+`baseVersion` saves). **OAC rule:** every OAC report/agenda/minutes/narrative must pass `scripts/oac_gate.mjs
+--changes changes.json` (fresh sync, no open JEV ≥ 4 items, KB-published = canonical version, no unpulled
+site saves) or run `--sync` first.
 
 ## Files
 
@@ -141,12 +159,18 @@ canon). Every applied change is a removable, dated entry in `knowledge/lessons-l
 | `web/src/utils/mspdi.js` | MS Project XML (.mpp-compatible) |
 | `web/src/utils/preflight.js` | Deterministic pre-flight checks |
 | `scripts/council_merge.mjs` | Seats → consensus data files + report |
-| `scripts/schedule_diff.mjs` | JobTread export vs canonical → `jobtread_manual_edit` items |
+| `scripts/schedule_diff.mjs` | JobTread vs **pushed** dates (three-way) → `jobtread_manual_edit` items; holiday-aware |
+| `scripts/jobtread_push.mjs` | Push plan (one request per task) + record `sync.jobtreadPushed` after read-back |
+| `scripts/write_guard.mjs` | Refuses to write an older canonical than a target holds; records `sync.targets` |
+| `scripts/env_scan.mjs`, `knowledge/sources.json` | Connector queries per source, discovered sources, staleness |
+| `scripts/crosswalk.mjs`, `scripts/lib/crosswalk.mjs` | Deterministic project-identifier crosswalk (resolve / verify drift) |
+| `scripts/lessons_metrics.mjs`, `scripts/lesson_toggle.mjs` | Per-lesson drift metrics; lesson removal / re-apply report |
+| `*.test.mjs` | `node --test skills/bidforge-schedules/` (router fixture, Coda budget, JobTread, crosswalk, guards, lessons) |
 | `scripts/validate_bundle.mjs` | Sync bundle / canonical validation |
 | `scripts/schedule_audit.mjs` | Days sanity audit of five reference scenarios vs council bands |
 | `scripts/council_lag_merge.mjs` | Merges council lag tables (≥2 seats, median lag) |
 | `web/src/data/jevOverlap.js` | Overlap links, hard gates, scope tiers, duration model, gate thresholds |
-| `scripts/coda_backup.mjs` | Project Coda → JobTread job "Notes" block (build, verify, restore) |
+| `scripts/coda_backup.mjs` | Project Coda → JobTread job "Notes" block (build, verify, restore); writes nothing when team notes leave no room |
 | `web/src/utils/codaBackup.js` | Coda block format, merge that preserves the team's notes, parser, hash |
 | `scripts/export_sections.mjs` | Writes versioned knowledge sections from the data files |
 | `schemas/*.schema.json` | Canonical and sync-bundle contracts |
