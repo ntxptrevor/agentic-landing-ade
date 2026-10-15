@@ -486,6 +486,7 @@ export default function App() {
 
   const stepIndex = STEPS.findIndex(s => s.id === step);
   const cloud = server.available && server.authenticated;
+  const readOnly = cloud && !!server.readOnly;
   const dirty = cloud && computed && (serverVersion == null || meta.version !== serverVersion);
 
   if (server.checked && server.available && !server.authenticated) {
@@ -498,8 +499,8 @@ export default function App() {
         <h1><span>BidForge</span> Schedules</h1>
         {cloud && (
           <ProjectBar projects={projects} currentSlug={slug} onSelect={openProject}
-            onInstant={() => { setSlug(''); setStep('instant'); setNotice(null); history.replaceState(null, '', location.pathname); }}
-            onSave={computed ? handleSave : null} saving={saving} dirty={dirty} serverVersion={serverVersion}
+            onInstant={readOnly ? null : () => { setSlug(''); setStep('instant'); setNotice(null); history.replaceState(null, '', location.pathname); }}
+            onSave={computed && !readOnly ? handleSave : null} saving={saving} dirty={dirty} serverVersion={serverVersion}
             status={meta.status} onAward={computed && slug ? handleAward : null}
             user={server.user} onLogout={handleLogout} />
         )}

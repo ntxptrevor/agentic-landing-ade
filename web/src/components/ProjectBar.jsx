@@ -15,7 +15,7 @@ export default function ProjectBar({ projects, currentSlug, onSelect, onInstant,
           ) : null;
         })}
       </select>
-      <button className="btn btn-primary btn-sm" onClick={onInstant}>+ Instant schedule</button>
+      {onInstant ? <button className="btn btn-primary btn-sm" onClick={onInstant}>+ Instant schedule</button> : <span className="project-user">Read-only access</span>}
       {onSave && (
         <button className="btn btn-secondary btn-sm" onClick={onSave} disabled={saving || !dirty} title={serverVersion != null ? `Server holds v${serverVersion}` : 'New project'}>
           {saving ? 'Saving…' : dirty ? 'Save version' : 'Saved'}
