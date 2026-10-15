@@ -9,7 +9,9 @@ keep it from forking.
  any tool / skill / agent ──► schedule_query.mjs ──► canonical.json  (read-only, deterministic)
  any conversation ──► schedule_router hook ──► bidforge input + sourced changelog entry ──► new version
  OAC report request ──► oac_gate.mjs ──fail──► /bidforge-schedules --sync <project> ──► gate again
- schedule.ntxpllc.com ◄──publish.php── KB canonical ──changes.php──► next sync (pending_sync items)
+ schedule.ntxpllc.com ◄──publish.php (per-bundle baseVersion/baseHash)── KB canonical
+ schedule.ntxpllc.com ──changes.php?since=<ISO> (pending saves)──► next sync ──POST ack──► site
+ env_scan.mjs plan ──► connector calls ──► scan.json ──► crosswalk.mjs resolve|verify ──► canonical links
 ```
 
 ## 1 · Querying the schedule (all tools)
@@ -55,26 +57,42 @@ complete), daily reports, ITB briefs (look-ahead) and any agent answering "when 
 
 ## 2 · The schedule router hook
 
-`hooks/schedule_router.mjs` is a Claude Code **UserPromptSubmit** hook. It is registered two ways:
+`hooks/schedule_router.mjs` is a Claude Code **UserPromptSubmit** hook. It is registered in two places:
 
-- **Plugin:** `.claude-plugin/plugin.json` → `"hooks": "./skills/bidforge-schedules/hooks/hooks.json"`,
-  command `node "${CLAUDE_PLUGIN_ROOT}/skills/bidforge-schedules/hooks/schedule_router.mjs"`.
-- **This repo:** `.claude/settings.json`, command `node "$CLAUDE_PROJECT_DIR/skills/bidforge-schedules/hooks/schedule_router.mjs"`.
-  If the plugin is also enabled in this repo, the context is injected twice, which does no harm.
+- **Plugin:** the `bidforge-schedules` entry in `.claude-plugin/marketplace.json` carries
+  `"hooks": "./skills/bidforge-schedules/hooks/hooks.json"`. That file runs
+  `node "${CLAUDE_PLUGIN_ROOT}/skills/bidforge-schedules/hooks/schedule_router.mjs"`. The root
+  `.claude-plugin/plugin.json` lists skills only and does **not** register the hook. Installing
+  another plugin from the same `./` source, such as `landing-ade`, does not load it either.
+- **This repo:** `.claude/settings.json` runs
+  `node "$CLAUDE_PROJECT_DIR/skills/bidforge-schedules/hooks/schedule_router.mjs"`, so the hook
+  also works when the plugin is not installed.
+- **Double registration:** with the plugin enabled *inside this repo*, both registrations fire and
+  the same context is injected twice. This is harmless, because the text is identical and the hook
+  never blocks. To avoid it, disable one of the two.
 
-The hook reads `{prompt, session_id, cwd, …}` from stdin. It only acts on schedule prompts, which it
-detects with word-bounded, case-insensitive matching:
+The hook reads `{prompt, session_id, cwd, …}` from stdin and scores the prompt. Matching is
+word-bounded and case-insensitive, except for milestone abbreviations:
 
-- **Strong terms** (one is enough): Gantt, CPM, critical path, look-ahead, milestone, substantial
-  completion, NTP, notice to proceed, recovery/baseline/project schedule, schedule update/impact,
-  MSPDI, .mpp, MS Project, OAC, pay-app schedule, time extension, liquidated damages, weather days,
-  total/free float, behind/ahead of schedule, WBS, BidForge.
-- **Weak terms** (schedule, duration, delay, slip, sequence, float, baseline, lead time, work days):
-  these count only with construction context (trade, inspection, sub, owner, job, phase…) or with
-  another weak term.
-- **Not routed:** calendar talk such as "schedule a meeting/call/appointment" or "calendar invite".
+| Signal | Examples | Score |
+|---|---|---|
+| Strong schedule term | Gantt, CPM, critical path, look-ahead, milestone, substantial completion, NTP, recovery/baseline/project schedule, schedule update, MSPDI, .mpp, MS Project, OAC, time extension, LDs, weather days, float, behind/ahead of schedule, WBS, BidForge | +5 |
+| Construction activity × time/progress signal | activity: trades, work items, inspections, permits, deliveries, mobilization, punch walk, pay app, CSI terms, SC/FC/TCO; time: dates, weekdays, today, *N days/weeks*, behind/ahead/late, slip, moved, pushed back, passed/failed, rained out, ships, delivered, start/finish, percent complete, "when is…" | +3 |
+| "schedule" as a noun (the/our/this schedule, update the schedule) | | +3 |
+| Weak schedule word next to an activity | duration, delay, sequence, lead time, work days | +2 |
+| Calendar or meeting talk | schedule/book/send/move a meeting, call, appointment or email; calendar invite; dentist; flight; 1:1. Not applied when OAC is mentioned. | −4 |
+| Code questions, personal errands | Python, function, cron, API… / Netflix, movie, my car, gym… | −4 each |
 
-For a schedule prompt it prints `{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"…"}}`
+A prompt with a score of 3 or more is routed. OAC plus report, agenda, minutes, narrative, notes,
+recap, prep or meeting (in either order) adds the **gate step** to the context. The contract is a
+labelled fixture of 66 prompts in `hooks/router.test.mjs`. It contains the council audit #3 probes
+(for example "inspection passed today", "owner moved SC to 12/20", "the AHU ships 3 weeks late",
+"pour got rained out" and "OAC narrative for Thursday") and false positives that must stay silent
+("schedule a meeting with Bob tomorrow", "schedule the email for 9am", "calendar invite",
+"duration of the Netflix show", Python questions). The test asserts recall ≥ 95 % and zero false
+positives, and prints precision and recall.
+
+For a routed prompt the hook prints `{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"…"}}`
 (about 1 kB), which restates rules 3 to 6 below. On anything else, including errors, it exits 0
 silently and never blocks the prompt.
 
@@ -98,19 +116,26 @@ Do not just answer it.
 **Every** OAC report, agenda or minutes generation starts with:
 
 ```bash
-node skills/bidforge-schedules/scripts/oac_gate.mjs <canonical.json> [--max-age-hours 24] [--json]
+curl -sS -H "Authorization: Bearer $BIDFORGE_SITE_TOKEN" "https://schedule.ntxpllc.com/api/changes.php?since=<lastSyncAt>" > changes.json
+node skills/bidforge-schedules/scripts/oac_gate.mjs <canonical.json> --changes changes.json [--max-age-hours 24] [--json]
 ```
 
-The gate exits 0 only when all three of these hold:
+The gate exits 0 only when all four of these hold:
 
 1. The schedule was synced (`sync.lastFullSyncAt` or `sync.lastSyncAt`) within the window (default 24 h).
 2. No pending item rated JEV ≥ 4 is still unacknowledged. Pending items are read from
    `sync.pending` / `pendingItems` / `pending_sync`, plus changelog entries with `acknowledged:false`.
-3. The published version (`sync.publishedVersion`, or `sync.lastPublish.version`) equals the canonical `version`.
+3. The **KB-published** version (`sync.publishedVersion`, or `sync.lastPublish.version`) equals the
+   canonical `version`. Only the agent publish sets `publishedVersion`, after the KB, Drive and
+   JobTread writes are verified. A save on the hosted site sets `sync.siteSavedVersion` and
+   never counts as published.
+4. There are **no unpulled site saves**. Every pending entry for this project in `--changes`
+   (the output of `GET /api/changes.php`) must have been pulled into the KB canonical and
+   acknowledged, and `sync.siteSavedVersion` must not be newer than `sync.publishedVersion`.
 
 If any check fails, the gate prints the reasons and exits 2 with
-`Run /bidforge-schedules --sync <project> before generating the OAC report`. Run the full sync,
-resolve the gated items, republish, then run the gate again. `schedule_query … oac` runs the same
+`Run /bidforge-schedules --sync <project> before generating the OAC report`. Run the full sync
+(pull the site saves too), resolve the gated items, republish, then run the gate again. `schedule_query … oac` runs the same
 gate and refuses (exit 3) rather than produce a stale OAC section. Writers should set
 `sync.publishedVersion` on each publish, `sync.lastFullSyncAt` on each full sync and
 `sync.lastOacAt` after each OAC, which scopes the "changes since last OAC" list.
@@ -133,13 +158,20 @@ files named `<slug>_Schedule_v<N>_<date>.pdf|xml|html`. Never overwrite a publis
 - A save whose `baseVersion` is not the current version is a **conflict**. Reconcile it: reload
   latest, re-apply your inputs as changelog items and re-rate them. Never overwrite and never save
   a parallel copy.
-- **Hosted site** `https://schedule.ntxpllc.com` (API built separately):
-  - Edits made on the site are saved as new versions with `pending_sync` entries.
-  - `GET /api/changes.php?project=<slug>&since=<version>` returns those entries. The next sync
-    pulls them into the KB canonical as sync items, so they enter through the changelog like any
-    other source.
-  - `POST /api/publish.php` pushes the KB canonical back to the site with `baseVersion`/`baseHash`.
-    The site rejects the push if its version moved, and the agent then pulls and reconciles first.
+- **Hosted site** `https://schedule.ntxpllc.com` (API built separately; bearer token from ntxp-id):
+  - A save on the site writes a new site version and a pending entry, and sets
+    `sync.siteSavedVersion`. It is **not** a publish.
+  - `GET /api/changes.php?since=<ISO>` returns the pending, un-acknowledged saves newer than
+    `since`: `{changes:[{slug, version, hash, savedAt, by, reason, sources, canonicalUrl}]}`.
+    Omit `since` to get all of them. The next sync pulls each save into the KB canonical as sync
+    items, so site edits enter through the changelog like any other source. Then
+    `POST /api/changes.php {ack:[{slug, version}]}` acknowledges the pulled entries.
+  - `POST /api/publish.php` pushes KB bundles to the site. **Each bundle carries its own
+    `baseVersion` and `baseHash`** (the site version and hash the agent last pulled). The site
+    refuses a bundle (409) whose base is not its current version, and **refuses every publish while
+    the project has unpulled site saves**. Pull, reconcile and ack first, then publish again.
+  - Before writing, check the site with `write_guard.mjs check <canonical> site --observed-version <site version>`
+    (canonical-and-offramp.md § 7).
   - Both directions are guarded by version, so neither side can silently overwrite the other.
 
 ## 7 · Changelog and source rules
@@ -185,3 +217,12 @@ directly. Pursuits save to the bid folder Schedules/, awarded jobs to 06 - Sched
 immutable. Before any OAC report, agenda or minutes, run oac_gate.mjs; if it fails, run
 /bidforge-schedules --sync <project> first.
 ```
+
+## 10 · Environment scan, crosswalk and write guard
+
+Project identifiers (JobTread job and number, Drive bid/project folders, Lightfield, QuickBooks,
+KB path, site slug) are resolved by deterministic code. `env_scan.mjs` prints the connector
+calls, `crosswalk.mjs resolve|verify` scores the results, and ambiguous matches are never
+auto-picked. See `references/environment-scan-and-crosswalk.md`. Before every write to a derived
+copy (Drive, JobTread, Lightfield, site, KB), run `write_guard.mjs check`. It refuses with exit 2
+to write a canonical older than the target already holds (canonical-and-offramp.md § 7).

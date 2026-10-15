@@ -16,7 +16,9 @@ flow is the JobTread pull, and it enters through the changelog like any other ch
 ## 1 · Identify the project (off-ramp start)
 
 1. Project name and number from the app or conversation. Slug = `slugify(name)`.
-2. Search for JobTread job, Drive bid/project folder and QuickBooks job (initialization § 1).
+2. Find the JobTread job, Drive bid/project folder, Lightfield account and QuickBooks job with the
+   deterministic crosswalk (`env_scan.mjs plan` → connector calls → `crosswalk.mjs resolve`;
+   environment-scan-and-crosswalk.md). Ambiguous matches are asked, never auto-picked.
    If the bid folder exists but no project folder does, the job is still a pursuit: save under
    the bid folder's `Schedules/` and mark `links.driveFolderName` with `(bid)`.
    Drive roots: pursuits `!Active Bids/<bid>/Schedules/`; awarded jobs `!Active Projects/<project>/06 - Schedule/`.
@@ -66,11 +68,27 @@ Read job tasks:
 { "job": { "$": { "id": "<jobId>" }, "tasks": { "$": { "size": 100 },
   "nodes": { "id": {}, "name": {}, "startDate": {}, "endDate": {}, "progress": {}, "updatedAt": {} }, "nextPage": {} } } }
 ```
-Create missing task: `createTask { targetType: "job", targetId, name, startDate, endDate }`.
-Update dates: `updateTask { id, startDate, endDate }` — only changed fields, only for tasks whose
-canonical dates changed in this version. Write `jobTreadTaskId` back to canonical. Record the push
-time as `sync.lastJobtreadPushAt` and the exact JobTread `updatedAt` values returned, so the pull
-can tell NTXP pushes apart from manual edits.
+Push with `scripts/jobtread_push.mjs`. Never hand-write the mutations:
+
+1. Read the job tasks (query above) into `jt_tasks.json`, then run
+   `node scripts/write_guard.mjs check canonical.json jobtread` (§ 7).
+2. `node scripts/jobtread_push.mjs plan canonical.json jt_tasks.json > plan.json` builds **one
+   request per task**. Missing tasks get `createTask { targetType: "job", targetId, name, startDate, endDate }`.
+   Changed tasks get `updateTask { id, <changed fields only> }`. A batched multi-`createTask`
+   request fails on JobTread (2026-10-14 smoke test), so never combine them. A mapped task whose
+   JobTread dates differ from the last recorded push is a manual edit. It is listed under
+   `conflicts` and **not** pushed: pull it first (§ 5).
+3. Send each `plan.requests[i].body` through `mcp__JobTread__query`, in order, one call each.
+4. Run `plan.readBack` and save it as `readback.json`. Then
+   `node scripts/jobtread_push.mjs record canonical.json plan.json readback.json --write` writes
+   `sync.jobtreadPushed[jobTreadTaskId] = {startDate, endDate, progress, updatedAt, version, at}` for
+   every task whose read-back matches. It also writes `jobTreadTaskId` on created tasks and sets
+   `sync.lastJobtreadPushAt`. Mismatches are not recorded (exit 1) and are retried on the next sync.
+5. `node scripts/write_guard.mjs record canonical.json jobtread --write`.
+
+The pushed-dates map is what the pull compares against. A canonical change that has not been
+pushed yet is never mistaken for a manual JobTread edit, which prevents the revert ping-pong
+found in council audit #3 (A-08).
 
 Safe-write model (jobtread-data-integrator): date pushes derived from an approved canonical version
 are allowed; deleting JobTread tasks, editing budgets or documents is never done by this skill.
@@ -81,10 +99,21 @@ Runs on **every** sync event: full sync (SYNC / `--sync`), the daily JobTread pu
 every publish / off-ramp push, initialization when the Coda is created or corrected, and any
 Coda edit. The KB holds the primary Coda; the JobTread "Notes" field is the backup.
 
-**Field limit: 1,024 characters** (JobTread rejects longer values — verified by the 2026-10-14
-smoke test). The team's notes and the block share that budget: `coda_backup.mjs` sizes the block to
-what is left, keeping the live-schedule link, KB, Drive and JobTread pointers whole and truncating the
-rest (`· compact`); the full Coda always lives in the project KB.
+**Field limit: 1,024 characters.** JobTread rejects longer values (verified by the 2026-10-14 smoke
+test). The team's notes and the block share that budget, and `fitCodaBlock` builds the largest form
+that fits. Every form contains both markers, and none is ever sliced:
+
+- **full**: every field.
+- **compact** (`· compact`): the live schedule, KB, Drive and JobTread pointers whole, plus the short
+  instruction "Use the Live schedule link; change dates only via BidForge.". Other fields are
+  added whole while they fit, never truncated.
+- **minimal**: head marker, live schedule, KB and END marker (about 240–300 characters).
+
+When the team's notes leave less room than the minimal block, `coda_backup.mjs build` **writes
+nothing**. It exits 4 with `{status:'skipped', reason:'notes_too_long', budget, minChars, jevRating:3,
+mutation:null, codaBackup}` and tells the user the team notes leave no room. The team's notes are
+never truncated. A realistic Coda still fits in compact form beside about 300 characters of team
+notes. The full Coda always lives in the project KB.
 
 The job-level text custom field is **Notes** (org `22PEKtgSScq2`, field id `22PEPTyrwL4W`; in
 other orgs resolve it by name:
@@ -107,7 +136,9 @@ Procedure (deterministic; the logistics tier runs it, no judgment needed):
    `{ "job": { "$": { "id": "<jobId>" }, "customFieldValues": { "$": { "size": 50 }, "nodes": { "value": {}, "customField": { "name": {} } } } } }`
    and save the "Notes" value to `notes.txt` (use `-` if it is empty).
 2. `node scripts/coda_backup.mjs build canonical.json notes.txt <event> > coda.json`.
-   The output carries `mutation`, `readBack` and `changed`. If it returns `derivedCoda` (the
+   The output carries `mutation`, `readBack` and `changed`. Exit 4 (`status: skipped`,
+   `notes_too_long`) means nothing is sent: record its `codaBackup` (rating 3) and tell the user
+   to shorten the team notes in JobTread. If it returns `derivedCoda` (the
    canonical file had no Coda yet), save that as the canonical Coda first (`updateCoda`). The
    backup is only accepted when its sha matches the current Coda; stale results count as a
    mismatch.
@@ -120,8 +151,8 @@ Procedure (deterministic; the logistics tier runs it, no judgment needed):
 5. Put `codaBackup` into the sync bundle (the popup shows it) and log it in the canonical
    changelog with `recordCodaBackup`. `written` or `unchanged` → rating 1. A failure or mismatch
    → rating 3, retried on the next sync. Three failures in a row → rating 4, shown to the user.
-6. A read-back shorter than the value sent means a field length limit. Rebuild with the compact
-   form (values truncated; every label kept), write again, and note the limit in the KB Coda.
+6. A read-back shorter than the value sent means a field length limit. Rebuild (the builder picks a
+   smaller form), write again, and note the limit in the KB Coda.
 
 Safe-write basis: the block is a generated backup of an approved record and the team's text is
 preserved byte-for-byte, so this falls under the jobtread-data-integrator safe historical writes.
@@ -139,18 +170,31 @@ or delete earlier ones.
 
 ## 4d · Hosted site (schedule.ntxpllc.com)
 
-Publish the KB bundle (`POST /api/publish.php`, bearer token from ntxp-id) after every published
-version, and pull site saves first (`GET /api/changes.php?since=`, then ack) so a version saved on the
-site enters the canonical before the next push. Both directions are version-guarded (409 on a stale
-version) — see `references/integration.md`.
+Pull first: `GET /api/changes.php?since=<ISO>` returns the pending site saves. Bring each one into
+the KB canonical as sync items, then send `POST /api/changes.php {ack:[{slug,version}]}`. A site save
+sets only `sync.siteSavedVersion`, never `publishedVersion`. Then run
+`write_guard.mjs check canonical.json site --observed-version <site version>` and publish
+(`POST /api/publish.php`, bearer token from ntxp-id) with a per-bundle `baseVersion` and `baseHash`.
+The site refuses a stale base (409) and refuses any publish while saves are unpulled. After a
+verified publish, set `sync.publishedVersion` and run `write_guard.mjs record … site`. See
+`references/integration.md` § 6.
 
 ## 5 · One-way JobTread → canonical pull (daily routine and every full sync)
 
 1. Read tasks (query above) and daily logs since `sync.lastJobtreadPullAt`.
 2. Save as `jt_tasks.json` and run
    `node scripts/schedule_diff.mjs canonical.json jt_tasks.json > jt_items.json`.
-   The script ignores tasks whose `updatedAt` equals the recorded push value and emits
-   `jobtread_manual_edit` items (rated: milestone or protected → 4, critical → 3, else 2).
+   This is a three-way diff against `sync.jobtreadPushed` (what BidForge pushed), not against the
+   current canonical:
+   - JobTread equal to the pushed dates → no item. Canonical changes not pushed yet are listed
+     as `pushPending`.
+   - JobTread equal to the canonical → no item.
+   - Otherwise → a `jobtread_manual_edit` item, rated 4 for a milestone or protected task, 3 for
+     a critical task, else 2.
+   - A mapped task with no push snapshot is `skipped` and reported, never guessed.
+   - Durations count working days with the canonical `workingDays` and `holidays`.
+   - An edit that moves a task **earlier** carries `direction:'earlier'` and is rated at least 3,
+     with a note that predecessors may prevent it. The app decides how to show it.
 3. Items join the sync bundle (rating ≥ 4 waits for acknowledgement; ≤ 3 auto-apply in the
    unattended routine and are listed in the next conversation).
 4. Set `sync.lastJobtreadPullAt`.
@@ -171,3 +215,30 @@ prompt: Run /bidforge-schedules --pull-jobtread <project>. Load canonical from <
 `meta.version` increments on every logged change; a **published** version is the version at
 publish time and gets a snapshot. The footer of every output shows `v<N> · <date>`, so any
 printed copy can be traced back to its snapshot.
+
+## 7 · Write guard (every Drive / JobTread / Lightfield / site / KB write)
+
+Each derived copy records the canonical version it holds:
+`sync.targets[<target>] = {version, hash, at}`. The hash is a sha-256 of the canonical with
+`sync` excluded. Targets are `drive`, `jobtread`, `jobtread-notes`, `lightfield`, `site` and
+`kb`.
+
+```bash
+node scripts/write_guard.mjs check canonical.json drive [--observed-version N] [--observed-hash H]
+#   WRITE  (exit 0) — canonical is newer, or the target was never written; prints the record to save
+#   SKIP   (exit 0) — the target already holds this version (same hash)
+#   REFUSE (exit 2) — the target holds a NEWER version, or the same version with a different hash
+#   (a fork). Load the latest canonical or pull the target first. Never write an older version.
+# … do the write and read it back …
+node scripts/write_guard.mjs record canonical.json drive --write
+```
+
+`--observed-version` is the version read from the target itself, and it raises the bar above the
+record. Sources:
+
+- Drive: the file name `…_v<N>_…`.
+- JobTread "Notes": the Coda block's `schedule v<N>`.
+- Site: the project version from `projects.php`.
+- Lightfield: the last "BidForge schedule sync — <project> v<N>" note.
+
+Recording does not bump the canonical version, because it is sync metadata.

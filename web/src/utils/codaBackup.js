@@ -10,7 +10,7 @@ export const CODA_FIELD_NAME = 'Notes';
 // 2026-10-14) — the team's notes and the Coda block share that budget.
 export const NOTES_FIELD_LIMIT = 1024;
 export const CODA_MAX_CHARS = NOTES_FIELD_LIMIT;
-// Kept in full in every form; the rest are shortened first (a restore keeps every label it can).
+// Kept whole in every compact form; other fields are added only while they fit whole.
 const CODA_ESSENTIAL = ['liveSchedule', 'kb', 'jobtread', 'drive'];
 
 export const CODA_FIELDS = [
@@ -55,34 +55,69 @@ export function codaHash(coda) {
   return h.toString(16).padStart(8, '0');
 }
 
-export function buildCodaBlock(coda, { event = 'sync', at = new Date().toISOString(), canonicalVersion = 0, lastChange = '', maxChars = CODA_MAX_CHARS } = {}) {
-  const lines = CODA_FIELDS.map(([k, label]) => `${label}: ${clean(coda[k]) || 'not located'}`);
+// Short, fixed instructions used by every compact form (the full text lives in the KB Coda).
+export const CODA_SHORT_INSTRUCTIONS = 'Use the Live schedule link; change dates only via BidForge.';
+// The smallest block ever written: head marker + Live schedule + Knowledge base + END marker.
+// When even that does not fit beside the team's notes, nothing is written (notes_too_long).
+
+// Builds the largest form that fits in maxChars. Never slices through a marker: every block
+// returned contains CODA_START…CODA_END, and its length is <= maxChars.
+//   → { ok: true, block, form: 'full' | 'compact' | 'minimal', chars }
+//   → { ok: false, reason: 'notes_too_long', budget, minChars } when the minimal block does not fit
+export function fitCodaBlock(coda, { event = 'sync', at = new Date().toISOString(), canonicalVersion = 0, lastChange = '', maxChars = CODA_MAX_CHARS } = {}) {
+  const budget = Math.floor(Number(maxChars));
+  const line = (k, label) => `${label}: ${clean(coda[k]) || 'not located'}`;
+  const lines = CODA_FIELDS.map(([k, label]) => line(k, label));
   const head = `${CODA_START}v${coda.version || 0} · ${at.slice(0, 16)}Z · sha:${codaHash(coda)} ===`;
   const foot = [
     `Last sync: ${at.slice(0, 16)}Z (${event}) · schedule v${canonicalVersion}${lastChange ? ` · ${lastChange}` : ''}`,
     'Regenerated on every BidForge sync — edit the Coda in the project KB, not here.',
     CODA_END,
   ];
-  let block = [head, ...lines, ...foot].join('\n');
-  if (block.length > maxChars) {
-    // Compact form: essential links stay whole (the live schedule link above all); the other
-    // values share what is left and are truncated, every label kept so a restore still works.
-    const shortFoot = [`Last sync: ${at.slice(0, 16)}Z (${event}) · v${canonicalVersion}${lastChange ? ` · ${lastChange}` : ''}`, 'Full Coda in the project KB.', CODA_END];
-    const cHead = head.replace(' ===', ' · compact ===');
-    const ess = CODA_FIELDS.filter(([k]) => CODA_ESSENTIAL.includes(k)).map(([k, label]) => `${label}: ${clean(coda[k]) || 'not located'}`);
-    const rest = CODA_FIELDS.filter(([k]) => !CODA_ESSENTIAL.includes(k));
-    const fixed = [cHead, ...ess, ...shortFoot].join('\n').length + rest.reduce((a, [, l]) => a + l.length + 3, 0);
-    const per = Math.floor((maxChars - fixed) / rest.length);
-    const order = CODA_FIELDS.map(([k, label]) => (CODA_ESSENTIAL.includes(k)
-      ? `${label}: ${clean(coda[k]) || 'not located'}`
-      : `${label}: ${per >= 4 ? (clean(coda[k]) || '-').slice(0, per) : '-'}`));
-    block = [cHead, ...order, ...shortFoot].join('\n');
-    if (block.length > maxChars) {
-      // Minimal form: only the live schedule and KB pointers survive.
-      block = [cHead, ...ess.slice(0, 2), ...shortFoot].join('\n').slice(0, maxChars);
+  const ok = (block, form) => ({ ok: true, block, form, chars: block.length });
+  const full = [head, ...lines, ...foot].join('\n');
+  if (full.length <= budget) return ok(full, 'full');
+
+  // Compact form: the essential links stay whole (the live schedule link above all) and the
+  // instructions become the short fixed text. The other fields are added whole, in field order,
+  // while they fit; a field that does not fit is left out (never truncated) and a restore takes
+  // it from the KB Coda.
+  const cHead = head.replace(' ===', ' · compact ===');
+  const shortFoot = [`Last sync: ${at.slice(0, 16)}Z (${event}) · v${canonicalVersion}${lastChange ? ` · ${lastChange}` : ''}`, 'Full Coda in the project KB.', CODA_END];
+  const instr = `Instructions: ${CODA_SHORT_INSTRUCTIONS}`;
+  const keep = new Set(CODA_ESSENTIAL.concat('instructions'));
+  const render = () => [cHead, ...CODA_FIELDS.filter(([k]) => keep.has(k)).map(([k, label]) => (k === 'instructions' ? instr : line(k, label))), ...shortFoot].join('\n');
+  if (render().length <= budget) {
+    for (const [k, label] of CODA_FIELDS) {
+      if (keep.has(k) || !clean(coda[k])) continue;
+      keep.add(k);
+      if (render().length > budget) keep.delete(k);
     }
+    return ok(render(), 'compact');
   }
-  return block;
+  // Minimal form: head marker + live schedule + KB + END marker.
+  const minimal = minimalCodaBlock(coda, { at });
+  if (minimal.length <= budget) return ok(minimal, 'minimal');
+  return { ok: false, reason: 'notes_too_long', budget, minChars: minimal.length };
+}
+
+// Block string for previews (no team notes). Always contains both markers; when maxChars is
+// smaller than the minimal block, the minimal block is returned anyway — callers that must
+// respect a budget (coda_backup.mjs) use fitCodaBlock and write nothing on notes_too_long.
+export function buildCodaBlock(coda, opts = {}) {
+  const r = fitCodaBlock(coda, opts);
+  return r.ok ? r.block : minimalCodaBlock(coda, opts);
+}
+
+function minimalCodaBlock(coda, { at = new Date().toISOString() } = {}) {
+  const head = `${CODA_START}v${coda.version || 0} · ${at.slice(0, 16)}Z · sha:${codaHash(coda)} · compact ===`;
+  return [head, `Live schedule (HTML): ${clean(coda.liveSchedule) || 'not located'}`, `Knowledge base: ${clean(coda.kb) || 'not located'}`, CODA_END].join('\n');
+}
+
+// Room the team's notes leave for the block in the shared 1,024-character field
+// (the block is separated from the notes by up to two newlines).
+export function codaBudget(existingNotes, limit = NOTES_FIELD_LIMIT) {
+  return limit - humanNotes(existingNotes).length - 2;
 }
 
 function blockSpan(text) {

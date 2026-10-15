@@ -143,7 +143,23 @@ export function entrySources(e) {
   return out;
 }
 
-export function checkGate(v, { maxAgeHours = 24, now = new Date() } = {}) {
+// Unpulled hosted-site saves: entries from GET /api/changes.php (un-acked pending saves) for this
+// project, plus sync.siteSavedVersion newer than the KB-published version.
+export function unpulledSiteSaves(v, changes) {
+  const out = [];
+  const list = Array.isArray(changes) ? changes : arr(changes?.changes);
+  for (const c of list) {
+    if (!c || typeof c !== 'object') continue;
+    if (v.slug && c.slug && c.slug !== v.slug) continue;
+    out.push({ slug: c.slug || v.slug, version: Number(c.version) || null, savedAt: c.savedAt || null, by: c.by || null, reason: c.reason || '' });
+  }
+  const site = Number(v.sync.siteSavedVersion);
+  const pub = publishedVersion(v);
+  if (site && (pub === null || site > pub) && !out.some(c => c.version === site)) out.push({ slug: v.slug, version: site, savedAt: v.sync.siteSavedAt || null, by: null, reason: 'sync.siteSavedVersion > sync.publishedVersion' });
+  return out;
+}
+
+export function checkGate(v, { maxAgeHours = 24, now = new Date(), changes = null } = {}) {
   const reasons = [];
   const last = lastSync(v);
   if (!last) reasons.push('Schedule has never been synced (no sync.lastSyncAt / sync.lastFullSyncAt).');
@@ -156,7 +172,9 @@ export function checkGate(v, { maxAgeHours = 24, now = new Date() } = {}) {
   const pub = publishedVersion(v);
   if (pub === null) reasons.push(`No published version recorded (sync.publishedVersion); canonical is v${v.version}.`);
   else if (pub !== v.version) reasons.push(`Published version v${pub} differs from canonical v${v.version} — republish first.`);
-  return { pass: reasons.length === 0, reasons, lastSync: last, publishedVersion: pub, version: v.version, blockingPending: blocking.length, maxAgeHours };
+  const unpulled = unpulledSiteSaves(v, changes);
+  for (const c of unpulled) reasons.push(`Unpulled site save${c.version ? ` v${c.version}` : ''}${c.savedAt ? ` (${c.savedAt}${c.by ? `, ${c.by}` : ''})` : ''} — pull it into the KB canonical (changes.php) and republish first.`);
+  return { pass: reasons.length === 0, reasons, lastSync: last, publishedVersion: pub, version: v.version, blockingPending: blocking.length, unpulledSiteSaves: unpulled.length, maxAgeHours };
 }
 
 export const GATE_INSTRUCTION = (slug) => `Run /bidforge-schedules --sync ${slug || '<project>'} before generating the OAC report`;

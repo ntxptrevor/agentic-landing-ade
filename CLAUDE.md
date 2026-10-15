@@ -211,3 +211,4 @@ currently unset (defaults to `/`).
 | Update the deployed site | `web/` build → `docs/` |
 | End-user install/usage instructions | `README.md` |
 | Query the canonical schedule from other tools / schedule hook / OAC gate | `skills/bidforge-schedules/references/integration.md` (`scripts/schedule_query.mjs`, `scripts/oac_gate.mjs`, `hooks/`) |
+| Environment scan / ID crosswalk / write guard / JobTread push / lesson metrics (skill) | `skills/bidforge-schedules/references/environment-scan-and-crosswalk.md`, `canonical-and-offramp.md` §4–7, `self-improvement.md`; tests: `node --test skills/bidforge-schedules/` |
