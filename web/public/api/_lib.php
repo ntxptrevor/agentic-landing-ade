@@ -2,11 +2,54 @@
 /**
  * BidForge Schedules — shared server library (schedule.ntxpllc.com).
  *
- * Included by every endpoint in /api and /auth. Has NO side effects on
- * include (no output, no session start) so it can be unit-tested from the CLI.
+ * Included by every endpoint in /api and /auth. No output and no session start
+ * on include. Under a web SAPI it turns display_errors off and installs an
+ * exception handler that answers a generic JSON 500 (details go to error_log
+ * only); under the CLI it has no side effects, so it can be unit-tested.
  * Requires PHP 8.0+. Config lives OUTSIDE the web root — see config.sample.php.
  */
 declare(strict_types=1);
+
+if (PHP_SAPI !== 'cli') {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    ini_set('log_errors', '1');
+    set_exception_handler('bf_exception_handler');
+    register_shutdown_function('bf_shutdown_handler');
+}
+
+/** Uncaught exception → log the details, answer {error:"server_error"} with no paths or messages. */
+function bf_exception_handler(Throwable $e): void
+{
+    error_log('[bidforge] ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    bf_generic_500();
+}
+
+/** Fatal errors (no exception object) → the same generic JSON when nothing was sent yet. */
+function bf_shutdown_handler(): void
+{
+    $err = error_get_last();
+    if ($err !== null && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
+        error_log('[bidforge] fatal: ' . $err['message'] . ' @ ' . $err['file'] . ':' . $err['line']);
+        bf_generic_500();
+    }
+}
+
+function bf_generic_500(): void
+{
+    if (headers_sent()) {
+        return;
+    }
+    while (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+    header_remove();
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    header('X-Content-Type-Options: nosniff');
+    echo '{"error":"server_error","message":"Internal server error"}';
+}
 
 const BF_SLUG_RE = '/^[a-z0-9][a-z0-9-]{1,80}$/';
 const BF_STATUSES = ['bid', 'active', 'closed'];
@@ -67,16 +110,28 @@ function bf_config(): array
         'passphrase_user'      => ['email' => 'team@ntxpllc.com', 'name' => 'NTXP Team'],
         'publish_token_hash'   => '',
         'data_dir'             => '',
+        'passphrase_role'      => 'editor',  // 'editor' (read/write) or 'viewer' (read-only)
         'session_name'         => 'BFSESSID',
-        'session_lifetime'     => 43200,   // 12 h idle timeout
+        'session_idle_minutes' => 240,     // idle timeout
+        'session_max_hours'    => 12,      // absolute lifetime from login
         'cookie_secure'        => null,    // null = auto (secure when the request is HTTPS)
+        'trusted_proxy_header' => '',      // e.g. 'X-Forwarded-For' or 'CF-Connecting-IP'; '' = trust REMOTE_ADDR only
+        'trusted_proxies'      => [],      // optional REMOTE_ADDR allow-list for the header above
         'max_upload_mb'        => 50,
         'max_save_mb'          => 15,
         'max_publish_mb'       => 60,
-        'login_max_attempts'   => 10,
-        'login_window_sec'     => 900,
+        'login_max_attempts'   => 10,      // failed passphrase attempts per client IP …
+        'login_window_sec'     => 900,     // … per window
+        'login_global_max_failures' => 30, // failed passphrase attempts across ALL IPs per window …
+        'login_global_lockout_sec'  => 900, // … then passphrase login is locked for everyone (Google unaffected)
+        'keep_plain_versions'  => 20,      // newest N snapshots stay .json; older ones are gzipped
     ];
+    // Legacy key: session_lifetime (seconds) was the idle timeout.
+    if (isset($loaded['session_lifetime']) && !isset($loaded['session_idle_minutes'])) {
+        $loaded['session_idle_minutes'] = max(1, (int)$loaded['session_lifetime'] / 60);
+    }
     $cfg = array_merge($defaults, $loaded);
+    $cfg['passphrase_role'] = $cfg['passphrase_role'] === 'viewer' ? 'viewer' : 'editor';
     $cfg['allowed_domains'] = array_values(array_filter(array_map(
         static fn($d) => strtolower(trim((string)$d)),
         (array)$cfg['allowed_domains']
@@ -171,17 +226,45 @@ function bf_require_slug($slug): string
     return $slug;
 }
 
-function bf_client_ip(): string
+/** True when a trusted proxy header is configured and the direct peer is allowed to set it. */
+function bf_proxy_trusted(): bool
 {
-    return (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    $cfg = bf_config();
+    if (trim((string)$cfg['trusted_proxy_header']) === '') {
+        return false;
+    }
+    $allow = array_values(array_filter(array_map('strval', (array)$cfg['trusted_proxies'])));
+    return $allow === [] || in_array((string)($_SERVER['REMOTE_ADDR'] ?? ''), $allow, true);
 }
 
+/**
+ * Client IP for rate limiting. REMOTE_ADDR unless `trusted_proxy_header` is
+ * configured (and the peer is in `trusted_proxies`, when that list is set);
+ * then the LAST valid address in that header (the one the proxy appended).
+ */
+function bf_client_ip(): string
+{
+    $remote = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    if (!bf_proxy_trusted()) {
+        return $remote;
+    }
+    $key = 'HTTP_' . strtoupper(str_replace('-', '_', trim((string)bf_config()['trusted_proxy_header'])));
+    $parts = array_reverse(array_map('trim', explode(',', (string)($_SERVER[$key] ?? ''))));
+    foreach ($parts as $ip) {
+        if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
+            return $ip;
+        }
+    }
+    return $remote;
+}
+
+/** HTTPS detection. X-Forwarded-Proto is honoured only behind a configured trusted proxy. */
 function bf_is_https(): bool
 {
     if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') {
         return true;
     }
-    if (strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https') {
+    if (bf_proxy_trusted() && strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https') {
         return true;
     }
     return (string)($_SERVER['SERVER_PORT'] ?? '') === '443';
@@ -226,18 +309,21 @@ function bf_data_dir(): string
         return $dir;
     }
     $cfg = bf_config();
+    $webroot = dirname(__DIR__);
     $d = rtrim(trim((string)$cfg['data_dir']), '/');
     if ($d === '') {
-        $webroot = dirname(__DIR__);
-        $primary = dirname($webroot) . '/bidforge-data';
-        if ((is_dir($primary) && is_writable($primary)) || (!is_dir($primary) && is_writable(dirname($webroot)) && bf_mkdir($primary))) {
-            $d = $primary;
-        } else {
-            $d = __DIR__ . '/data';
-        }
+        // Default: next to (never inside) the web root. No silent fallback into the
+        // Git-deployed folder — that is replaced wholesale on every deploy.
+        $d = dirname($webroot) . '/bidforge-data';
     }
     if (!bf_mkdir($d) || !is_writable($d)) {
-        bf_error(500, 'data_dir_unwritable', 'Data directory is missing or not writable');
+        bf_error(500, 'data_dir_unwritable', 'Data directory is missing or not writable; set data_dir in the private config');
+    }
+    $real = realpath($d) ?: $d;
+    foreach (array_filter([realpath($webroot) ?: $webroot, ($_SERVER['DOCUMENT_ROOT'] ?? '') !== '' ? (realpath((string)$_SERVER['DOCUMENT_ROOT']) ?: null) : null]) as $root) {
+        if ($real === $root || str_starts_with($real . '/', rtrim($root, '/') . '/')) {
+            bf_error(500, 'data_dir_inside_webroot', 'data_dir must be outside the web root; set an absolute data_dir in the private config');
+        }
     }
     if (!is_file($d . '/.htaccess')) {
         @file_put_contents($d . '/.htaccess', BF_DENY_HTACCESS);
@@ -411,31 +497,57 @@ function bf_versions_list(string $slug): array
     }
     $meta = bf_read_json($vdir . '/index.json', []);
     $out = [];
+    $seen = [];
     foreach (scandir($vdir) ?: [] as $f) {
-        if (!preg_match('/^v(\d+)-(\d{4}-\d{2}-\d{2})\.json$/', $f, $m)) {
+        if (!preg_match('/^(v(\d+)-(\d{4}-\d{2}-\d{2})\.json)(\.gz)?$/', $f, $m)) {
             continue;
         }
-        $info = is_array($meta[$f] ?? null) ? $meta[$f] : [];
-        $out[] = [
-            'version' => (int)$m[1],
+        $v = (int)$m[2];
+        if (isset($seen[$v]) && !empty($m[4])) {
+            continue; // plain copy wins (transient state during compression)
+        }
+        $base = $m[1];
+        $info = is_array($meta[$base] ?? null) ? $meta[$base] : [];
+        $seen[$v] = [
+            'version' => $v,
             'file'    => $f,
             'savedAt' => $info['savedAt'] ?? gmdate('Y-m-d\TH:i:s\Z', (int)filemtime($vdir . '/' . $f)),
             'by'      => $info['by'] ?? null,
+            'method'  => $info['method'] ?? null,
             'reason'  => $info['reason'] ?? null,
         ];
     }
+    $out = array_values($seen);
     usort($out, static fn($a, $b) => $b['version'] <=> $a['version']);
     return $out;
 }
 
+/** JSON bytes of a snapshot (transparently gunzips *.json.gz); null when missing. */
+function bf_version_read(string $slug, int $version): ?string
+{
+    foreach (bf_versions_list($slug) as $v) {
+        if ($v['version'] === $version) {
+            $raw = file_get_contents(bf_project_dir($slug) . '/versions/' . $v['file']);
+            if ($raw === false) {
+                return null;
+            }
+            if (str_ends_with($v['file'], '.gz')) {
+                $raw = @gzdecode($raw);
+            }
+            return is_string($raw) ? $raw : null;
+        }
+    }
+    return null;
+}
+
 /** Write an immutable version snapshot (never overwrites an existing file). */
-function bf_version_write(string $slug, int $version, string $json, string $by, ?string $reason): string
+function bf_version_write(string $slug, int $version, string $json, string $by, ?string $reason, ?string $method = null): string
 {
     $vdir = bf_project_dir($slug) . '/versions';
     bf_mkdir($vdir);
     foreach (scandir($vdir) ?: [] as $f) {
-        if (preg_match('/^v0*' . $version . '-\d{4}-\d{2}-\d{2}\.json$/', $f)) {
-            return $f; // already snapshotted — immutable
+        if (preg_match('/^(v0*' . $version . '-\d{4}-\d{2}-\d{2}\.json)(\.gz)?$/', $f, $m)) {
+            return $m[1]; // already snapshotted — immutable
         }
     }
     $file = sprintf('v%03d-%s.json', $version, gmdate('Y-m-d'));
@@ -446,12 +558,241 @@ function bf_version_write(string $slug, int $version, string $json, string $by, 
     fwrite($fh, $json);
     fclose($fh);
     @chmod($vdir . '/' . $file, 0440);
-    bf_with_lock($vdir . '/index.json', static function () use ($vdir, $file, $by, $reason) {
+    bf_with_lock($vdir . '/index.json', static function () use ($vdir, $file, $by, $reason, $method) {
         $idx = bf_read_json($vdir . '/index.json', []);
-        $idx[$file] = ['savedAt' => bf_now(), 'by' => $by, 'reason' => $reason];
+        $idx[$file] = ['savedAt' => bf_now(), 'by' => $by, 'method' => $method, 'reason' => $reason];
         bf_write_atomic($vdir . '/index.json', bf_encode_store($idx));
     });
+    bf_versions_compress($slug);
     return $file;
+}
+
+/** Gzip snapshots older than the newest `keep_plain_versions` (content stays immutable). */
+function bf_versions_compress(string $slug): void
+{
+    if (!function_exists('gzencode')) {
+        return;
+    }
+    $keep = max(1, (int)bf_config()['keep_plain_versions']);
+    $vdir = bf_project_dir($slug) . '/versions';
+    $plain = [];
+    foreach (scandir($vdir) ?: [] as $f) {
+        if (preg_match('/^v(\d+)-\d{4}-\d{2}-\d{2}\.json$/', $f, $m)) {
+            $plain[(int)$m[1]] = $f;
+        }
+    }
+    krsort($plain);
+    foreach (array_slice($plain, $keep, null, true) as $f) {
+        $src = $vdir . '/' . $f;
+        $gz = $src . '.gz';
+        $raw = file_get_contents($src);
+        if ($raw === false || is_file($gz)) {
+            continue;
+        }
+        $fh = @fopen($gz, 'x');
+        if ($fh === false) {
+            continue;
+        }
+        fwrite($fh, (string)gzencode($raw, 9));
+        fclose($fh);
+        @chmod($gz, 0440);
+        if (@gzdecode((string)file_get_contents($gz)) === $raw) {
+            @unlink($src);
+        } else {
+            @unlink($gz);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Incoming canonical validation (version jump, slug match)
+// ---------------------------------------------------------------------------
+
+const BF_MAX_VERSION = 1000000;
+const BF_MAX_VERSION_STEP = 500;
+
+/**
+ * Raw `version` (top-level, else meta.version) of a decoded canonical, validated:
+ * returns [int|null version, ?string errorCode]. Floats (1e20), negatives,
+ * strings that are not plain digits and values above BF_MAX_VERSION are errors.
+ */
+function bf_canonical_version_checked(object $c): array
+{
+    $v = property_exists($c, 'version') ? $c->version
+        : ((isset($c->meta) && is_object($c->meta) && property_exists($c->meta, 'version')) ? $c->meta->version : null);
+    if ($v === null) {
+        return [null, null];
+    }
+    if (is_string($v) && preg_match('/^\d{1,7}$/', $v)) {
+        $v = (int)$v;
+    }
+    if (!is_int($v) || $v < 0) {
+        return [null, 'invalid_version'];
+    }
+    if ($v > BF_MAX_VERSION) {
+        return [null, 'version_jump'];
+    }
+    return [$v, null];
+}
+
+/**
+ * Highest version an incoming canonical may claim on top of $max (the stored
+ * version / newest snapshot): $max + the number of changelog entries added since
+ * the stored canonical (entries newer than its generatedAt, or beyond its
+ * changelog length — whichever is larger), at least +1 and at most +500.
+ */
+function bf_version_ceiling(?object $stored, object $incoming, int $max): int
+{
+    $inLog = (isset($incoming->changelog) && is_array($incoming->changelog)) ? $incoming->changelog : [];
+    if ($stored === null) {
+        return max(BF_MAX_VERSION_STEP, count($inLog) + 1);
+    }
+    $storedLog = (isset($stored->changelog) && is_array($stored->changelog)) ? $stored->changelog : [];
+    $gen = isset($stored->generatedAt) && is_string($stored->generatedAt) ? strtotime($stored->generatedAt) : false;
+    $newer = 0;
+    if ($gen !== false) {
+        foreach ($inLog as $e) {
+            $at = is_object($e) && isset($e->at) && is_string($e->at) ? strtotime($e->at) : false;
+            if ($at !== false && $at > $gen) {
+                $newer++;
+            }
+        }
+    }
+    $added = max($newer, count($inLog) - count($storedLog));
+    return $max + max(1, min(BF_MAX_VERSION_STEP, $added));
+}
+
+/**
+ * A-24: canonical.project.slug, when present, must be the routing slug. Rewrites
+ * it in place; returns the slug the canonical claimed when it differed, else null.
+ */
+function bf_canonical_force_slug(object $c, string $slug): ?string
+{
+    if (isset($c->project) && is_object($c->project) && property_exists($c->project, 'slug') && $c->project->slug !== $slug) {
+        $was = is_scalar($c->project->slug) ? (string)$c->project->slug : '';
+        $c->project->slug = $slug;
+        return $was;
+    }
+    return null;
+}
+
+// ---------------------------------------------------------------------------
+// pending_sync.jsonl (site saves waiting for the KB pull)
+// ---------------------------------------------------------------------------
+
+function bf_pending_path(string $slug): string
+{
+    return bf_project_dir($slug) . '/pending_sync.jsonl';
+}
+
+/** All entries of a project's pending_sync.jsonl. */
+function bf_pending_read(string $path): array
+{
+    $out = [];
+    if (!is_file($path)) {
+        return $out;
+    }
+    foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+        $e = json_decode($line, true);
+        if (is_array($e)) {
+            $out[] = $e;
+        }
+    }
+    return $out;
+}
+
+/** Versions of un-acknowledged site saves (ascending). */
+function bf_pending_unpulled(string $slug): array
+{
+    $v = [];
+    foreach (bf_pending_read(bf_pending_path($slug)) as $e) {
+        if (empty($e['pulledAt']) && isset($e['version']) && is_numeric($e['version'])) {
+            $v[] = (int)$e['version'];
+        }
+    }
+    sort($v);
+    return array_values(array_unique($v));
+}
+
+// ---------------------------------------------------------------------------
+// Changelog (markdown) + sources
+// ---------------------------------------------------------------------------
+
+function bf_md_escape(string $s): string
+{
+    return str_replace(['[', ']', "\n", "\r"], ['\\[', '\\]', ' ', ' '], $s);
+}
+
+/** Only http(s) and site-relative links survive (no javascript:, data:, //host). */
+function bf_safe_link($url): string
+{
+    $url = is_string($url) ? trim($url) : '';
+    return preg_match('#^(https?://[^\s()<>]+|/(?!/)[^\s()<>]*)$#i', $url) ? $url : '';
+}
+
+/** Normalise a sources list: [{type,title,url,date}], max 50. */
+function bf_sources_clean($sources): array
+{
+    $out = [];
+    foreach (is_array($sources) ? $sources : [] as $s) {
+        if (is_object($s)) {
+            $s = json_decode(json_encode($s), true);
+        }
+        if (!is_array($s)) {
+            continue;
+        }
+        $e = [];
+        foreach (['type', 'title', 'date'] as $k) {
+            if (isset($s[$k]) && is_scalar($s[$k]) && (string)$s[$k] !== '') {
+                $e[$k] = mb_substr(preg_replace('/[\x00-\x1f]+/', ' ', (string)$s[$k]) ?? '', 0, 200);
+            }
+        }
+        $url = bf_safe_link($s['url'] ?? $s['link'] ?? '');
+        if ($url !== '') {
+            $e['url'] = $url;
+        }
+        if ($e) {
+            $out[] = $e;
+        }
+        if (count($out) >= 50) {
+            break;
+        }
+    }
+    return $out;
+}
+
+/** Markdown for a sources list: "type: [title](url) (date); …". */
+function bf_sources_md(array $sources): string
+{
+    $parts = [];
+    foreach ($sources as $s) {
+        $title = bf_md_escape((string)($s['title'] ?? $s['type'] ?? 'source'));
+        $label = isset($s['type']) ? bf_md_escape((string)$s['type']) . ': ' : '';
+        $date = isset($s['date']) ? ' (' . bf_md_escape((string)$s['date']) . ')' : '';
+        $url = bf_safe_link($s['url'] ?? '');
+        $parts[] = $url !== '' ? "{$label}[{$title}]({$url}){$date}" : "{$label}{$title}{$date}";
+    }
+    return implode('; ', $parts);
+}
+
+/** Append one dated changelog.md line (creating the file with a title). */
+function bf_changelog_append(string $slug, string $text, array $sources, string $title): void
+{
+    $clPath = bf_project_dir($slug) . '/changelog.md';
+    $line = '- ' . gmdate('Y-m-d') . ' — ' . $text . ($sources ? ' — Sources: ' . bf_sources_md($sources) : '') . "\n";
+    bf_with_lock($clPath, static function () use ($clPath, $line, $title) {
+        if (!is_file($clPath)) {
+            $line = '# ' . bf_md_escape($title) . " — Schedule Changelog\n\n" . $line;
+        }
+        bf_append_line($clPath, $line);
+    });
+}
+
+/** Project title for a new changelog. */
+function bf_canonical_title(?object $c, string $fallback): string
+{
+    return ($c !== null && isset($c->project) && is_object($c->project) && isset($c->project->name) && is_string($c->project->name))
+        ? $c->project->name : $fallback;
 }
 
 // ---------------------------------------------------------------------------
@@ -485,7 +826,61 @@ function bf_activity_append(string $slug, array $entry): void
     });
 }
 
-/** Merge entries (dedupe on ts+source+kind+text). */
+/**
+ * Keep only the activity-stream schema fields of an entry
+ * {ts, source, kind, text, link, rating, critical, sources, method, by}; links are scheme-checked.
+ * Returns null when ts/text are missing.
+ */
+function bf_activity_clean($e): ?array
+{
+    if (is_object($e)) {
+        $e = json_decode(json_encode($e), true);
+    }
+    if (!is_array($e) || !isset($e['ts'], $e['text']) || !is_string($e['ts']) || !is_scalar($e['text']) || strtotime($e['ts']) === false) {
+        return null;
+    }
+    $out = ['ts' => $e['ts'], 'text' => mb_substr((string)$e['text'], 0, 1000)];
+    foreach (['source', 'kind', 'method', 'by'] as $k) {
+        if (isset($e[$k]) && is_scalar($e[$k])) {
+            $out[$k] = mb_substr((string)$e[$k], 0, 80);
+        }
+    }
+    $link = bf_safe_link($e['link'] ?? '');
+    if ($link !== '') {
+        $out['link'] = $link;
+    }
+    if (isset($e['rating']) && is_numeric($e['rating'])) {
+        $out['rating'] = 0 + $e['rating'];
+    }
+    if (isset($e['critical'])) {
+        $out['critical'] = $e['critical'] === true;
+    }
+    if (isset($e['sources'])) {
+        $out['sources'] = bf_sources_clean($e['sources']);
+    }
+    return $out;
+}
+
+/** Merge a canonical's per-change `activity` array into the stream; returns entries added. */
+function bf_activity_merge_canonical(string $slug, object $canonical, ?string $method = null): int
+{
+    if (!isset($canonical->activity) || !is_array($canonical->activity)) {
+        return 0;
+    }
+    $in = [];
+    foreach (array_slice($canonical->activity, 0, 500) as $e) {
+        $c = bf_activity_clean($e);
+        if ($c !== null) {
+            if ($method !== null && !isset($c['method'])) {
+                $c['method'] = $method;
+            }
+            $in[] = $c;
+        }
+    }
+    return $in ? bf_activity_merge($slug, $in) : 0;
+}
+
+/** Merge entries (dedupe on ts+text). */
 function bf_activity_merge(string $slug, array $incoming): int
 {
     $path = bf_project_dir($slug) . '/activity_stream.json';
@@ -497,7 +892,8 @@ function bf_activity_merge(string $slug, array $incoming): int
         }
         $added = 0;
         foreach ($incoming as $e) {
-            if (!is_array($e) || !isset($e['ts'], $e['text'])) {
+            $e = bf_activity_clean($e);
+            if ($e === null) {
                 continue;
             }
             $k = bf_activity_key($e);
@@ -514,7 +910,7 @@ function bf_activity_merge(string $slug, array $incoming): int
 
 function bf_activity_key(array $e): string
 {
-    return hash('sha256', json_encode([$e['ts'] ?? '', $e['source'] ?? '', $e['kind'] ?? '', $e['text'] ?? '']));
+    return hash('sha256', json_encode([(string)($e['ts'] ?? ''), (string)($e['text'] ?? '')]));
 }
 
 /** {critical, recent} views of the activity stream. */
@@ -566,9 +962,11 @@ function bf_index_normalize(array $e): array
     $slug = (string)$e['slug'];
     $status = bf_normalize_status($e['status'] ?? 'active');
     $name = (string)($e['name'] ?? $slug);
-    $folder = (is_array($e['folder'] ?? null) && isset($e['folder']['kind'], $e['folder']['path']))
+    $route = bf_folder_for($status, $name);
+    // A stored folder is kept only while it routes to the right kind (bid vs project).
+    $folder = (is_array($e['folder'] ?? null) && isset($e['folder']['kind'], $e['folder']['path']) && $e['folder']['kind'] === $route['kind'])
         ? ['kind' => (string)$e['folder']['kind'], 'path' => (string)$e['folder']['path']]
-        : bf_folder_for($status, $name);
+        : $route;
     $norm = [
         'slug'          => $slug,
         'name'          => $name,
@@ -579,6 +977,9 @@ function bf_index_normalize(array $e): array
         'version'       => isset($e['version']) && is_numeric($e['version']) ? (int)$e['version'] : null,
         'updatedAt'     => $e['updatedAt'] ?? null,
         'scDate'        => $e['scDate'] ?? null,
+        // Set ONLY by publish.php (KB → site); a site save records siteSavedVersion instead.
+        'publishedVersion' => isset($e['publishedVersion']) && is_numeric($e['publishedVersion']) ? (int)$e['publishedVersion'] : null,
+        'siteSavedVersion' => isset($e['siteSavedVersion']) && is_numeric($e['siteSavedVersion']) ? (int)$e['siteSavedVersion'] : null,
         'folder'        => $folder,
         'liveUrl'       => '/?project=' . $slug,
     ];
@@ -620,15 +1021,19 @@ function bf_index_upsert(array $slugMutators): array
 // Rate limiting (file-based, per IP)
 // ---------------------------------------------------------------------------
 
-function bf_rl_path(string $bucket): string
+/** Bucket file; $key null = per client IP, else a fixed key (e.g. 'global'). */
+function bf_rl_path(string $bucket, ?string $key = null): string
 {
-    return bf_data_dir() . '/ratelimit/' . $bucket . '-' . hash('sha256', bf_client_ip()) . '.json';
+    return bf_data_dir() . '/ratelimit/' . $bucket . '-' . hash('sha256', $key ?? bf_client_ip()) . '.json';
 }
 
-/** Seconds until allowed again, or 0 if not blocked. */
-function bf_rl_blocked(string $bucket, int $max, int $window): int
+function bf_rl_hits(string $p, int $window): array
 {
-    $hits = array_filter((array)bf_read_json(bf_rl_path($bucket), []), static fn($t) => is_int($t) && $t > time() - $window);
+    return array_values(array_filter((array)bf_read_json($p, []), static fn($t) => is_int($t) && $t > time() - $window));
+}
+
+function bf_rl_wait(array $hits, int $max, int $window): int
+{
     if (count($hits) < $max) {
         return 0;
     }
@@ -636,19 +1041,82 @@ function bf_rl_blocked(string $bucket, int $max, int $window): int
     return max(1, $hits[count($hits) - $max] + $window - time());
 }
 
-function bf_rl_hit(string $bucket, int $window): void
+/** Seconds until allowed again, or 0 if not blocked (read under the bucket lock). */
+function bf_rl_blocked(string $bucket, int $max, int $window, ?string $key = null): int
 {
-    $p = bf_rl_path($bucket);
-    bf_with_lock($p, static function () use ($p, $window) {
-        $hits = array_values(array_filter((array)bf_read_json($p, []), static fn($t) => is_int($t) && $t > time() - $window));
+    $p = bf_rl_path($bucket, $key);
+    return (int)bf_with_lock($p, static fn() => bf_rl_wait(bf_rl_hits($p, $window), $max, $window));
+}
+
+/**
+ * Atomic check-and-record: under the lock, refuse (return wait seconds) when
+ * $max hits are already in the window, else record this attempt and return 0.
+ * Callers clear the bucket after a success. Parallel bursts cannot exceed $max.
+ */
+function bf_rl_take(string $bucket, int $max, int $window, ?string $key = null): int
+{
+    $p = bf_rl_path($bucket, $key);
+    $wait = (int)bf_with_lock($p, static function () use ($p, $max, $window) {
+        $hits = bf_rl_hits($p, $window);
+        if (($w = bf_rl_wait($hits, $max, $window)) > 0) {
+            return $w;
+        }
         $hits[] = time();
         bf_write_atomic($p, json_encode($hits));
+        return 0;
+    });
+    bf_rl_gc();
+    return $wait;
+}
+
+/** Record a hit; returns the number of hits now in the window. */
+function bf_rl_hit(string $bucket, int $window, ?string $key = null): int
+{
+    $p = bf_rl_path($bucket, $key);
+    $n = (int)bf_with_lock($p, static function () use ($p, $window) {
+        $hits = bf_rl_hits($p, $window);
+        $hits[] = time();
+        bf_write_atomic($p, json_encode($hits));
+        return count($hits);
+    });
+    bf_rl_gc();
+    return $n;
+}
+
+function bf_rl_clear(string $bucket, ?string $key = null): void
+{
+    $p = bf_rl_path($bucket, $key);
+    bf_with_lock($p, static function () use ($p) {
+        @unlink($p);
     });
 }
 
-function bf_rl_clear(string $bucket): void
+/** Lockout marker: seconds remaining (0 = not locked). */
+function bf_rl_locked(string $name): int
 {
-    @unlink(bf_rl_path($bucket));
+    $until = (int)(bf_read_json(bf_data_dir() . '/ratelimit/lock-' . $name . '.json', [])['until'] ?? 0);
+    return max(0, $until - time());
+}
+
+function bf_rl_lock(string $name, int $seconds): void
+{
+    bf_write_atomic(bf_data_dir() . '/ratelimit/lock-' . $name . '.json', json_encode(['until' => time() + $seconds, 'at' => bf_now()]));
+}
+
+/** Delete rate-limit files untouched for more than 24 h. */
+function bf_rl_gc(): void
+{
+    $dir = bf_data_dir() . '/ratelimit';
+    $cut = time() - 86400;
+    foreach (scandir($dir) ?: [] as $f) {
+        if ($f[0] === '.' || !preg_match('/\.(json|lock)$/', $f)) {
+            continue;
+        }
+        $p = $dir . '/' . $f;
+        if (is_file($p) && (int)@filemtime($p) < $cut) {
+            @unlink($p);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -661,7 +1129,9 @@ function bf_session_start(): void
         return;
     }
     $cfg = bf_config();
-    $life = (int)$cfg['session_lifetime'];
+    $idle = max(60, (int)round((float)$cfg['session_idle_minutes'] * 60));
+    $maxAge = max(1, (int)round((float)$cfg['session_max_hours'] * 3600));
+    $life = max($idle, min($maxAge, 7 * 86400));
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.use_trans_sid', '0');
@@ -683,7 +1153,9 @@ function bf_session_start(): void
     ]);
     session_start();
     if (!empty($_SESSION['user'])) {
-        if (time() - (int)($_SESSION['last'] ?? 0) > $life) {
+        $now = time();
+        // Idle timeout AND absolute lifetime (from login), whichever comes first.
+        if ($now - (int)($_SESSION['last'] ?? 0) > $idle || $now - (int)($_SESSION['loginAt'] ?? 0) > $maxAge) {
             $_SESSION = [];
         } else {
             $_SESSION['last'] = time();
@@ -695,7 +1167,25 @@ function bf_current_user(): ?array
 {
     bf_session_start();
     $u = $_SESSION['user'] ?? null;
-    return is_array($u) ? $u : null;
+    if (!is_array($u)) {
+        return null;
+    }
+    $u['role'] = bf_user_role($u);
+    return $u;
+}
+
+/** 'viewer' for passphrase sessions when passphrase_role is 'viewer'; else 'editor'. Evaluated per request. */
+function bf_user_role(array $u): string
+{
+    return (($u['method'] ?? '') === 'passphrase' && bf_config()['passphrase_role'] === 'viewer') ? 'viewer' : 'editor';
+}
+
+/** Write endpoints (save/upload): 403 read_only for viewer sessions. */
+function bf_require_editor(array $u): void
+{
+    if (bf_user_role($u) !== 'editor') {
+        bf_error(403, 'read_only', 'Passphrase sessions are read-only on this site; sign in with Google to edit');
+    }
 }
 
 function bf_require_user(): array
@@ -724,11 +1214,32 @@ function bf_login(array $user): void
 function bf_session_payload(): array
 {
     $cfg = bf_config();
+    $u = bf_current_user();
     return [
-        'authenticated' => bf_current_user() !== null,
-        'user'          => bf_current_user(),
+        'authenticated' => $u !== null,
+        'user'          => $u,
+        'readOnly'      => $u !== null && $u['role'] !== 'editor',
         'authMethods'   => ['google' => bf_google_configured($cfg), 'passphrase' => bf_passphrase_configured($cfg)],
     ];
+}
+
+/**
+ * Public /?auth_error= codes (the SPA maps exactly these):
+ * bad_state, access_denied, domain, token, config, nonce, unverified.
+ */
+const BF_AUTH_ERRORS = ['bad_state', 'access_denied', 'domain', 'token', 'config', 'nonce', 'unverified'];
+
+function bf_auth_error_code(string $internal): string
+{
+    $map = [
+        'google_not_configured' => 'config', 'config' => 'config',
+        'bad_state' => 'bad_state', 'state_expired' => 'bad_state',
+        'access_denied' => 'access_denied',
+        'domain_not_allowed' => 'domain', 'hd_mismatch' => 'domain', 'no_email' => 'domain',
+        'email_unverified' => 'unverified',
+        'bad_nonce' => 'nonce',
+    ];
+    return $map[$internal] ?? 'token'; // no_code, token_exchange_failed, token_invalid, bad_audience, bad_issuer, token_expired, other Google errors
 }
 
 /** "host[:port]" of an Origin/Referer URL, lowercased; null when unparsable. */

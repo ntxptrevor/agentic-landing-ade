@@ -1,15 +1,39 @@
 # BidForge Schedules — schedule.ntxpllc.com (Apache / LiteSpeed)
+# web/dev-server/router.php emulates the headers below for `php -S` tests — keep the two in sync.
 Options -Indexes
 DirectoryIndex index.html
+
+# The pdf.js module worker (assets/pdf.worker.min-*.mjs) must be served as JavaScript:
+# browsers refuse module scripts/workers with application/octet-stream (strict MIME check).
+<IfModule mod_mime.c>
+  AddType text/javascript .js .mjs
+</IfModule>
 
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Frame-Options "SAMEORIGIN"
+  # SPA Content-Security-Policy, matched to the Vite build: module scripts from 'self' only (no inline
+  # script, no eval — pdf.js probes eval in try/catch and falls back), Google Fonts CSS + font files,
+  # data:/blob: images, same-origin XHR, the pdf.js module worker from 'self' (blob: for fallbacks),
+  # and the Google sign-in hand-off as the only off-site form target.
+  # /api/live.php adds its own stricter policy (sandbox, no scripts); browsers enforce both.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://accounts.google.com"
   # HSTS: enable once HTTPS is confirmed working for schedule.ntxpllc.com.
   # Browsers cache this for max-age; do not add includeSubDomains/preload unless
   # every ntxpllc.com subdomain is HTTPS-only.
   # Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
+
+# Caching: content-hashed build output (assets/<name>-<8-char hash>.js|mjs|css) never changes;
+# index.html must always be revalidated so a deploy is picked up immediately.
+<IfModule mod_headers.c>
+  <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|mjs|css|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "^index\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
 </IfModule>
 
 # Config / private files are never served (they normally live outside the web root anyway).
@@ -31,9 +55,11 @@ DirectoryIndex index.html
   RewriteCond %{HTTP:Authorization} .
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-  # Force HTTPS (skips when already HTTPS or behind a TLS-terminating proxy).
+  # Force HTTPS (skips when already HTTPS). A client-supplied X-Forwarded-Proto is NOT trusted.
+  # Only if the site sits behind a TLS-terminating proxy/CDN that you control, also set
+  # trusted_proxy_header in the private config and uncomment the X-Forwarded-Proto line.
   RewriteCond %{HTTPS} !=on
-  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !=https
   RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
@@ -41,7 +67,7 @@ DirectoryIndex index.html
   RewriteRule (^|/)\.(?!well-known/) - [F,L]
   # Deny data dirs, JSON/JSONL/markdown and private files under api/ and anything named bidforge-data/-config.
   RewriteRule ^api/(data|dev)(/|$) - [F,L]
-  RewriteRule ^api/.+\.(json|jsonl|md|lock|log)$ - [F,L]
+  RewriteRule ^api/.+\.(json|jsonl|md|lock|log|gz)$ - [F,L]
   RewriteRule ^api/(_[^/]*|config[^/]*)\.php$ - [F,L]
   RewriteRule (^|/)bidforge-(data|config) - [F,L]
 

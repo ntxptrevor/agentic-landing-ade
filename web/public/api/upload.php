@@ -9,6 +9,7 @@ require __DIR__ . '/_lib.php';
 
 bf_require_csrf();
 $user = bf_require_user();
+bf_require_editor($user);
 $cfg = bf_config();
 $maxBytes = (int)$cfg['max_upload_mb'] * 1048576;
 
@@ -86,6 +87,7 @@ foreach ($files as $file) {
         'mime'    => $mime,
         'savedAt' => bf_now(),
         'by'      => (string)$user['email'],
+        'method'  => (string)($user['method'] ?? 'unknown'),
         'path'    => 'uploads/' . $day . '/' . $stored,
         'url'     => '/api/file.php?slug=' . rawurlencode($slug) . '&id=' . $id,
     ];
@@ -101,6 +103,7 @@ if ($records) {
     $n = count($records);
     bf_activity_append($slug, [
         'ts' => bf_now(), 'source' => 'schedule', 'kind' => 'upload',
+        'by' => (string)$user['email'], 'method' => (string)($user['method'] ?? 'unknown'),
         'text' => $n . ' file' . ($n === 1 ? '' : 's') . " uploaded ({$kind}) by {$user['email']}: " . mb_substr(implode(', ', $names), 0, 400),
         'link' => $n === 1 ? $records[0]['url'] : '/?project=' . $slug,
     ]);

@@ -1,18 +1,24 @@
 <?php
 /**
  * GET /auth/callback.php — Google OAuth redirect target.
- * Validates state, exchanges the code, verifies the ID token via tokeninfo
- * (aud, iss, exp, email_verified, domain + hd, nonce), creates the session,
- * then redirects to "/" (or the saved next path). Failures → "/?auth_error=<code>".
+ * Validates state, exchanges the code, verifies the ID token via Google's
+ * tokeninfo endpoint (POST body, never a URL query) — aud, iss, exp,
+ * email_verified, domain + hd, nonce — creates the session, then redirects to
+ * "/" (or the saved next path).
+ * Failures → "/?auth_error=<code>", code ∈ BF_AUTH_ERRORS:
+ *   bad_state, access_denied, domain, token, config, nonce, unverified.
  */
 declare(strict_types=1);
 require __DIR__ . '/../api/_lib.php';
 
-$fail = static function (string $code): void {
+$fail = static function (string $internal): void {
     if (session_status() === PHP_SESSION_ACTIVE) {
         unset($_SESSION['oauth']);
     }
-    bf_redirect('/?auth_error=' . rawurlencode($code));
+    if (!in_array($internal, ['bad_state', 'access_denied'], true)) {
+        error_log('[bidforge] google login failed: ' . $internal);
+    }
+    bf_redirect('/?auth_error=' . rawurlencode(bf_auth_error_code($internal)));
 };
 
 $cfg = bf_config();
@@ -22,7 +28,7 @@ if (!bf_google_configured($cfg)) {
 bf_session_start();
 $oauth = $_SESSION['oauth'] ?? null;
 if (isset($_GET['error'])) {
-    $fail(preg_match('/^[a-z_]{1,40}$/', (string)$_GET['error']) ? (string)$_GET['error'] : 'oauth_error');
+    $fail((string)$_GET['error'] === 'access_denied' ? 'access_denied' : 'oauth_error');
 }
 $state = (string)($_GET['state'] ?? '');
 if (!is_array($oauth) || $state === '' || !hash_equals((string)$oauth['state'], $state)) {
@@ -48,7 +54,8 @@ if ($st !== 200 || !is_array($tok) || empty($tok['id_token'])) {
     $fail('token_exchange_failed');
 }
 
-[$st2, $body2] = bf_http('GET', 'https://oauth2.googleapis.com/tokeninfo?id_token=' . rawurlencode((string)$tok['id_token']));
+// ID token goes in the POST body so it never lands in proxy/access logs as a URL query.
+[$st2, $body2] = bf_http('POST', 'https://oauth2.googleapis.com/tokeninfo', ['id_token' => (string)$tok['id_token']]);
 $claims = json_decode($body2, true);
 if ($st2 !== 200 || !is_array($claims)) {
     $fail('token_invalid');

@@ -69,5 +69,40 @@ check('token match password_hash', bf_token_matches('abc', password_hash('abc', 
 check('canonical version: top-level first', bf_canonical_version(['version' => 4, 'meta' => ['version' => 2]]) === 4);
 check('canonical version: meta fallback', bf_canonical_version(['meta' => ['version' => 2]]) === 2);
 
+// Public auth_error codes (the SPA maps exactly these seven)
+$map = [
+    'google_not_configured' => 'config', 'bad_state' => 'bad_state', 'state_expired' => 'bad_state',
+    'access_denied' => 'access_denied', 'domain_not_allowed' => 'domain', 'hd_mismatch' => 'domain',
+    'email_unverified' => 'unverified', 'bad_nonce' => 'nonce', 'token_exchange_failed' => 'token',
+    'token_invalid' => 'token', 'bad_audience' => 'token', 'bad_issuer' => 'token', 'token_expired' => 'token',
+    'no_code' => 'token', 'oauth_error' => 'token', 'anything_else' => 'token',
+];
+foreach ($map as $in => $want) {
+    check("auth_error $in -> $want", bf_auth_error_code($in) === $want && in_array($want, BF_AUTH_ERRORS, true));
+}
+check('every claim-validation error maps to a public code', (static function () use ($cfg, $good, $now) {
+    foreach (['aud' => 'x', 'iss' => 'x', 'exp' => '1', 'email_verified' => 'false', 'hd' => 'x', 'nonce' => 'x'] as $k => $v) {
+        $e = bf_validate_google_claims([$k => $v] + $good, $cfg, 'NONCE456', $now);
+        if ($e === null || !in_array(bf_auth_error_code($e), BF_AUTH_ERRORS, true)) {
+            return false;
+        }
+    }
+    return true;
+})());
+
+// Link scheme + version validation helpers
+check('safe_link keeps https and /relative', bf_safe_link('https://x.io/a') === 'https://x.io/a' && bf_safe_link('/?project=a') === '/?project=a');
+check('safe_link drops javascript:, data:, //host', bf_safe_link('javascript:alert(1)') === '' && bf_safe_link('data:text/html,x') === '' && bf_safe_link('//evil.com') === '');
+check('version check: int ok', bf_canonical_version_checked((object)['version' => 7]) === [7, null]);
+check('version check: float 1e20 invalid', bf_canonical_version_checked((object)['version' => 1e20]) === [null, 'invalid_version']);
+check('version check: > 1e6 is a jump', bf_canonical_version_checked((object)['version' => 1000001]) === [null, 'version_jump']);
+check('version check: negative invalid', bf_canonical_version_checked((object)['version' => -1]) === [null, 'invalid_version']);
+$stored = (object)['changelog' => [(object)['id' => 'a']]];
+check('version ceiling: +changelog growth', bf_version_ceiling($stored, (object)['changelog' => array_fill(0, 4, (object)[])], 5) === 8);
+check('version ceiling: at least +1', bf_version_ceiling($stored, (object)[], 5) === 6);
+check('version ceiling: at most +500', bf_version_ceiling($stored, (object)['changelog' => array_fill(0, 900, (object)[])], 5) === 505);
+$c = (object)['project' => (object)['slug' => 'other']];
+check('slug forced to routing slug', bf_canonical_force_slug($c, 'mine') === 'other' && $c->project->slug === 'mine');
+
 echo "\n$pass passed, $fail failed\n";
 exit($fail ? 1 : 0);

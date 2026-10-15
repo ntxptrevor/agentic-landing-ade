@@ -27,6 +27,8 @@ bf_json([
     'hash'      => $hash,           // sha256 of stored canonical.json bytes (send back as baseHash)
     'liveUrl'   => '/?project=' . $slug,
     'hasLive'   => is_file($dir . '/live.html'),
+    'liveVersion' => is_file($dir . '/live.json') ? (bf_read_json($dir . '/live.json', [])['version'] ?? null) : null,
+    'unpulled'  => bf_pending_unpulled($slug), // site saves the KB has not pulled yet
     'activity'  => bf_activity_views(bf_activity_read($slug)),
     'versions'  => bf_versions_list($slug),
     'uploads'   => $uploads,        // newest first
