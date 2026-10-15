@@ -1,0 +1,13 @@
+# Fallback data directory (used only when no data_dir outside the web root is available).
+# Never served directly.
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>
+Options -Indexes
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>

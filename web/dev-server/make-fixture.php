@@ -60,6 +60,18 @@ $canonical = [
         ['id' => 'T2', 'name' => 'Selective Demolition', 'duration' => 10, 'predecessors' => ['T1']],
         ['id' => 'T3', 'name' => 'Substantial Completion', 'duration' => 0, 'predecessors' => ['T2'], 'finish' => '2027-03-31'],
     ],
+    // Minimal real WBS so the app can open the fixture (the app refuses canonicals without one).
+    'wbs'     => [
+        ['id' => '1', 'type' => 'phase', 'name' => 'Construction', 'wbsCode' => '1', 'phaseKey' => 'construction', 'children' => [
+            ['id' => '1.1', 'type' => 'task', 'name' => 'Mobilization', 'wbsCode' => '1.1', 'duration' => 3, 'predecessors' => [], 'successors' => [], 'children' => []],
+            ['id' => '1.2', 'type' => 'task', 'name' => 'Selective Demolition', 'wbsCode' => '1.2', 'duration' => 10, 'predecessors' => ['1.1'], 'successors' => [], 'children' => []],
+            ['id' => '1.3', 'type' => 'task', 'name' => 'Owner Punch Walk / Substantial Completion', 'wbsCode' => '1.3', 'duration' => 1, 'predecessors' => ['1.2'], 'successors' => [], 'children' => []],
+        ]],
+    ],
+    'dependencies' => [
+        ['from' => '1.1', 'to' => '1.2', 'type' => 'FS', 'lag' => 0],
+        ['from' => '1.2', 'to' => '1.3', 'type' => 'FS', 'lag' => 0],
+    ],
     'extras'  => new stdClass(),
 ];
 $cj = json_encode($canonical, $flags | JSON_UNESCAPED_UNICODE) . "\n";
