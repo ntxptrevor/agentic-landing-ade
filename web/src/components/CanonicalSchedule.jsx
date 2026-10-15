@@ -60,6 +60,7 @@ export const CANON_CSS = `
 .canon-foot .pg{font-weight:700;font-style:italic;color:var(--navy)}
 .canon-row-task.dragging td{opacity:.45}
 .canon-row-task.drop td{box-shadow:inset 0 -3px 0 var(--accent)}
+.canon-row-phase.drop td,.canon-row-sub.drop td{box-shadow:inset 0 -3px 0 var(--accent)}
 .canon-row-task .grip{cursor:grab;color:#8a94a6;margin-right:6px;user-select:none}
 .canon-tfoot{display:none}
 @media print{
@@ -98,7 +99,7 @@ function buildRows(wbs) {
       if (t.sub && t.sub !== sub) {
         sub = t.sub;
         const kids = phase.children.filter(c => c.sub === sub);
-        rows.push({ kind: 'sub', key: `s${phase.id}-${sub}`, item: {
+        rows.push({ kind: 'sub', key: `s${phase.id}-${sub}`, firstTaskId: kids[0]?.id, item: {
           name: sub,
           startDate: kids.map(k => k.startDate).filter(Boolean).sort()[0],
           endDate: kids.map(k => k.endDate).filter(Boolean).sort().pop(),
@@ -239,6 +240,17 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight, 
             const late = r.kind === 'task' && t.milestoneVariance > 0;
             return (
               <tr key={r.key} className={`canon-row-${r.kind}${dragId === r.key ? ' dragging' : ''}${overId === r.key && dragId && dragId !== r.key ? ' drop' : ''}`}
+                {...(onReorder && r.kind !== 'task' ? {
+                  // Dropping on a phase or sub-phase header puts the task first in that group.
+                  onDragOver: e => { if (dragId) { e.preventDefault(); if (overId !== r.key) setOverId(r.key); } },
+                  onDragLeave: () => setOverId(o => (o === r.key ? null : o)),
+                  onDrop: e => {
+                    e.preventDefault(); const from = dragId; setDragId(null); setOverId(null);
+                    if (!from) return;
+                    const target = r.kind === 'phase' ? r.item.id : r.firstTaskId;
+                    if (target && target !== from) onReorder(from, target, 'before');
+                  },
+                } : {})}
                 {...(onReorder && r.kind === 'task' ? {
                   draggable: true,
                   onDragStart: e => { setDragId(r.key); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', r.key); },

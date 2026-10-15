@@ -10,7 +10,7 @@ import ProjectBar from './components/ProjectBar.jsx';
 import ContextPanel from './components/ContextPanel.jsx';
 import InstantSchedule from './components/InstantSchedule.jsx';
 import { getSession, logout, listProjects, loadProject, saveProject, uploadFiles, liveUrl } from './utils/api.js';
-import { moveTaskAfter } from './utils/reorder.js';
+import { moveTaskAfter, moveTaskBefore } from './utils/reorder.js';
 import { calculateSchedule } from './utils/scheduler.js';
 import { getUSFederalHolidays, getNtxpNonWorkDays } from './utils/dateUtils.js';
 import { buildWbs, seedSubmittals } from './utils/jevTree.js';
@@ -276,20 +276,29 @@ export default function App() {
   const handleLinks = (links) => setMeta(m => logChange({ ...m, links }, { type: 'links_updated', source: 'environment', after: links, reason: 'Canonical sync targets updated' }));
 
   // Drag a row to a new position: re-sequence it after the drop target and recompute dates.
-  const handleReorder = (taskId, targetId) => {
-    const r = moveTaskAfter(computed, taskId, targetId);
+  // Drag a row onto another row (after it) or onto a phase / sub-phase header (first row): the
+  // engine re-sequences it, keeps link types and lags, never drops constraints or actuals, refuses
+  // loops, and returns every task whose dates moved so the changelog lists them all.
+  const handleReorder = (taskId, targetId, mode = 'after') => {
+    const run = (opts = {}) => (mode === 'before' ? moveTaskBefore : moveTaskAfter)(computed, taskId, targetId, opts);
+    let r = run();
     if (!r) return;
-    if (r.error) { setNotice({ kind: 'bad', text: r.error }); return; }
-    if (r.task.protected && !window.confirm(`"${r.task.name}" is a protected NTXP backbone row. Move it after "${r.target.name}"?`)) return;
-    const c = recalc(r.project);
+    if (r.error === 'constrained' || r.error === 'has_actuals') {
+      if (!window.confirm(`${r.message}\n\nMove it anyway? The change is logged as a user decision and rated for review.`)) return;
+      r = run({ allowConstrained: true, allowActuals: true });
+    }
+    if (r.error) { setNotice({ kind: 'bad', text: r.message || r.error }); return; }
+    if (r.task.protected && !window.confirm(`"${r.task.name}" is a protected NTXP backbone row. Move it ${mode === 'before' ? 'to the top of' : 'after'} "${r.target.name}"?`)) return;
+    const c = r.project;
     const moved = c.wbs.flatMap(p => p.children).find(t => t.id === taskId);
     setComputed(c);
+    const shifted = (r.changes || []).filter(x => x.id !== taskId);
     setMeta(m => logChange(m, {
       type: 'task_resequenced', source: 'live canonical schedule (row drag)', actor: server.user?.email || 'user',
-      target: `${taskId} ${r.task.name}`, before: { start: r.before.start, finish: r.before.end, after: r.before.preds },
-      after: { start: moved?.startDate, finish: moved?.endDate, after: targetId },
-      reason: `Moved after ${targetId} ${r.target.name}: ${r.before.start} → ${moved?.startDate}`,
-      jevRating: r.task.isMilestone || r.task.protected ? 4 : r.task.isCritical ? 3 : 2,
+      target: `${taskId} ${r.task.name}`, before: { start: r.before.start, finish: r.before.end, after: r.before.preds, projectEnd: r.projectEndBefore },
+      after: { start: moved?.startDate, finish: moved?.endDate, after: targetId, projectEnd: r.projectEndAfter, relinked: r.relinked, shifted: shifted.slice(0, 40) },
+      reason: `Moved ${mode === 'before' ? 'to the top of' : 'after'} ${targetId} ${r.target.name}: ${r.before.start} → ${moved?.startDate}; ${shifted.length} other task(s) moved; finish ${r.projectEndBefore} → ${r.projectEndAfter}${(r.relinked || []).some(x => x.typeConflict) ? ' (link type conflict resolved to the successor\'s type)' : ''}`,
+      jevRating: r.task.isMilestone || r.task.protected || r.projectEndAfter !== r.projectEndBefore ? 4 : r.task.isCritical ? 3 : 2,
       sources: [sourceRef('live-edit', 'Row drag on the live canonical schedule', slug ? liveUrl(slug) : '')],
     }));
   };
