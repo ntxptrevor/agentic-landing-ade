@@ -29,6 +29,8 @@ export const CANON_CSS = `
 .canon-table th,.canon-table td{border-bottom:1px solid #000;border-right:1px solid #000;padding:3px 6px;vertical-align:middle}
 .canon-table th:last-child,.canon-table td:last-child{border-right:0}
 .canon-table thead th{background:#fff;font-weight:700;font-size:8pt;text-align:left}
+.canon-table thead th.canon-hdr{padding:0;border-right:0;font-weight:400;font-size:9pt}
+.canon-table thead th.canon-hdr .canon-legend{border-bottom:0}
 .canon-table td.num,.canon-table th.num{text-align:center;white-space:nowrap}
 .canon-table .tl{padding:0;position:relative}
 .canon-months{position:relative;height:16px;border-bottom:1px solid #000}
@@ -64,8 +66,7 @@ export const CANON_CSS = `
   /* NTXP Document Engine v2.1 on 11x17 landscape: 0.5in margins, 1.00in navy band repeated
      with the header row, footer with page number bold italic navy bottom right. */
   @page{size:17in 11in;margin:.5in .5in .55in .5in;
-    @bottom-right{content:"Page " counter(page) " of " counter(pages);font:italic 700 8pt "Open Sans",Arial,sans-serif;color:#1B2A4E}
-    @bottom-left{content:"Woman-Owned · HUB Certified";font:400 7pt "Open Sans",Arial,sans-serif;color:#5A6880}}
+    @bottom-right{content:"Page " counter(page) " of " counter(pages);font:italic 700 8pt "Open Sans",Arial,sans-serif;color:#1B2A4E}}
   .canon-grip,.canon-row-task .grip{display:none}
   .canon-page{min-width:0;border-radius:0}
   .canon-sync,[data-export="omit"]{display:none!important}
@@ -177,42 +178,47 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight, 
   return (
     <div className="canon-page" ref={ref} id="canonical-schedule">
       <style>{CANON_CSS}</style>
-      <div className="canon-band">
-        <div className="canon-logo"><img src="./ntxp-logo-reversed.png" alt="NTXP" /></div>
-        <div className="canon-title">PROJECT SCHEDULE<small>{project.name}</small></div>
-        {onSync && (
-          <button className="canon-sync" data-export="omit" onClick={onSync} title={meta.sync?.lastSyncAt ? `Last sync ${meta.sync.lastSyncAt}` : 'Never synced'}>
-            <span className="dot" style={{ background: meta.sync?.lastSyncAt ? '#0E9F6E' : '#B45309' }} />SYNC
-          </button>
-        )}
-      </div>
-      <div className="canon-pin" />
-      <div className="canon-meta">
-        <span><b>Start:</b> {project.startDate}</span>
-        <span><b>Finish:</b> {project.endDate}</span>
-        <span><b>Duration:</b> {project.workingDuration} working days</span>
-        <span><b>Critical path:</b> {project.criticalPathDuration} days</span>
-        <span><b>Activities:</b> {tasks.length}</span>
-        <span><b>Data date:</b> {meta.sync?.lastSyncAt ? meta.sync.lastSyncAt.slice(0, 10) : today}</span>
-        {tasks.some(t => t.milestoneVariance > 0) && <span className="canon-flag">Milestone variance — see flagged rows</span>}
-      </div>
-      <div className="canon-legend">
-        <span><i style={{ background: '#D0353C' }} />Critical path</span>
-        <span><i className="ms" style={{ background: '#D0353C' }} />Milestone</span>
-        <span><i style={{ background: '#2F6FD6' }} />Delivery / Submittal</span>
-        <span><i style={{ background: '#0E9F6E' }} />Procurement</span>
-        <span><i style={{ background: '#E07A5F' }} />Deliverable</span>
-        <span><i style={{ background: 'rgba(208,53,60,.06)', border: '1.5px dashed #D0353C' }} />Requested inspection week</span>
-        {JEV_CLASSES.filter(c => tasks.some(t => t.cls === c.id && !t.isCritical)).map(c => (
-          <span key={c.id}><i style={{ background: c.color }} />{c.label}</span>
-        ))}
-      </div>
       <table className="canon-table">
         <colgroup>
           <col style={{ width: '0.62in' }} /><col style={{ width: '3.5in' }} /><col style={{ width: '0.5in' }} />
           <col style={{ width: '0.82in' }} /><col style={{ width: '0.82in' }} /><col />
         </colgroup>
         <thead>
+          {/* Document Engine: band, accent, meta and legend repeat on every printed page. */}
+          <tr className="canon-hdr-row">
+            <th colSpan={6} className="canon-hdr">
+              <div className="canon-band">
+                <div className="canon-logo"><img src="./ntxp-logo-reversed.png" alt="NTXP" /></div>
+                <div className="canon-title">PROJECT SCHEDULE<small>{project.name}</small></div>
+                {onSync && (
+                  <button className="canon-sync" data-export="omit" onClick={onSync} title={meta.sync?.lastSyncAt ? `Last sync ${meta.sync.lastSyncAt}` : 'Never synced'}>
+                    <span className="dot" style={{ background: meta.sync?.lastSyncAt ? '#0E9F6E' : '#B45309' }} />SYNC
+                  </button>
+                )}
+              </div>
+              <div className="canon-pin" />
+              <div className="canon-meta">
+                <span><b>Start:</b> {project.startDate}</span>
+                <span><b>Finish:</b> {project.endDate}</span>
+                <span><b>Duration:</b> {project.workingDuration} working days</span>
+                <span><b>Critical path:</b> {project.criticalPathDuration} days</span>
+                <span><b>Activities:</b> {tasks.length}</span>
+                <span><b>Data date:</b> {meta.sync?.lastSyncAt ? meta.sync.lastSyncAt.slice(0, 10) : today}</span>
+                {tasks.some(t => t.milestoneVariance > 0) && <span className="canon-flag">Milestone variance — see flagged rows</span>}
+              </div>
+              <div className="canon-legend">
+                <span><i style={{ background: '#D0353C' }} />Critical path</span>
+                <span><i className="ms" style={{ background: '#D0353C' }} />Milestone</span>
+                <span><i style={{ background: '#2F6FD6' }} />Delivery / Submittal</span>
+                <span><i style={{ background: '#0E9F6E' }} />Procurement</span>
+                <span><i style={{ background: '#E07A5F' }} />Deliverable</span>
+                <span><i style={{ background: 'rgba(208,53,60,.06)', border: '1.5px dashed #D0353C' }} />Requested inspection week</span>
+                {JEV_CLASSES.filter(c => tasks.some(t => t.cls === c.id && !t.isCritical)).map(c => (
+                  <span key={c.id}><i style={{ background: c.color }} />{c.label}</span>
+                ))}
+              </div>
+            </th>
+          </tr>
           <tr>
             <th className="num" rowSpan={2} data-pf="text">WBS</th>
             <th rowSpan={2} data-pf="text">Task Name</th>

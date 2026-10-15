@@ -98,8 +98,8 @@ export function toActivityEntries(meta, slug = '') {
 // under its project folder. Versions are immutable v<NNN>-<date> files in that folder.
 export function routeFolder(name, status = 'bid') {
   return status === 'bid'
-    ? { kind: 'bid', path: `Bids/${name}/Schedules` }
-    : { kind: 'project', path: `Projects/${name}/06 - Schedule` };
+    ? { kind: 'bid', path: `!Active Bids/${name}/Schedules` }
+    : { kind: 'project', path: `!Active Projects/${name}/06 - Schedule` };
 }
 
 export function recordInput(meta, input) {

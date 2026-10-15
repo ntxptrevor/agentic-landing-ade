@@ -81,7 +81,7 @@ chk "save new slug (baseVersion null)"   200 "$(post /api/save.php '{"slug":"new
 chk "save new slug with baseVersion -> 409" 409 "$(post /api/save.php '{"slug":"another-new","canonical":{"tasks":[]},"baseVersion":3,"reason":"x"}')" '.conflict==true and .currentVersion==null'
 chk "save invalid slug -> 400"           400 "$(post /api/save.php '{"slug":"Bad Slug","canonical":{},"baseVersion":null}')"
 chk "project after save"                 200 "$(get '/api/project.php?slug=demo-clinic')" '.version==2 and .hash=="'"$HASH2"'" and (.versions|length)==2 and (.activity.recent[0].text|test("Schedule v2 saved by team@ntxpllc.com: Add punch list"))'
-chk "index upserted (new bid + routing)" 200 "$(get '/api/projects.php')" '(.projects|map(select(.slug=="new-demo-bid"))[0] | .folder.path=="Bids/New Demo Bid/Schedules" and .version==1 and .hostUrl=="https://example.com/host") and (.projects|map(select(.slug=="demo-clinic"))[0].version==2)'
+chk "index upserted (new bid + routing)" 200 "$(get '/api/projects.php')" '(.projects|map(select(.slug=="new-demo-bid"))[0] | .folder.path=="!Active Bids/New Demo Bid/Schedules" and .version==1 and .hostUrl=="https://example.com/host") and (.projects|map(select(.slug=="demo-clinic"))[0].version==2)'
 D="$WORK/data/projects/demo-clinic"
 grep -q 'v2\*\* saved by team@ntxpllc.com.*Add punch list.*\[Owner request \\\[fake\\\]\](https://example.com/m/1)' "$D/changelog.md" && ok "changelog line with linked source" || bad "changelog" "$(cat "$D/changelog.md")"
 [ "$(wc -l < "$D/pending_sync.jsonl")" = "1" ] && ok "pending_sync.jsonl appended" || bad "pending_sync" "$(cat "$D/pending_sync.jsonl" 2>/dev/null)"

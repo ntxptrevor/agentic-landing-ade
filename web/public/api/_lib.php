@@ -550,8 +550,8 @@ function bf_folder_for(string $status, string $name): array
 {
     $n = trim(preg_replace('/[\/\\\\:*?"<>|\x00-\x1f]+/', '-', $name) ?? '') ?: 'Untitled';
     return $status === 'bid'
-        ? ['kind' => 'bid', 'path' => 'Bids/' . $n . '/Schedules']
-        : ['kind' => 'project', 'path' => 'Projects/' . $n . '/06 - Schedule'];
+        ? ['kind' => 'bid', 'path' => '!Active Bids/' . $n . '/Schedules']
+        : ['kind' => 'project', 'path' => '!Active Projects/' . $n . '/06 - Schedule'];
 }
 
 function bf_index_read(): array

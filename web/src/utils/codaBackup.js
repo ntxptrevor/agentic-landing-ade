@@ -6,8 +6,12 @@
 export const CODA_START = '=== NTXP PROJECT CODA (BidForge backup) ';
 export const CODA_END = '=== END NTXP PROJECT CODA ===';
 export const CODA_FIELD_NAME = 'Notes';
-// Soft budget: keeps room for the team's own notes in a plain text custom field.
-export const CODA_MAX_CHARS = 1800;
+// JobTread text custom fields hold at most 1,024 characters (verified by a live write,
+// 2026-10-14) — the team's notes and the Coda block share that budget.
+export const NOTES_FIELD_LIMIT = 1024;
+export const CODA_MAX_CHARS = NOTES_FIELD_LIMIT;
+// Kept in full in every form; the rest are shortened first (a restore keeps every label it can).
+const CODA_ESSENTIAL = ['liveSchedule', 'kb', 'jobtread', 'drive'];
 
 export const CODA_FIELDS = [
   ['liveSchedule', 'Live schedule (HTML)'],
@@ -51,7 +55,7 @@ export function codaHash(coda) {
   return h.toString(16).padStart(8, '0');
 }
 
-export function buildCodaBlock(coda, { event = 'sync', at = new Date().toISOString(), canonicalVersion = 0, lastChange = '' } = {}) {
+export function buildCodaBlock(coda, { event = 'sync', at = new Date().toISOString(), canonicalVersion = 0, lastChange = '', maxChars = CODA_MAX_CHARS } = {}) {
   const lines = CODA_FIELDS.map(([k, label]) => `${label}: ${clean(coda[k]) || 'not located'}`);
   const head = `${CODA_START}v${coda.version || 0} · ${at.slice(0, 16)}Z · sha:${codaHash(coda)} ===`;
   const foot = [
@@ -60,10 +64,23 @@ export function buildCodaBlock(coda, { event = 'sync', at = new Date().toISOStri
     CODA_END,
   ];
   let block = [head, ...lines, ...foot].join('\n');
-  if (block.length > CODA_MAX_CHARS) {
-    // Compact form: truncate each value, keep every label so a restore still works.
-    const per = Math.max(24, Math.floor((CODA_MAX_CHARS - head.length - foot.join('\n').length) / CODA_FIELDS.length) - 20);
-    block = [head.replace(' ===', ' · compact ==='), ...CODA_FIELDS.map(([k, label]) => `${label}: ${(clean(coda[k]) || 'not located').slice(0, per)}`), ...foot].join('\n');
+  if (block.length > maxChars) {
+    // Compact form: essential links stay whole (the live schedule link above all); the other
+    // values share what is left and are truncated, every label kept so a restore still works.
+    const shortFoot = [`Last sync: ${at.slice(0, 16)}Z (${event}) · v${canonicalVersion}${lastChange ? ` · ${lastChange}` : ''}`, 'Full Coda in the project KB.', CODA_END];
+    const cHead = head.replace(' ===', ' · compact ===');
+    const ess = CODA_FIELDS.filter(([k]) => CODA_ESSENTIAL.includes(k)).map(([k, label]) => `${label}: ${clean(coda[k]) || 'not located'}`);
+    const rest = CODA_FIELDS.filter(([k]) => !CODA_ESSENTIAL.includes(k));
+    const fixed = [cHead, ...ess, ...shortFoot].join('\n').length + rest.reduce((a, [, l]) => a + l.length + 3, 0);
+    const per = Math.floor((maxChars - fixed) / rest.length);
+    const order = CODA_FIELDS.map(([k, label]) => (CODA_ESSENTIAL.includes(k)
+      ? `${label}: ${clean(coda[k]) || 'not located'}`
+      : `${label}: ${per >= 4 ? (clean(coda[k]) || '-').slice(0, per) : '-'}`));
+    block = [cHead, ...order, ...shortFoot].join('\n');
+    if (block.length > maxChars) {
+      // Minimal form: only the live schedule and KB pointers survive.
+      block = [cHead, ...ess.slice(0, 2), ...shortFoot].join('\n').slice(0, maxChars);
+    }
   }
   return block;
 }

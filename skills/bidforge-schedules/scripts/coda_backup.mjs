@@ -29,7 +29,9 @@ if (cmd === 'build') {
   if (!jobId) { console.error('No JobTread job id (canonical project.jobtreadJobId or --job).'); process.exit(2); }
   const existing = readNotes(notesPath);
   const last = (doc.changelog || []).slice(-1)[0];
-  const block = lib.buildCodaBlock(coda, { event, canonicalVersion: doc.version || 0, lastChange: last?.id || '' });
+  // The team's notes and the block share the field's 1,024-character limit.
+  const budget = lib.NOTES_FIELD_LIMIT - lib.humanNotes(existing).length - 2;
+  const block = lib.buildCodaBlock(coda, { event, canonicalVersion: doc.version || 0, lastChange: last?.id || '', maxChars: budget });
   const notes = lib.mergeNotes(existing, block);
   const prior = lib.parseCodaBlock(existing);
   const hash = lib.codaHash(coda);

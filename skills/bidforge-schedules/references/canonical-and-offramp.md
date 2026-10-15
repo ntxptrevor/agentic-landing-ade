@@ -19,6 +19,9 @@ flow is the JobTread pull, and it enters through the changelog like any other ch
 2. Search for JobTread job, Drive bid/project folder and QuickBooks job (initialization § 1).
    If the bid folder exists but no project folder does, the job is still a pursuit: save under
    the bid folder's `Schedules/` and mark `links.driveFolderName` with `(bid)`.
+   Drive roots: pursuits `!Active Bids/<bid>/Schedules/`; awarded jobs `!Active Projects/<project>/06 - Schedule/`.
+   KB root: `!!NTXP Knowledge Base/<project>/schedule/` (canonical.json, versions/, changelog.md,
+   activity_stream.json).
 3. Write the IDs into canonical `links` (app: Environment → Canonical sync targets).
 
 ## 2 · Knowledge base save
@@ -78,6 +81,11 @@ Runs on **every** sync event: full sync (SYNC / `--sync`), the daily JobTread pu
 every publish / off-ramp push, initialization when the Coda is created or corrected, and any
 Coda edit. The KB holds the primary Coda; the JobTread "Notes" field is the backup.
 
+**Field limit: 1,024 characters** (JobTread rejects longer values — verified by the 2026-10-14
+smoke test). The team's notes and the block share that budget: `coda_backup.mjs` sizes the block to
+what is left, keeping the live-schedule link, KB, Drive and JobTread pointers whole and truncating the
+rest (`· compact`); the full Coda always lives in the project KB.
+
 The job-level text custom field is **Notes** (org `22PEKtgSScq2`, field id `22PEPTyrwL4W`; in
 other orgs resolve it by name:
 `organization.customFields where targetType = job, name = "Notes"`). Teams already write scope
@@ -118,6 +126,23 @@ Procedure (deterministic; the logistics tier runs it, no judgment needed):
 Safe-write basis: the block is a generated backup of an approved record and the team's text is
 preserved byte-for-byte, so this falls under the jobtread-data-integrator safe historical writes.
 It never deletes or overwrites the team's notes.
+
+## 4c · Lightfield CRM (every published version)
+
+Post one note per published version on the matching account (and opportunity when one exists),
+found through the crosswalk (`links.lightfieldId`). Read the docs first (`search_lightfield_api_docs`
+→ `get_lightfield_api_details api/resources/note/methods/create/index.md`), then
+`POST /v1/notes` with `fields.$title` = "BidForge schedule sync — <project> v<N>" and `fields.$content`
+(markdown): version + data date, live schedule link, forecast SC, next three milestones, Drive folder,
+JobTread job. Relationships: `$account` (and `$opportunity`). Notes are append-only history; never edit
+or delete earlier ones.
+
+## 4d · Hosted site (schedule.ntxpllc.com)
+
+Publish the KB bundle (`POST /api/publish.php`, bearer token from ntxp-id) after every published
+version, and pull site saves first (`GET /api/changes.php?since=`, then ack) so a version saved on the
+site enters the canonical before the next push. Both directions are version-guarded (409 on a stale
+version) — see `references/integration.md`.
 
 ## 5 · One-way JobTread → canonical pull (daily routine and every full sync)
 
