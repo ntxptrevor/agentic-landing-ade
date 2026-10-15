@@ -491,7 +491,9 @@ export default function App() {
   const stepIndex = STEPS.findIndex(s => s.id === step);
   const cloud = server.available && server.authenticated;
   const readOnly = cloud && !!server.readOnly;
-  const dirty = cloud && computed && (serverVersion == null || meta.version !== serverVersion);
+  // Dirty when the schedule version moved OR bookkeeping changed (held-item acknowledgements, OAC
+  // records, Coda backups) — those keep the version but must still be saved, or a reload loses them.
+  const dirty = cloud && computed && (serverVersion == null || meta.version !== serverVersion || changesSinceSave(meta, savedAt).length > 0);
 
   if (server.checked && server.available && !server.authenticated) {
     return <LoginGate session={server} onAuthenticated={() => location.reload()} />;

@@ -120,7 +120,7 @@ function activity(n = 20) {
   if (flags.activity) {
     try {
       const raw = JSON.parse(fs.readFileSync(flags.activity, 'utf8'));
-      list = Array.isArray(raw) ? raw : raw.events || raw.activity || raw.items || [];
+      list = Array.isArray(raw) ? raw : raw.entries || raw.events || raw.activity || raw.items || [];
     } catch (e) { console.error(`schedule_query: cannot read --activity ${flags.activity}: ${e.message}`); process.exit(1); }
   }
   return [...list].filter(Boolean).sort((a, b) => String(b.ts || b.at || '').localeCompare(String(a.ts || a.at || ''))).slice(0, Math.max(1, Number(n) || 20));
