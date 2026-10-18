@@ -5,14 +5,15 @@ import { runPreflight } from '../utils/preflight.js';
 
 export const CANON_CSS = `
 .canon-page{--navy:#1B2A4E;--accent:#C8102E;--signal:#D0353C;--blue:#2F6FD6;--green:#0E9F6E;--coral:#E07A5F;
-  background:#fff;color:#000;font-family:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:9pt;line-height:1.25;
+  background:#fff;color:#1F2A3D;font-family:"Open Sans",Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:9pt;line-height:1.25;
   min-width:1100px;position:relative;border-radius:6px;overflow:hidden}
 .canon-page *{box-sizing:border-box;font-family:inherit}
 .canon-band{background:var(--navy);height:1in;position:relative;display:flex;align-items:center}
 .canon-logo{width:1.55in;height:1in;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .canon-logo img{height:.82in;width:auto;display:block}
-.canon-title{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:20pt;font-weight:800;font-style:italic;letter-spacing:.06em;pointer-events:none}
+.canon-title{position:absolute;left:1.55in;right:.5in;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;font-size:20pt;font-weight:800;font-style:italic;letter-spacing:.06em;pointer-events:none;line-height:1.1}
+.canon-title small{font-size:9.5pt;font-weight:600;font-style:normal;letter-spacing:.04em;opacity:.9;margin-top:3px}
 .canon-sync{position:absolute;right:.3in;top:50%;transform:translateY(-50%);background:#fff;color:var(--navy);
   font-weight:800;font-size:10pt;letter-spacing:.08em;border:0;border-radius:999px;padding:8px 20px;cursor:pointer;
   box-shadow:0 1px 4px rgba(0,0,0,.3)}
@@ -28,6 +29,8 @@ export const CANON_CSS = `
 .canon-table th,.canon-table td{border-bottom:1px solid #000;border-right:1px solid #000;padding:3px 6px;vertical-align:middle}
 .canon-table th:last-child,.canon-table td:last-child{border-right:0}
 .canon-table thead th{background:#fff;font-weight:700;font-size:8pt;text-align:left}
+.canon-table thead th.canon-hdr{padding:0;border-right:0;font-weight:400;font-size:9pt}
+.canon-table thead th.canon-hdr .canon-legend{border-bottom:0}
 .canon-table td.num,.canon-table th.num{text-align:center;white-space:nowrap}
 .canon-table .tl{padding:0;position:relative}
 .canon-months{position:relative;height:16px;border-bottom:1px solid #000}
@@ -54,9 +57,18 @@ export const CANON_CSS = `
 .canon-foot{height:.5in;border-top:1px solid #000;display:flex;align-items:center;justify-content:space-between;padding:0 14px;
   background:transparent;font-size:9pt;color:#000;margin-top:10px}
 .canon-foot span{padding:0 4px}
+.canon-foot .pg{font-weight:700;font-style:italic;color:var(--navy)}
+.canon-row-task.dragging td{opacity:.45}
+.canon-row-task.drop td{box-shadow:inset 0 -3px 0 var(--accent)}
+.canon-row-phase.drop td,.canon-row-sub.drop td{box-shadow:inset 0 -3px 0 var(--accent)}
+.canon-row-task .grip{cursor:grab;color:#8a94a6;margin-right:6px;user-select:none}
 .canon-tfoot{display:none}
 @media print{
-  @page{size:17in 11in;margin:.35in .35in .3in .35in}
+  /* NTXP Document Engine v2.1 on 11x17 landscape: 0.5in margins, 1.00in navy band repeated
+     with the header row, footer with page number bold italic navy bottom right. */
+  @page{size:17in 11in;margin:.5in;
+    @bottom-right{content:"Page " counter(page) " of " counter(pages);font:italic 700 8pt "Open Sans",Arial,sans-serif;color:#1B2A4E}}
+  .canon-grip,.canon-row-task .grip{display:none}
   .canon-page{min-width:0;border-radius:0}
   .canon-sync,[data-export="omit"]{display:none!important}
   .canon-table thead{display:table-header-group}
@@ -87,7 +99,7 @@ function buildRows(wbs) {
       if (t.sub && t.sub !== sub) {
         sub = t.sub;
         const kids = phase.children.filter(c => c.sub === sub);
-        rows.push({ kind: 'sub', key: `s${phase.id}-${sub}`, item: {
+        rows.push({ kind: 'sub', key: `s${phase.id}-${sub}`, firstTaskId: kids[0]?.id, item: {
           name: sub,
           startDate: kids.map(k => k.startDate).filter(Boolean).sort()[0],
           endDate: kids.map(k => k.endDate).filter(Boolean).sort().pop(),
@@ -100,7 +112,10 @@ function buildRows(wbs) {
   return rows;
 }
 
-export default function CanonicalSchedule({ project, meta, onSync, onPreflight }) {
+export default function CanonicalSchedule({ project, meta, onSync, onPreflight, onReorder }) {
+  // Drag a task row onto another row to move it after that row; dates recompute (CPM).
+  const [dragId, setDragId] = useState(null);
+  const [overId, setOverId] = useState(null);
   const ref = useRef(null);
   const [today] = useState(() => new Date().toISOString().slice(0, 10));
   const rows = useMemo(() => buildRows(project.wbs), [project.wbs]);
@@ -164,42 +179,47 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight }
   return (
     <div className="canon-page" ref={ref} id="canonical-schedule">
       <style>{CANON_CSS}</style>
-      <div className="canon-band">
-        <div className="canon-logo"><img src="./ntxp-logo-reversed.png" alt="NTXP" /></div>
-        <div className="canon-title">PROJECT SCHEDULE</div>
-        {onSync && (
-          <button className="canon-sync" data-export="omit" onClick={onSync} title={meta.sync?.lastSyncAt ? `Last sync ${meta.sync.lastSyncAt}` : 'Never synced'}>
-            <span className="dot" style={{ background: meta.sync?.lastSyncAt ? '#0E9F6E' : '#B45309' }} />SYNC
-          </button>
-        )}
-      </div>
-      <div className="canon-pin" />
-      <div className="canon-meta">
-        <span><b>Start:</b> {project.startDate}</span>
-        <span><b>Finish:</b> {project.endDate}</span>
-        <span><b>Duration:</b> {project.workingDuration} working days</span>
-        <span><b>Critical path:</b> {project.criticalPathDuration} days</span>
-        <span><b>Activities:</b> {tasks.length}</span>
-        <span><b>Data date:</b> {meta.sync?.lastSyncAt ? meta.sync.lastSyncAt.slice(0, 10) : today}</span>
-        {tasks.some(t => t.milestoneVariance > 0) && <span className="canon-flag">Milestone variance — see flagged rows</span>}
-      </div>
-      <div className="canon-legend">
-        <span><i style={{ background: '#D0353C' }} />Critical path</span>
-        <span><i className="ms" style={{ background: '#D0353C' }} />Milestone</span>
-        <span><i style={{ background: '#2F6FD6' }} />Delivery / Submittal</span>
-        <span><i style={{ background: '#0E9F6E' }} />Procurement</span>
-        <span><i style={{ background: '#E07A5F' }} />Deliverable</span>
-        <span><i style={{ background: 'rgba(208,53,60,.06)', border: '1.5px dashed #D0353C' }} />Requested inspection week</span>
-        {JEV_CLASSES.filter(c => tasks.some(t => t.cls === c.id && !t.isCritical)).map(c => (
-          <span key={c.id}><i style={{ background: c.color }} />{c.label}</span>
-        ))}
-      </div>
       <table className="canon-table">
         <colgroup>
           <col style={{ width: '0.62in' }} /><col style={{ width: '3.5in' }} /><col style={{ width: '0.5in' }} />
           <col style={{ width: '0.82in' }} /><col style={{ width: '0.82in' }} /><col />
         </colgroup>
         <thead>
+          {/* Document Engine: band, accent, meta and legend repeat on every printed page. */}
+          <tr className="canon-hdr-row">
+            <th colSpan={6} className="canon-hdr">
+              <div className="canon-band">
+                <div className="canon-logo"><img src="./ntxp-logo-reversed.png" alt="NTXP" /></div>
+                <div className="canon-title">PROJECT SCHEDULE<small>{project.name}</small></div>
+                {onSync && (
+                  <button className="canon-sync" data-export="omit" onClick={onSync} title={meta.sync?.lastSyncAt ? `Last sync ${meta.sync.lastSyncAt}` : 'Never synced'}>
+                    <span className="dot" style={{ background: meta.sync?.lastSyncAt ? '#0E9F6E' : '#B45309' }} />SYNC
+                  </button>
+                )}
+              </div>
+              <div className="canon-pin" />
+              <div className="canon-meta">
+                <span><b>Start:</b> {project.startDate}</span>
+                <span><b>Finish:</b> {project.endDate}</span>
+                <span><b>Duration:</b> {project.workingDuration} working days</span>
+                <span><b>Critical path:</b> {project.criticalPathDuration} days</span>
+                <span><b>Activities:</b> {tasks.length}</span>
+                <span><b>Data date:</b> {meta.sync?.lastSyncAt ? meta.sync.lastSyncAt.slice(0, 10) : today}</span>
+                {tasks.some(t => t.milestoneVariance > 0) && <span className="canon-flag">Milestone variance — see flagged rows</span>}
+              </div>
+              <div className="canon-legend">
+                <span><i style={{ background: '#D0353C' }} />Critical path</span>
+                <span><i className="ms" style={{ background: '#D0353C' }} />Milestone</span>
+                <span><i style={{ background: '#2F6FD6' }} />Delivery / Submittal</span>
+                <span><i style={{ background: '#0E9F6E' }} />Procurement</span>
+                <span><i style={{ background: '#E07A5F' }} />Deliverable</span>
+                <span><i style={{ background: 'rgba(208,53,60,.06)', border: '1.5px dashed #D0353C' }} />Requested inspection week</span>
+                {JEV_CLASSES.filter(c => tasks.some(t => t.cls === c.id && !t.isCritical)).map(c => (
+                  <span key={c.id}><i style={{ background: c.color }} />{c.label}</span>
+                ))}
+              </div>
+            </th>
+          </tr>
           <tr>
             <th className="num" rowSpan={2} data-pf="text">WBS</th>
             <th rowSpan={2} data-pf="text">Task Name</th>
@@ -219,9 +239,30 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight }
             const t = r.item;
             const late = r.kind === 'task' && t.milestoneVariance > 0;
             return (
-              <tr key={r.key} className={`canon-row-${r.kind}`}>
+              <tr key={r.key} className={`canon-row-${r.kind}${dragId === r.key ? ' dragging' : ''}${overId === r.key && dragId && dragId !== r.key ? ' drop' : ''}`}
+                {...(onReorder && r.kind !== 'task' ? {
+                  // Dropping on a phase or sub-phase header puts the task first in that group.
+                  onDragOver: e => { if (dragId) { e.preventDefault(); if (overId !== r.key) setOverId(r.key); } },
+                  onDragLeave: () => setOverId(o => (o === r.key ? null : o)),
+                  onDrop: e => {
+                    e.preventDefault(); const from = dragId; setDragId(null); setOverId(null);
+                    if (!from) return;
+                    const target = r.kind === 'phase' ? r.item.id : r.firstTaskId;
+                    if (target && target !== from) onReorder(from, target, 'before');
+                  },
+                } : {})}
+                {...(onReorder && r.kind === 'task' ? {
+                  draggable: true,
+                  onDragStart: e => { setDragId(r.key); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', r.key); },
+                  onDragOver: e => { if (dragId) { e.preventDefault(); if (overId !== r.key) setOverId(r.key); } },
+                  onDragLeave: () => setOverId(o => (o === r.key ? null : o)),
+                  onDrop: e => { e.preventDefault(); const from = dragId; setDragId(null); setOverId(null); if (from && from !== r.key) onReorder(from, r.key); },
+                  onDragEnd: () => { setDragId(null); setOverId(null); },
+                  title: 'Drag onto another row to move this task after it',
+                } : {})}>
                 <td className="num" data-pf="text">{r.kind === 'sub' ? '' : t.wbsCode || t.id}</td>
                 <td className="name" data-pf="text">
+                  {onReorder && r.kind === 'task' && <span className="grip" data-export="omit" aria-hidden="true">⋮⋮</span>}
                   {t.name}{late && <span className="canon-flag"> · +{t.milestoneVariance}d vs contract</span>}
                 </td>
                 <td className="num" data-pf="text">{r.kind === 'task' ? `${t.duration}d` : ''}</td>
@@ -241,7 +282,7 @@ export default function CanonicalSchedule({ project, meta, onSync, onPreflight }
       </table>
       <div className="canon-foot">
         <span data-pf="text">{project.name}</span>
-        <span data-pf="text">{version} · {docDate}</span>
+        <span data-pf="text">{version} · {docDate} · Woman-Owned · HUB Certified</span>
       </div>
     </div>
   );
@@ -261,5 +302,5 @@ export async function exportCanonicalHTML(project, meta) {
   } catch { /* keep relative src */ }
   const title = `${project.name} — Project Schedule ${'v' + meta.version}`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title.replace(/</g, '&lt;')}</title><style>body{margin:0;background:#fff}${CANON_CSS}</style></head><body>${clone.outerHTML}</body></html>`;
+<title>${title.replace(/</g, '&lt;')}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet"><style>body{margin:0;background:#fff}${CANON_CSS}</style></head><body>${clone.outerHTML}</body></html>`;
 }

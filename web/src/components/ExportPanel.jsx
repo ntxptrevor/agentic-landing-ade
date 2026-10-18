@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { exportJSON, exportCSV, exportMSProjectXML, downloadFile } from '../utils/exporters.js';
 import { buildSourceRef } from '../utils/procurementAudit.js';
 import { exportMSPDI } from '../utils/mspdi.js';
-import { buildCanonicalDocument } from '../utils/canonical.js';
+import { buildCanonicalDocument, oacGateCheck } from '../utils/canonical.js';
 import CanonicalSchedule, { exportCanonicalHTML } from './CanonicalSchedule.jsx';
 
 const PAGE_SIZES = [
@@ -12,8 +12,19 @@ const PAGE_SIZES = [
   { label: 'A4 (210 x 297 mm)', value: 'a4', css: '210mm 297mm portrait' },
 ];
 
-export default function ExportPanel({ project, meta, preflight }) {
-  const [pageSize, setPageSize] = useState('letter');
+// OAC reports always run on a freshly synced schedule (forced update): mirrors scripts/oac_gate.mjs.
+// Counts only unacknowledged, undismissed held items; passes only when the KB-published
+// version equals the canonical version and no newer site save is waiting to be pulled.
+export function oacGate(meta, maxAgeHours = 24) {
+  return oacGateCheck(meta, maxAgeHours);
+}
+
+export default function ExportPanel({ project, meta, preflight, onSync, onOac }) {
+  // NTXP outputs default to 11x17 landscape (Document Engine formatting).
+  const [pageSize, setPageSize] = useState('tabloid');
+  // The hidden CanonicalSchedule (source of the 11x17 PDF / HTML export) is mounted only while exporting.
+  const [printing, setPrinting] = useState(false);
+  const [gateMsg, setGateMsg] = useState(null);
   const slug = project.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
   const handlePrintPDF = () => {
@@ -28,7 +39,12 @@ export default function ExportPanel({ project, meta, preflight }) {
 
     const header = document.createElement('div');
     header.className = 'print-header';
-    header.innerHTML = `<h1>WBS Schedule: ${project.name}</h1><div class="subtitle">${project.startDate} to ${project.endDate} | ${project.workingDuration || '—'} working days | Generated ${new Date().toLocaleDateString()}</div>`;
+    const h1 = document.createElement('h1');
+    h1.textContent = `WBS Schedule: ${project.name}`;
+    const sub = document.createElement('div');
+    sub.className = 'subtitle';
+    sub.textContent = `${project.startDate} to ${project.endDate} | ${project.workingDuration || '—'} working days | Generated ${new Date().toLocaleDateString()}`;
+    header.append(h1, sub);
     document.body.prepend(header);
 
     window.print();
@@ -38,7 +54,16 @@ export default function ExportPanel({ project, meta, preflight }) {
     if (printView) printView.style.display = 'none';
   };
 
-  const canonicalHtml = async () => exportCanonicalHTML(project, meta);
+  const canonicalHtml = async () => {
+    setPrinting(true);
+    try {
+      // Let React mount the hidden canonical page before cloning it.
+      for (let i = 0; i < 20 && !document.getElementById('canonical-schedule'); i++) await new Promise(r => setTimeout(r, 25));
+      return await exportCanonicalHTML(project, meta);
+    } finally {
+      setPrinting(false);
+    }
+  };
   const printTabloid = async () => {
     const html = await canonicalHtml();
     if (!html) return;
@@ -50,7 +75,39 @@ export default function ExportPanel({ project, meta, preflight }) {
   };
   const base = `${slug}-schedule-v${meta.version}`;
 
+  const oacSection = () => {
+    const gate = oacGate(meta);
+    if (!gate.ok) {
+      setGateMsg(gate.reasons);
+      window.alert(`OAC report needs a schedule update first:\n- ${gate.reasons.join('\n- ')}${onSync ? '\n\nOpening SYNC.' : ''}`);
+      if (onSync) onSync();
+      return;
+    }
+    setGateMsg(null);
+    const today = new Date().toISOString().slice(0, 10);
+    const in3w = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 10);
+    const tasks = project.wbs.flatMap(p => p.children).filter(t => !t.isReference);
+    const look = tasks.filter(t => t.startDate && t.startDate <= in3w && t.endDate >= today);
+    const late = tasks.filter(t => t.endDate && t.endDate < today && (t.percentComplete || 0) < 100 && !t.actualFinish);
+    const sinceOac = meta.sync?.lastOacAt || '';
+    const changes = meta.changelog.filter(e => e.at > sinceOac).slice(-25);
+    const md = [`## Schedule — ${project.name} (v${meta.version}, data date ${today})`, '',
+      `Forecast finish ${project.endDate} · ${project.workingDuration} working days · ${tasks.filter(t => t.isCritical).length} critical activities`, '',
+      '### Three-week look-ahead', ...look.map(t => `- ${t.startDate} → ${t.endDate} · ${t.name}${t.isCritical ? ' **(critical)**' : ''}`), '',
+      '### Late activities', ...(late.length ? late.map(t => `- ${t.name} (planned finish ${t.endDate}, ${t.percentComplete || 0}%)`) : ['- None']), '',
+      `### Schedule changes since last OAC${sinceOac ? ` (${sinceOac.slice(0, 10)})` : ''}`,
+      ...changes.map(e => `- ${e.at.slice(0, 10)} ${e.id} ${e.type}: ${e.reason || ''}${(e.sources || []).map(x => (x.url ? ` [${x.title}](${x.url})` : ` (${x.title})`)).join('')}`)].join('\n');
+    downloadFile(md, `${slug}-oac-schedule-v${meta.version}.md`, 'text/markdown');
+    if (onOac) onOac();
+  };
+
   const exports = [
+    {
+      format: 'OAC schedule section',
+      desc: 'Forced update: runs only on a schedule synced in the last 24 h and published',
+      icon: 'OAC',
+      action: oacSection,
+    },
     {
       format: 'Canonical 11x17 PDF',
       desc: 'NTXP Project Schedule, 11x17 landscape (print → Save as PDF)',
@@ -116,9 +173,17 @@ export default function ExportPanel({ project, meta, preflight }) {
       {preflight && !preflight.pass && (
         <div className="gate-banner warn">Pre-flight has {preflight.failures.length} failing check(s). Exports are allowed for review, but the agent will not publish to hosting, Drive or JobTread until they pass.</div>
       )}
-      <div aria-hidden="true" style={{ position: 'absolute', left: -100000, top: 0, width: '16.3in' }}>
-        <CanonicalSchedule project={project} meta={meta} />
-      </div>
+      {gateMsg && (
+        <div className="gate-banner warn" role="alert" data-testid="oac-gate">
+          <b>OAC report blocked — the schedule needs an update first:</b>
+          <ul>{gateMsg.map((r, i) => <li key={i}>{r}</li>)}</ul>
+        </div>
+      )}
+      {printing && (
+        <div aria-hidden="true" style={{ position: 'absolute', left: -100000, top: 0, width: '16.3in' }}>
+          <CanonicalSchedule project={project} meta={meta} />
+        </div>
+      )}
 
       <div className="card" style={{ marginBottom: 16 }}>
         <h3>Document Size</h3>

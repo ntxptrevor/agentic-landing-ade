@@ -4,6 +4,8 @@ export default function TaskEditor({ wbs: initialWbs, dependencies: initialDeps,
   const [wbs, setWbs] = useState(JSON.parse(JSON.stringify(initialWbs)));
   const [deps, setDeps] = useState(JSON.parse(JSON.stringify(initialDeps)));
   const [activePhase, setActivePhase] = useState(0);
+  // Predecessor text is edited as a draft and committed on blur / Enter (no partial ids).
+  const [drafts, setDrafts] = useState({});
 
   const allTasks = wbs.flatMap(p => p.children.map(t => ({ ...t, phaseName: p.name })));
 
@@ -65,28 +67,33 @@ export default function TaskEditor({ wbs: initialWbs, dependencies: initialDeps,
       .map(d => ({ ...d, from: remap(d.from), to: remap(d.to) })));
   };
 
+  // Only the edited task's incoming links change: links that stay keep their type and lag
+  // (SS/FF/SF, lead/lag overlaps); only newly typed predecessors default to FS 0.
   const updatePredecessors = (phaseIdx, taskIdx, value) => {
-    const predIds = value.split(',').map(s => s.trim()).filter(Boolean);
+    const predIds = [...new Set(value.split(',').map(s => s.trim()).filter(Boolean))];
+    const taskId = wbs[phaseIdx].children[taskIdx].id;
     setWbs(prev => {
       const next = JSON.parse(JSON.stringify(prev));
       next[phaseIdx].children[taskIdx].predecessors = predIds;
       return next;
     });
-
-    // Rebuild deps from scratch based on current WBS
-    setDeps(() => {
-      const newDeps = [];
-      const updated = JSON.parse(JSON.stringify(wbs));
-      updated[phaseIdx].children[taskIdx].predecessors = predIds;
-      for (const phase of updated) {
-        for (const task of phase.children) {
-          for (const predId of task.predecessors) {
-            newDeps.push({ from: predId, to: task.id, type: 'FS', lag: 0, lagUnit: 'days' });
-          }
-        }
-      }
-      return newDeps;
+    setDeps(prev => {
+      const existing = new Map(prev.filter(d => d.to === taskId).map(d => [d.from, d]));
+      const kept = predIds.map(from => existing.get(from) || { from, to: taskId, type: 'FS', lag: 0, lagUnit: 'days' });
+      return prev.filter(d => d.to !== taskId).concat(kept);
     });
+  };
+
+  const commitPredecessors = (phaseIdx, taskIdx, taskId) => {
+    const v = drafts[taskId];
+    if (v == null) return;
+    setDrafts(d => { const n = { ...d }; delete n[taskId]; return n; });
+    updatePredecessors(phaseIdx, taskIdx, v);
+  };
+
+  const linkLabel = (task) => {
+    const extra = deps.filter(d => d.to === task.id && ((d.type && d.type !== 'FS') || Number(d.lag)));
+    return extra.map(d => `${d.from} ${d.type || 'FS'}${Number(d.lag) ? `${d.lag > 0 ? '+' : ''}${d.lag}d` : ''}`).join(', ');
   };
 
   const phase = wbs[activePhase];
@@ -147,11 +154,14 @@ export default function TaskEditor({ wbs: initialWbs, dependencies: initialDeps,
                     </td>
                     <td>
                       <input
-                        value={task.predecessors.join(', ')}
-                        onChange={e => updatePredecessors(activePhase, ti, e.target.value)}
+                        value={drafts[task.id] ?? task.predecessors.join(', ')}
+                        onChange={e => { const v = e.target.value; setDrafts(d => ({ ...d, [task.id]: v })); }}
+                        onBlur={() => commitPredecessors(activePhase, ti, task.id)}
+                        onKeyDown={e => { if (e.key === 'Enter') commitPredecessors(activePhase, ti, task.id); }}
                         placeholder="e.g. 1.1, 1.2"
-                        title="Comma-separated WBS codes of predecessor tasks"
+                        title="Comma-separated WBS codes of predecessor tasks (existing link types and lags are kept; new links are FS 0)"
                       />
+                      {linkLabel(task) && <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>{linkLabel(task)}</div>}
                     </td>
                     <td>
                       <button

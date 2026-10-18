@@ -1,5 +1,6 @@
 import React from 'react';
 import { JEV_RATINGS } from '../utils/trackers.js';
+import { safeHref } from '../utils/canonical.js';
 
 const fmt = v => (v == null ? '' : typeof v === 'object' ? JSON.stringify(v) : String(v));
 
@@ -8,7 +9,7 @@ export default function ChangelogPanel({ meta }) {
   for (const e of [...meta.changelog].reverse()) (byDate[e.at.slice(0, 10)] ||= []).push(e);
   return (
     <div>
-      <p className="input-hint">Canonical version <b>v{meta.version}</b> · {meta.changelog.length} entries · {meta.inputs.length} inputs recorded. Every change synced to the knowledge base, Drive and JobTread is derived from this log.</p>
+      <p className="input-hint">Canonical version <b>v{meta.version}</b> · {meta.changelog.length} entries ({meta.changelog.filter(e => e.noVersion).length} bookkeeping, no version change) · {meta.inputs.length} inputs recorded. Every change synced to the knowledge base, Drive and JobTread is derived from this log.</p>
       {Object.entries(byDate).map(([day, entries]) => (
         <div key={day} className="log-day">
           <div className="list-phase-header">{day}</div>
@@ -16,7 +17,7 @@ export default function ChangelogPanel({ meta }) {
             <tbody>
               {entries.map(e => (
                 <tr key={e.id}>
-                  <td style={{ width: 80 }}>{e.id}</td>
+                  <td style={{ width: 80 }}>{e.id}{e.version != null && <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>{e.noVersion ? `v${e.version} · no bump` : `→ v${e.version}`}</div>}</td>
                   <td style={{ width: 60 }}>{e.at.slice(11, 16)}</td>
                   <td style={{ width: 90 }}><span className="rating-pill" style={{ background: JEV_RATINGS[e.jevRating || 1].color }}>{JEV_RATINGS[e.jevRating || 1].label}</span></td>
                   <td style={{ width: 160 }}><b>{e.type}</b><div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{e.source} · {e.actor}</div></td>
@@ -25,6 +26,11 @@ export default function ChangelogPanel({ meta }) {
                     {e.before && <div>before: {fmt(e.before).slice(0, 160)}</div>}
                     {e.after && <div>after: {fmt(e.after).slice(0, 160)}</div>}
                     {e.reason && <div style={{ color: 'var(--text-dim)' }}>{e.reason}</div>}
+                    {(e.sources || []).length > 0 && (
+                      <div className="log-sources">Sources: {e.sources.map((src, i) => (
+                        <span key={i}>{i > 0 && ' · '}{safeHref(src.url) ? <a href={safeHref(src.url)} target="_blank" rel="noreferrer noopener">{src.title}</a> : src.title} <span style={{ color: 'var(--text-dim)' }}>({src.type}{src.date ? `, ${src.date}` : ''})</span></span>
+                      ))}</div>
+                    )}
                   </td>
                 </tr>
               ))}

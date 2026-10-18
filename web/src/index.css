@@ -901,9 +901,10 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media print {
+  /* NTXP outputs are 11x17 landscape with Document Engine margins (0.5in). */
   @page {
-    size: 8.5in 11in portrait;
-    margin: 0.5in 0.5in 0.75in 0.5in;
+    size: 17in 11in;
+    margin: 0.5in;
   }
 
   body {
@@ -916,7 +917,9 @@ input:focus, select:focus, textarea:focus {
 
   .header, .sidebar, .tabs, .btn-group, .step-indicator,
   .header-actions, .procurement-import-area, .export-grid,
+  .summary-grid, .preflight, .notice, .context-panel, .project-bar, .tab-sync,
   .no-print { display: none !important; }
+  .canon-wrap { overflow: visible !important; }
 
   .layout { display: block; }
   .main { padding: 0; }
@@ -1308,3 +1311,43 @@ input:focus, select:focus, textarea:focus {
 .phase-head label { display: flex; gap: 6px; align-items: center; font-size: .75rem; color: var(--text-dim); }
 .zone-block { border-left: 3px solid var(--accent); padding: 6px 0 6px 10px; margin-bottom: 8px; }
 .zone-head input:first-child { width: 160px; }
+
+/* ── Cloud front end (schedule.ntxpllc.com) ───────────────────────── */
+.header { flex-wrap: wrap; }
+.project-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: 1; min-width: 0; }
+.project-bar select { min-width: 220px; max-width: 420px; flex: 1; background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 8px; }
+.project-user { font-size: .75rem; color: var(--text-dim); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; background: #1B2A4E; }
+.login-card { width: 100%; max-width: 400px; text-align: center; display: flex; flex-direction: column; gap: 12px; }
+.login-logo { height: 64px; width: auto; margin: 0 auto; background: #1B2A4E; border-radius: 6px; padding: 6px 10px; }
+.login-google { display: block; text-decoration: none; }
+.login-pass { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.login-pass input { padding: 8px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface2); color: var(--text); }
+.login-error { color: var(--critical); font-size: .85rem; }
+.notice { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; font-size: .85rem; border: 1px solid var(--border); background: var(--surface2); }
+.notice-ok { border-color: var(--success); }
+.notice-warn { border-color: var(--warning); }
+.notice-bad { border-color: var(--critical); }
+.context-panel { width: 340px; flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); padding: 14px; overflow-y: auto; }
+.context-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.context-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.context-list li { display: flex; gap: 8px; padding: 8px; border-radius: 6px; background: var(--surface2); font-size: .8rem; }
+.context-list li.crit { border-left: 3px solid var(--critical); }
+.context-src { flex-shrink: 0; width: 34px; text-align: center; font-size: .65rem; font-weight: 700; color: var(--text-dim); border: 1px solid var(--border); border-radius: 4px; padding: 2px 0; height: fit-content; }
+.context-text a { color: var(--text); }
+.context-date { color: var(--text-dim); font-size: .7rem; margin-top: 2px; }
+.dropzone { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 28px 16px; margin-top: 12px; border: 2px dashed var(--border); border-radius: var(--radius); cursor: pointer; text-align: center; }
+.dropzone.over { border-color: var(--accent); background: var(--surface2); }
+.dropzone span { font-size: .8rem; color: var(--text-dim); }
+.intake-table { margin-top: 12px; }
+.intake-table select { max-width: 260px; }
+.instant-result { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+.instant-result h3 { font-size: .95rem; margin: 12px 0 8px; }
+.req-gate { margin-top: 12px; padding: 10px; border-radius: var(--radius); border: 1px solid var(--warning); font-size: .85rem; }
+.req-gate.ok { border-color: var(--success); }
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  .sidebar, .context-panel { width: 100%; border: 0; border-top: 1px solid var(--border); }
+  .project-bar select { min-width: 0; width: 100%; }
+}
+.tab-sync { margin-left: auto; align-self: center; white-space: nowrap; }
