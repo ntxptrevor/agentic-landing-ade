@@ -502,7 +502,7 @@ export default function App() {
   return (
     <>
       <header className="header">
-        <h1><span>BidForge</span> Schedules</h1>
+        <h1><span>NTXP</span> CPM Gantt Schedules</h1>
         {cloud && (
           <ProjectBar projects={projects} currentSlug={slug} onSelect={openProject}
             onInstant={readOnly ? null : () => { setSlug(''); setStep('instant'); setNotice(null); history.replaceState(null, '', location.pathname); }}

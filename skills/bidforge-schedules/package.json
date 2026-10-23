@@ -1,8 +1,0 @@
-{
-  "name": "bidforge-schedules-skill",
-  "private": true,
-  "description": "Test entry for the bidforge-schedules skill scripts (no dependencies). `node --test skills/bidforge-schedules/` runs every *.test.mjs through run-tests.mjs.",
-  "type": "module",
-  "main": "run-tests.mjs",
-  "scripts": { "test": "node --test run-tests.mjs" }
-}

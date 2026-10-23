@@ -2,7 +2,7 @@
 // schedules (UNT Starbucks Ph2, UTSW Memorial Garden Ash Vault, UTSW C1 Mech Vault,
 // UTSW NB10.208, UTD University Village Balcony Rebuild, UTD WSTC). Every parameter is
 // provisional (n <= 3 per family) — review at n >= 8. Evidence and seat votes:
-// skills/bidforge-schedules/knowledge/council/2026-10-14-ut-system-audit/.
+// skills/ntxp-cpm-gantt-schedules/knowledge/council/2026-10-14-ut-system-audit/.
 
 // Size bands. Micro = small interior jobs whose overrun came from fixed-time rows, not sizing
 // (SF envelope 23–26 WD vs 25–31 WD real). Value thresholds apply only when SF is unknown.

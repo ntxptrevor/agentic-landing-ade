@@ -1,6 +1,6 @@
 <?php
 /**
- * BidForge Schedules — shared server library (schedule.ntxpllc.com).
+ * NTXP CPM Gantt Schedules — shared server library (schedule.ntxpllc.com).
  *
  * Included by every endpoint in /api and /auth. No output and no session start
  * on include. Under a web SAPI it turns display_errors off and installs an

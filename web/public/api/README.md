@@ -1,6 +1,6 @@
-# BidForge Schedules — server (schedule.ntxpllc.com)
+# NTXP CPM Gantt Schedules — server (schedule.ntxpllc.com)
 
-PHP 8.x endpoints for the BidForge SPA on Hostinger shared hosting (Apache/LiteSpeed, no Node at runtime).
+PHP 8.x endpoints for the NTXP CPM Gantt Schedules SPA on Hostinger shared hosting (Apache/LiteSpeed, no Node at runtime).
 Everything here lives in `web/public/`, so `npm run build` copies it into `web/dist/` and from there into `docs/`.
 This README itself is blocked from web access by `.htaccess`.
 
@@ -55,7 +55,7 @@ php -r 'echo password_hash(trim(fgets(STDIN)), PASSWORD_DEFAULT), PHP_EOL;'
 php -r '$t = bin2hex(random_bytes(32)); echo "token: $t", PHP_EOL, "sha256: ", hash("sha256", $t), PHP_EOL;'
 ```
 
-Put the results in `passphrase_hash` and `publish_token_hash`. Give the token itself only to the BidForge sync agent.
+Put the results in `passphrase_hash` and `publish_token_hash`. Give the token itself only to the NTXP CPM Gantt Schedules sync agent.
 If you leave `passphrase_hash` empty, passphrase login is turned off.
 
 ### Passphrase login — know the risk
