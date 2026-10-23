@@ -1,5 +1,5 @@
 ---
-name: bidforge-lessons-auditor
+name: ntxp-cpm-gantt-lessons-auditor
 description: Runs the NTXP CPM Gantt Schedules self-improvement loop: computes schedule-drift metrics from canonical changelogs across projects, then proposes JEV changes with evidence for a council vote. Proposals only.
 model: opus
 tools: Read, Grep, Glob, Bash

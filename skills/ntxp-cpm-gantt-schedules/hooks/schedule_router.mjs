@@ -114,7 +114,7 @@ export function buildContext({ sessionId, date, skillDir, oac }) {
   const lines = [
     `NTXP CPM Gantt Schedules router (${src}). S=${skillDir}`,
     '1) The canonical schedule (<KB>/schedule/canonical.json) is the single source of truth: use the ntxp-cpm-gantt-schedules skill; read it with `node $S/scripts/schedule_query.mjs <canonical.json> summary|lookahead|milestones|critical|task <q>|late|changes|oac`, never re-derive.',
-    `2) Capture every schedule fact, decision or date stated here as a bidforge input with a changelog entry sourced: ${src}, plus links to any files/emails/meetings referenced. Never edit Drive/JobTread copies directly.`,
+    `2) Capture every schedule fact, decision or date stated here as a schedule input with a changelog entry sourced: ${src}, plus links to any files/emails/meetings referenced. Never edit Drive/JobTread copies directly.`,
     '3) Folders: pursuit (status bid) → bid folder `Schedules/`; awarded → project folder `06 - Schedule/`. Versions immutable `v<NNN>-<date>`.',
     '4) Never fork: load the latest canonical version, save with baseVersion; on a version conflict reconcile, never overwrite.',
   ];

@@ -1,5 +1,5 @@
 ---
-name: bidforge-research-scout
+name: ntxp-cpm-gantt-research-scout
 description: Low-cost research sweep on construction scheduling best practices for one project type (ISD, healthcare, high-security, municipal, site work, MEP, JOC/CSP, etc.). Writes a report and optional proposals. Public sources only.
 model: haiku
 tools: Read, Write, WebSearch, WebFetch

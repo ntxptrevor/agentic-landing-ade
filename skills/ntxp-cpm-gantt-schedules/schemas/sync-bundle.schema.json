@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "bidforge.sync.v1",
-  "title": "BidForge sync bundle",
+  "title": "NTXP CPM Gantt Schedules sync bundle",
   "type": "object",
   "required": [
     "schema",

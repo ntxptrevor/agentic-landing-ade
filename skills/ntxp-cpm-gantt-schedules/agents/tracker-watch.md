@@ -1,5 +1,5 @@
 ---
-name: bidforge-tracker-watch
+name: ntxp-cpm-gantt-tracker-watch
 description: Rates RFIs, submittals and lead times, ASIs/COs, owner pay apps and sub invoices for one project against the canonical schedule and writes notes only for items rated 3 or higher. Drafts, never sends.
 model: haiku
 tools: Read, Bash, mcp__JobTread__query, mcp__Google_Drive__search_files, mcp__Gmail__search_threads

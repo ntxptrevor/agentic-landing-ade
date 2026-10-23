@@ -7,7 +7,7 @@ keep it from forking.
 
 ```
  any tool / skill / agent ──► schedule_query.mjs ──► canonical.json  (read-only, deterministic)
- any conversation ──► schedule_router hook ──► bidforge input + sourced changelog entry ──► new version
+ any conversation ──► schedule_router hook ──► schedule input + sourced changelog entry ──► new version
  OAC report request ──► oac_gate.mjs ──fail──► /ntxp-cpm-gantt-schedules --sync <project> ──► gate again
  schedule.ntxpllc.com ◄──publish.php (per-bundle baseVersion/baseHash)── KB canonical
  schedule.ntxpllc.com ──changes.php?since=<ISO> (pending saves)──► next sync ──POST ack──► site
@@ -100,7 +100,7 @@ silently and never blocks the prompt.
 
 Any schedule **fact, decision or date** stated in a conversation (for example "drywall slipped
 3 days", "owner moved SC to 12/20" or "inspection passed today") is captured as an input to the
-canonical schedule. Use bidforge input mode (`recordInput` + `applySyncItems` / `logChange`).
+canonical schedule. Use schedule input mode (`recordInput` + `applySyncItems` / `logChange`).
 Do not just answer it.
 
 - The input is saved to `<KB>/schedule/inputs/<date>-conversation-<topic>.md`.

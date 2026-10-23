@@ -1,5 +1,5 @@
 ---
-name: bidforge-preflight-inspector
+name: ntxp-cpm-gantt-preflight-inspector
 description: One council seat for the pre-publish inspection of a canonical schedule. Answers five yes/no questions with short reasons. Read-only.
 model: sonnet
 tools: Read, Bash

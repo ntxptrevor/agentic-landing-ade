@@ -1,5 +1,5 @@
 ---
-name: bidforge-sync-collector
+name: ntxp-cpm-gantt-sync-collector
 description: Collects schedule-impacting evidence for one NTXP project since the last sync (JobTread tasks/daily logs/photos, Plaud, Gemini Meetings notes, Calendar, Gmail, Drive) and returns sources[] plus draft items[] for a bidforge.sync.v1 bundle. Read-only.
 model: sonnet
 tools: Read, Grep, Glob, Bash, mcp__JobTread__query, mcp__Google_Calendar__list_events, mcp__Google_Calendar__search_events, mcp__Gmail__search_threads, mcp__Gmail__get_thread, mcp__Google_Drive__search_files, mcp__Google_Drive__read_file_content, mcp__Plaud_AI__list_files, mcp__Plaud_AI__get_note, mcp__Plaud_AI__get_transcript

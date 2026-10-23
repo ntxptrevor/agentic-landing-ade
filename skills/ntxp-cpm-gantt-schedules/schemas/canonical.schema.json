@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "bidforge.canonical.v1",
-  "title": "BidForge Canonical Project Schedule",
+  "title": "NTXP CPM Gantt Schedules Canonical Project Schedule",
   "description": "Produced by web/src/utils/canonical.js buildCanonicalDocument(). Knowledge base, Drive and JobTread copies are derived from this document.",
   "type": "object",
   "required": [

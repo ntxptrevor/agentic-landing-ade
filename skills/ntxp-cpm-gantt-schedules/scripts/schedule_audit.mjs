@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Deterministic sanity audit of the BidForge engine against NTXP benchmarks.
+// Deterministic sanity audit of the NTXP CPM Gantt Schedules engine against NTXP benchmarks.
 // usage: node schedule_audit.mjs [scenarios.json] > audit.json
 // Scenario: { id, label, sf, sector, tier, modules[], expect: { constructionWd:[lo,hi], totalCd:[lo,hi] } }
 import fs from 'node:fs';
@@ -86,4 +86,4 @@ function audit(sc) {
 
 const scenarios = process.argv[2] ? JSON.parse(fs.readFileSync(process.argv[2], 'utf8')) : DEFAULT_SCENARIOS;
 const results = scenarios.map(audit);
-process.stdout.write(JSON.stringify({ engine: 'bidforge jevTree + scheduler', at: new Date().toISOString(), results }, null, 2));
+process.stdout.write(JSON.stringify({ engine: 'ntxp-cpm-gantt-schedules jevTree + scheduler', at: new Date().toISOString(), results }, null, 2));

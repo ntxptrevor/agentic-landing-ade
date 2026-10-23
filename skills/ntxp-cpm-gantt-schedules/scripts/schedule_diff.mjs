@@ -3,7 +3,7 @@
 // usage: node schedule_diff.mjs canonical.json jt_tasks.json [--today YYYY-MM-DD] > items.json
 // jt_tasks.json: array of { id, name, startDate, endDate, progress, updatedAt } (Pave job.tasks nodes)
 //
-// Three-way diff (council audit #3, A-08): JobTread is compared with the dates BidForge last
+// Three-way diff (council audit #3, A-08): JobTread is compared with the dates NTXP CPM Gantt Schedules last
 // PUSHED (canonical sync.jobtreadPushed, written by `jobtread_push.mjs record`), not with the
 // current canonical. So:
 //   JobTread == pushed                → no item (canonical changes not pushed yet are "push pending")
