@@ -1,5 +1,5 @@
 {
-  "description": "BidForge schedule router: routes schedule-related prompts into the canonical schedule (ntxp-cpm-gantt-schedules) and enforces the OAC forced-update gate.",
+  "description": "NTXP CPM Gantt Schedules router: routes schedule-related prompts into the canonical schedule (ntxp-cpm-gantt-schedules) and enforces the OAC forced-update gate.",
   "hooks": {
     "UserPromptSubmit": [
       {
