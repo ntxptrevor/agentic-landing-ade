@@ -87,6 +87,10 @@ Skill descriptions in the manifests should match the intent of the skill's
 own frontmatter `description`. Plugin versions live in both manifests (ntxp-cpm-gantt-schedules
 tracks the skill's own `version`, currently 2.8.0); bump both together.
 
+`marketplace.json` also carries a deprecated `bidforge-schedules` alias entry (the
+plugin's pre-rename ID) so existing installs keep updating. Keep its `version`,
+`source` and `hooks` identical to the `ntxp-cpm-gantt-schedules` entry.
+
 The `mygmc-smartcar` plugin is registered in `marketplace.json` with
 `source: "./plugins/mygmc-smartcar"` and carries its **own**
 `plugins/mygmc-smartcar/.claude-plugin/plugin.json` (which declares an
