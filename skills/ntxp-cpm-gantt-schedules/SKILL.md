@@ -1,7 +1,7 @@
 ---
 name: ntxp-cpm-gantt-schedules
 description: >-
-  NTXP CPM Gantt Schedules (formerly BidForge Schedules) — NTXP canonical construction schedule engine. Use for any construction schedule, WBS, Gantt,
+  NTXP CPM Gantt Schedules — NTXP canonical construction schedule engine. Use for any construction schedule, WBS, Gantt,
   look-ahead, or schedule update on an NTXP project; when the user says sync the schedule, update
   the schedule from meetings/emails/daily reports, track RFIs, submittals, lead times, ASIs,
   change orders, pay apps or sub invoices against the schedule; when they upload a Project Manual,
