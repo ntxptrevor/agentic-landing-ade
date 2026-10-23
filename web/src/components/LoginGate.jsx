@@ -36,7 +36,7 @@ export default function LoginGate({ session, onAuthenticated }) {
     <div className="login-wrap">
       <div className="card login-card">
         <img src="./ntxp-logo-reversed.png" alt="NTXP" className="login-logo" />
-        <h2>BidForge Schedules</h2>
+        <h2>NTXP CPM Gantt Schedules</h2>
         <p className="input-hint">schedule.ntxpllc.com — NTXP team access only.</p>
         {session.authMethods?.google !== false && (
           <a className="btn btn-primary login-google" href="./auth/google.php">Sign in with Google (@ntxpllc.com)</a>

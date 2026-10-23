@@ -140,7 +140,7 @@ export default function ExportPanel({ project, meta, preflight, onSync, onOac })
     },
     {
       format: 'JSON',
-      desc: 'Re-importable BidForge schedule data',
+      desc: 'Re-importable NTXP CPM Gantt Schedules data',
       icon: '{ }',
       action: () => downloadFile(exportJSON(project), `${slug}-schedule.json`, 'application/json'),
     },

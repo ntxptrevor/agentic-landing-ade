@@ -1,4 +1,4 @@
-// Mini-JEV model router for BidForge Schedules.
+// Mini-JEV model router for NTXP CPM Gantt Schedules.
 // Every action gets two scores: impact (0-100, likelihood x magnitude of effect on
 // the project) and intelligence (1-100, 1 = Haiku/Luna medium effort,
 // 100 = Fable/Astra frontier high effort). The router picks the cheapest seat whose

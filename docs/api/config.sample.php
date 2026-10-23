@@ -1,6 +1,6 @@
 <?php
 /**
- * BidForge Schedules — SAMPLE server config. THIS FILE IS NOT LOADED.
+ * NTXP CPM Gantt Schedules — SAMPLE server config. THIS FILE IS NOT LOADED.
  *
  * Copy it to `bidforge-config.php` OUTSIDE the web root and fill in real values.
  * The server looks for the config in this order and uses the first that exists:

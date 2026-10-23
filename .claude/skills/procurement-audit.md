@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Query JobTread, Google Drive, Lightfield CRM, Gmail, and Google Calendar for procurement-related documents, approvals, and events tied to a construction project. **Write the results to JobTread as the source of truth**, then generate a JSON payload for BidForge Schedules as a secondary visualization.
+Query JobTread, Google Drive, Lightfield CRM, Gmail, and Google Calendar for procurement-related documents, approvals, and events tied to a construction project. **Write the results to JobTread as the source of truth**, then generate a JSON payload for NTXP CPM Gantt Schedules as a secondary visualization.
 
 ## Data Flow Priority
 
@@ -18,10 +18,10 @@ Audit Engine (this skill)
   |-- Gmail threads (optional)
   +-- Google Calendar events (optional)
   | output
-BidForge JSON (visualization)
+NTXP CPM Gantt Schedules JSON (visualization)
 ```
 
-**JobTread is always the primary record.** Every procurement entry discovered by this skill MUST be written to JobTread first. The BidForge JSON is a secondary output for schedule visualization only.
+**JobTread is always the primary record.** Every procurement entry discovered by this skill MUST be written to JobTread first. The NTXP CPM Gantt Schedules JSON is a secondary output for schedule visualization only.
 
 ## When to Use
 
@@ -201,7 +201,7 @@ mcp__JobTread__query({
         "isGroup": true,
         "isToDo": false,
         "targetId": "<jobId>",
-        "description": "Auto-generated procurement tracking group. Documents and approvals discovered by BidForge procurement audit."
+        "description": "Auto-generated procurement tracking group. Documents and approvals discovered by NTXP CPM Gantt Schedules procurement audit."
       }
     },
     "id": {}
@@ -260,9 +260,9 @@ mcp__JobTread__query({
 })
 ```
 
-### Step 9: Generate BidForge JSON Output
+### Step 9: Generate NTXP CPM Gantt Schedules JSON Output
 
-After writing to JobTread, produce the JSON payload for BidForge visualization. **Include the JobTread task IDs** so the schedule can reference the source of truth.
+After writing to JobTread, produce the JSON payload for NTXP CPM Gantt Schedules visualization. **Include the JobTread task IDs** so the schedule can reference the source of truth.
 
 Determine `syncStatus`:
 - `"synced"` if ALL entries were written to JobTread successfully
@@ -352,8 +352,8 @@ Before generating entries:
 
 ## Error Handling
 
-- If JobTread write fails, **stop and report** -- do not generate BidForge JSON without confirming the source of truth is updated
-- **Exception for partial failures:** If some tasks were created and others failed, report `syncStatus: "partial"`, list which succeeded and which failed, and generate BidForge JSON for the successful entries only
+- If JobTread write fails, **stop and report** -- do not generate NTXP CPM Gantt Schedules JSON without confirming the source of truth is updated
+- **Exception for partial failures:** If some tasks were created and others failed, report `syncStatus: "partial"`, list which succeeded and which failed, and generate NTXP CPM Gantt Schedules JSON for the successful entries only
 - If a secondary connector (Drive, Lightfield, Gmail, Calendar) is unavailable, skip it, note the gap, and continue with available sources
 - If no project match is found, list available jobs and ask the user
 - Never expose API tokens or credentials in output

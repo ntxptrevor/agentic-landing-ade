@@ -1,7 +1,7 @@
 // Project Coda backup block for the JobTread job custom field "Notes".
 // The block is appended to whatever the team already wrote in Notes and is the only
 // part ever rewritten; text outside the markers is preserved byte-for-byte.
-// Shared by the web app and skills/bidforge-schedules/scripts/coda_backup.mjs.
+// Shared by the web app and skills/ntxp-cpm-gantt-schedules/scripts/coda_backup.mjs.
 
 export const CODA_START = '=== NTXP PROJECT CODA (BidForge backup) ';
 export const CODA_END = '=== END NTXP PROJECT CODA ===';
@@ -38,7 +38,7 @@ export function emptyCoda() {
     syncCadence: 'daily JobTread pull 6:47 CT Mon-Sat; full sync on SYNC',
     council: '',
     // Persistent instructions, rewritten on every sync so the Coda always points at the live schedule.
-    instructions: 'Open the Live schedule link for the current version. Change dates only through /bidforge-schedules (sync, input, or the live page then SYNC). Ask schedule questions with schedule_query.mjs. Never edit Drive or JobTread copies.',
+    instructions: 'Open the Live schedule link for the current version. Change dates only through /ntxp-cpm-gantt-schedules (sync, input, or the live page then SYNC). Ask schedule questions with schedule_query.mjs. Never edit Drive or JobTread copies.',
   };
 }
 

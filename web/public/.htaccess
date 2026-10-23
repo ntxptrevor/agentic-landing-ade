@@ -1,4 +1,4 @@
-# BidForge Schedules — schedule.ntxpllc.com (Apache / LiteSpeed)
+# NTXP CPM Gantt Schedules — schedule.ntxpllc.com (Apache / LiteSpeed)
 # web/dev-server/router.php emulates the headers below for `php -S` tests — keep the two in sync.
 Options -Indexes
 DirectoryIndex index.html
