@@ -11,9 +11,9 @@
       "path": "skills/landing-ade/SKILL.md"
     },
     {
-      "name": "ntxp-cpm-gantt-schedules",
-      "description": "NTXP CPM Gantt Schedules v2.8 - canonical construction schedule engine: JEV-tree WBS + CPM, sync with JobTread/Drive/KB/hosted site, Project Coda backup, schedule-router hook and OAC gate, deterministic environment scan + identifier crosswalk, write guard, lesson drift metrics; exports MS Project XML, 11x17 PDF, JSON, CSV, Markdown.",
-      "path": "skills/ntxp-cpm-gantt-schedules/SKILL.md",
+      "name": "ntxp-cpm-gantt-schedule",
+      "description": "NTXP-CPM-Gantt-Schedule v2.8 - canonical construction schedule engine: JEV-tree WBS + CPM, sync with JobTread/Drive/KB/hosted site, Project Coda backup, schedule-router hook and OAC gate, deterministic environment scan + identifier crosswalk, write guard, lesson drift metrics; exports MS Project XML, 11x17 PDF, JSON, CSV, Markdown.",
+      "path": "skills/ntxp-cpm-gantt-schedule/SKILL.md",
       "version": "2.8.0"
     },
     {

@@ -1,0 +1,8 @@
+{
+  "name": "ntxp-cpm-gantt-schedule-skill",
+  "private": true,
+  "description": "Test entry for the ntxp-cpm-gantt-schedule skill scripts (no dependencies). `node --test skills/ntxp-cpm-gantt-schedule/` runs every *.test.mjs through run-tests.mjs.",
+  "type": "module",
+  "main": "run-tests.mjs",
+  "scripts": { "test": "node --test run-tests.mjs" }
+}
