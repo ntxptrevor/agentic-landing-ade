@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/skills/ntxp-cpm-gantt-schedules/hooks/schedule_router.mjs\"",
+            "command": "node \"$CLAUDE_PROJECT_DIR/skills/ntxp-cpm-gantt-schedule/hooks/schedule_router.mjs\"",
             "timeout": 10
           }
         ]

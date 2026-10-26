@@ -38,7 +38,7 @@ You should see `landing-ade` in the output.
 
 This marketplace also ships:
 
-- **`ntxp-cpm-gantt-schedules`** — interactive construction WBS schedule generator
+- **`ntxp-cpm-gantt-schedule`** — interactive construction WBS schedule generator
   (Gantt / list / calendar views, CPM scheduling, multi-format export).
 - **`mygmc-smartcar`** — an MCP server that integrates a GMC / GM electric
   vehicle (e.g. a **2026 GMC Sierra EV**) through the
