@@ -28,7 +28,7 @@ const urlSlug = () => { try { return new URLSearchParams(location.search).get('p
 
 // Sync bundle: produced by the agent sync run (skill `--sync`). In cloud mode only a pasted /
 // uploaded bundle or ./projects/<slug>/sync-bundle.json is read — never the shared root file
-// while a project is open. Schema: skills/ntxp-cpm-gantt-schedules/schemas/sync-bundle.schema.json
+// while a project is open. Schema: skills/ntxp-cpm-gantt-schedule/schemas/sync-bundle.schema.json
 export default function SyncModal({ project, meta, onApply, onClose }) {
   const [bundle, setBundle] = useState(null);
   const [check, setCheck] = useState(null);
