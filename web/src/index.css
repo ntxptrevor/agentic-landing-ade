@@ -1351,3 +1351,8 @@ input:focus, select:focus, textarea:focus {
   .project-bar select { min-width: 0; width: 100%; }
 }
 .tab-sync { margin-left: auto; align-self: center; white-space: nowrap; }
+
+.setup-layout { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 320px); gap: 16px; align-items: start; }
+.setup-aside ol { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 0.85rem; line-height: 1.55; }
+.setup-aside b { color: var(--text); }
+@media (max-width: 900px) { .setup-layout { grid-template-columns: minmax(0, 1fr); } }

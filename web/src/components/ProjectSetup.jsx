@@ -33,7 +33,8 @@ export default function ProjectSetup({ project, onDone }) {
   };
 
   return (
-    <div className="card" style={{ maxWidth: 600 }}>
+    <div className="setup-layout">
+    <div className="card">
       <h2>Project Setup</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -101,6 +102,17 @@ export default function ProjectSetup({ project, onDone }) {
           </button>
         </div>
       </form>
+    </div>
+    <aside className="card setup-aside" aria-label="What happens next">
+      <h3>What happens next</h3>
+      <ol>
+        <li><b>Project details</b>: name, start date and calendars.</li>
+        <li><b>Requirements</b>: upload the Division 01 specs and UGC, or confirm none exist by typing the acknowledgement phrase.</li>
+        <li><b>Scope modules</b>: answer Yes or No for every module. Modules with no tasks can only be declined.</li>
+        <li><b>Tasks</b>: review the NTXP backbone and the tasks your answers added.</li>
+        <li><b>Generate</b>: the CPM engine builds the schedule and logs it to the canonical changelog.</li>
+      </ol>
+    </aside>
     </div>
   );
 }
