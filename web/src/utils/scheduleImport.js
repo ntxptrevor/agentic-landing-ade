@@ -70,9 +70,49 @@ export function parseMSPDI(xml) {
 
 // CSV with a header row: Name, Duration (days), Start, Finish, Predecessors (row numbers), Phase,
 // and optionally Actual Start, Actual Finish, % Complete.
+const CSV_DELIMS = ['|', '\t', ';', ','];
+
+// Delimiter from the header line: the most frequent candidate wins; ties keep pipe > tab > semicolon > comma.
+export function detectCsvDelimiter(headerLine = '') {
+  const counts = CSV_DELIMS.map(d => [d, headerLine.split(d).length - 1]);
+  const best = counts.reduce((a, b) => (b[1] > a[1] ? b : a));
+  return best[1] > 0 ? best[0] : ',';
+}
+
+// Split one line on the delimiter, honouring double-quoted fields and "" escapes.
+export function splitCsvLine(line, delim) {
+  const out = [];
+  let cur = '';
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') quoted = false; else cur += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === delim) { out.push(cur.trim()); cur = ''; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+// Duration text to working days: bare numbers are days, weeks are 5 working days, hours are 1/8 day.
+// Returns null for text it cannot read, so the caller reports it instead of guessing.
+export function parseDurationDays(raw) {
+  const m = String(raw ?? '').trim().toLowerCase().match(/^(-?\d+(?:\.\d+)?)\s*([a-z]*)\.?$/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  const unit = m[2];
+  if (!unit || /^(d|dy|dys|day|days)$/.test(unit)) return n;
+  if (/^(w|wk|wks|week|weeks)$/.test(unit)) return n * 5;
+  if (/^(h|hr|hrs|hour|hours)$/.test(unit)) return n / 8;
+  return null;
+}
+
 export function parseScheduleCSV(text) {
   const lines = text.split(/\r?\n/).filter(l => l.trim());
-  const split = l => (l.match(/("([^"]|"")*"|[^,]*)(,|$)/g) || []).map(c => c.replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"').trim());
+  const delim = detectCsvDelimiter(lines[0] || '');
+  const split = l => splitCsvLine(l, delim);
   const head = split(lines.shift() || '').map(h => h.toLowerCase());
   const col = (re, not) => head.findIndex(h => re.test(h) && !(not && not.test(h)));
   const c = {
@@ -83,12 +123,15 @@ export function parseScheduleCSV(text) {
   };
   if (c.name < 0) throw new Error('CSV needs a Name / Task column');
   const rows = [];
+  const unreadable = [];
   let phase = null;
   lines.forEach((l, i) => {
     const v = split(l);
     if (!v[c.name]) return;
     const ph = c.phase >= 0 ? v[c.phase] : null;
     if (ph && ph !== phase) { phase = ph; rows.push({ uid: `p${i}`, name: ph, level: 1, summary: true }); }
+    const dur = c.dur >= 0 ? parseDurationDays(v[c.dur]) : null;
+    if (c.dur >= 0 && dur === null && v[c.dur]) unreadable.push({ task: v[c.name], raw: v[c.dur] });
     const pct = c.pct >= 0 ? parseFloat(String(v[c.pct] || '').replace('%', '')) || 0 : 0;
     const start = c.start >= 0 ? normDate(v[c.start]) : null;
     const finish = c.finish >= 0 ? normDate(v[c.finish]) : null;
@@ -97,11 +140,12 @@ export function parseScheduleCSV(text) {
       start, finish, pct,
       actualStart: (c.aStart >= 0 ? normDate(v[c.aStart]) : null) || (pct > 0 && c.aStart < 0 ? start : null),
       actualFinish: (c.aFinish >= 0 ? normDate(v[c.aFinish]) : null) || (pct >= 100 && c.aFinish < 0 ? finish : null),
-      hours: (c.dur >= 0 ? parseFloat(v[c.dur]) || 1 : 1) * 8, milestone: c.dur >= 0 && parseFloat(v[c.dur]) === 0,
+      hours: (dur ?? 1) * 8, milestone: dur === 0,
       preds: c.pred >= 0 ? String(v[c.pred] || '').split(/[;,\s]+/).filter(Boolean).map(p => ({ uid: p.replace(/\D.*$/, ''), type: (p.match(/FS|SS|FF|SF/i) || ['FS'])[0].toUpperCase(), lag: Number((p.match(/[+-]\s*\d+/) || ['0'])[0].replace(/\s/g, '')) || 0 })) : [],
     });
   });
-  return toWbs('', rows, 8);
+  const warnings = unreadable.length ? [`${unreadable.length} duration(s) could not be read and were set to 1 day, e.g. "${unreadable[0].raw}" on ${unreadable[0].task}`] : [];
+  return { ...toWbs('', rows, 8), warnings };
 }
 
 function normDate(s) {
