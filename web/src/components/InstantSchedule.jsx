@@ -132,10 +132,13 @@ export default function InstantSchedule({ initialName = '', projects = [], curre
       {analysis && scope && (
         <div className="instant-result">
           {imported && (
+            <>
             <label className="constraint-chip on" style={{ marginBottom: 10 }}>
               <input type="checkbox" checked={useImport} onChange={e => setUseImport(e.target.checked)} />
               Start from the uploaded schedule "{imported.file}" ({imported.taskCount} tasks, {imported.linkCount} links)
             </label>
+            {imported.warnings?.length > 0 && <p className="req-gate" role="alert">{imported.warnings.join(' ')} Fix those rows in the file, or accept the 1-day default.</p>}
+            </>
           )}
           <h3>Scope read from your files</h3>
           <div className="form-row">

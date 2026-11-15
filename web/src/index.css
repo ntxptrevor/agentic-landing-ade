@@ -1356,3 +1356,7 @@ input:focus, select:focus, textarea:focus {
 .setup-aside ol { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 0.85rem; line-height: 1.55; }
 .setup-aside b { color: var(--text); }
 @media (max-width: 900px) { .setup-layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* Intake table: scroll inside its card on narrow screens instead of pushing controls past the edge */
+.intake-table { display: block; overflow-x: auto; max-width: 100%; }
+.intake-table select { max-width: 100%; }

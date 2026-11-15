@@ -380,3 +380,26 @@ test('SC-02 an entered contract date still pins the reference milestone', () => 
   calculateSchedule(p);
   assert.notEqual(task(p, 'b').startDate, task(p, 'a').endDate);
 });
+
+// ---------------------------------------------------------------- schedule CSV import
+import { detectCsvDelimiter, splitCsvLine, parseDurationDays } from './scheduleImport.js';
+test('IMP-01 CSV import detects pipe, tab and semicolon exports, not only commas', () => {
+  assert.equal(detectCsvDelimiter('Name|Duration|Start'), '|');
+  assert.equal(detectCsvDelimiter('Name\tDuration'), '\t');
+  assert.equal(detectCsvDelimiter('Name;Duration;Start'), ';');
+  assert.equal(detectCsvDelimiter('Name,Duration'), ',');
+  assert.deepEqual(splitCsvLine('"Pour slab, L2";2 wks;"say ""hi"""', ';'), ['Pour slab, L2', '2 wks', 'say "hi"']);
+});
+test('IMP-02 duration units convert to working days and unknown text is refused', () => {
+  assert.equal(parseDurationDays('2 wks'), 10);
+  assert.equal(parseDurationDays('3d'), 3);
+  assert.equal(parseDurationDays('8 hrs'), 1);
+  assert.equal(parseDurationDays('TBD'), null);
+  assert.equal(parseDurationDays('2 fortnights'), null);
+});
+test('IMP-03 an unreadable duration is reported as a warning, not silently scheduled', () => {
+  const r = parseScheduleCSV('Name;Duration\nPour;2 wks\nCure;TBD\n');
+  assert.equal(r.warnings.length, 1);
+  assert.match(r.warnings[0], /"TBD" on Cure/);
+  assert.deepEqual(parseScheduleCSV('Name,Duration\nPour,3d\n').warnings, []);
+});
