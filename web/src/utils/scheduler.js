@@ -185,6 +185,21 @@ export function calculateSchedule(project, opts = {}) {
     if (nd.contractDate) task.milestoneVariance = calendarDaysBetween(nd.contractDate, end);
   }
 
+  // ---- contract substantial-completion reference -------------------------------------
+  // With no contract date entered, the reference milestone follows the planned Owner Punch Walk /
+  // Substantial Completion finish instead of sitting on project start.
+  const nameOf = t => String(t?.name || t?.baseName || '');
+  const scWalk = allTasks.find(t => t && t.type !== 'phase' && nameOf(t).startsWith('Owner Punch Walk / Substantial Completion'));
+  for (const t of allTasks) {
+    if (!t || t.type === 'phase' || !t.isReference || dates.get(t.id)?.contractDate) continue;
+    if (!nameOf(t).startsWith('Substantial Completion Date per Contract') || !scWalk || !EF.has(scWalk.id)) continue;
+    const when = EF.get(scWalk.id);
+    ES.set(t.id, when);
+    EF.set(t.id, when);
+    t.startDate = formatDate(when);
+    t.endDate = formatDate(when);
+  }
+
   // ---- phase roll-up ------------------------------------------------------------------
   for (const phase of wbs) {
     const children = phase.children || [];

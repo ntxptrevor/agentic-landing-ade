@@ -362,3 +362,21 @@ test('engine output on a generated NTXP WBS has no warnings, no cycles and sane 
   assert.equal(r.error, undefined);
   for (const t of r.wbs.flatMap(p => p.children)) assert.ok(t.endDate >= t.startDate, t.id);
 });
+
+// ---------------------------------------------------------------- contract SC reference
+test('SC-01 contract substantial-completion reference follows the planned Owner Punch Walk, not project start', () => {
+  const pw = T('a', 3, [], { name: 'Owner Punch Walk / Substantial Completion' });
+  const sc = T('b', 0, [], { name: 'Substantial Completion Date per Contract', isReference: true });
+  const p = proj([T('x', 5), pw, sc]);
+  calculateSchedule(p);
+  assert.equal(task(p, 'b').startDate, task(p, 'a').endDate);
+  assert.notEqual(task(p, 'b').startDate, '2026-11-02');
+});
+
+test('SC-02 an entered contract date still pins the reference milestone', () => {
+  const pw = T('a', 3, [], { name: 'Owner Punch Walk / Substantial Completion' });
+  const sc = T('b', 0, [], { name: 'Substantial Completion Date per Contract', isReference: true, contractDate: '2027-03-01' });
+  const p = proj([pw, sc]);
+  calculateSchedule(p);
+  assert.notEqual(task(p, 'b').startDate, task(p, 'a').endDate);
+});

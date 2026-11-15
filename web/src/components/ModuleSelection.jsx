@@ -226,9 +226,9 @@ export default function ModuleSelection({ detected = [], initial = [], initialSc
               <div className="module-q">{m.confirm}</div>
               {det && <div className="module-ev">Found: {det.hits.slice(0, 4).map(h => h.keyword).join(', ')}</div>}
               <div className="module-foot">
-                <span className="module-count">{count} tasks</span>
+                <span className="module-count">{count ? `${count} tasks` : 'no tasks defined yet'}</span>
                 <div className="yn">
-                  <button className={`btn btn-sm ${choice[m.id] === 'yes' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => set(m.id, 'yes')}>Yes</button>
+                  <button className={`btn btn-sm ${choice[m.id] === 'yes' ? 'btn-primary' : 'btn-secondary'}`} disabled={!count} title={count ? undefined : 'This module has no tasks to add yet; answer No.'} onClick={() => set(m.id, 'yes')}>Yes</button>
                   <button className={`btn btn-sm ${choice[m.id] === 'no' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => set(m.id, 'no')}>No</button>
                 </div>
               </div>
